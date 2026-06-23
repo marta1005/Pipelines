@@ -2,7 +2,7 @@ Data_Cleansing:
   Managing_Missing_Values:
     output:
       - name: "Frontal gust"
-        filling_value: 0
+        filling_value: "0"
       - name: "Xcg(%CMA)"
         filling_value: median
   Managing_Outliers:

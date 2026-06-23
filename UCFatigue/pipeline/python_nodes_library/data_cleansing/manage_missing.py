@@ -19,9 +19,9 @@ def replace_missing_values(workflow, input_table: pd.DataFrame) -> pd.DataFrame:
         fill = v['filling_value']
         if col not in df.columns:
             continue
-        if fill == 'median':
+        if str(fill) == 'median':
             df[col] = df[col].fillna(df[col].median())
         else:
-            df[col] = df[col].fillna(fill)
+            df[col] = df[col].fillna(float(fill))
 
     return df
