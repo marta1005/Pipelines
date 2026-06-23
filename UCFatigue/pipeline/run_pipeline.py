@@ -67,6 +67,9 @@ print("=" * 65)
 print("\nInitialising workflow …")
 wf = Workflow('pipeline_config.yaml')
 
+# Load requirements so validate() can read them in Stage 9
+load_stage(wf, 'SF_1_Requirements')
+
 data_folder = Path(wf.config['data.folder'])
 data_folder.mkdir(parents=True, exist_ok=True)
 (data_folder / 'artifacts').mkdir(parents=True, exist_ok=True)
