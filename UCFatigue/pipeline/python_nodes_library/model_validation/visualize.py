@@ -41,6 +41,7 @@ def plot(workflow, Test_set, model_output):
         plt.tight_layout()
         scatter_file = outdir / f'scatter_{label}.png'
         plt.savefig(scatter_file, dpi=120, bbox_inches='tight')
+        plt.show()
         plt.close(fig)
 
         # --- Ratio error: y_pred / y_true per output ---
@@ -69,6 +70,7 @@ def plot(workflow, Test_set, model_output):
         plt.tight_layout()
         ratio_file = outdir / f'ratio_{label}.png'
         plt.savefig(ratio_file, dpi=120, bbox_inches='tight')
+        plt.show()
         plt.close(fig2)
 
         print(f"[{label}] scatter → {scatter_file.name}   ratio → {ratio_file.name}")
