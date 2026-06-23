@@ -16,6 +16,4 @@ catalog:
   metrics:
     compute_metrics: surrogate_factory.catalog.model_validation.metrics.compute_metrics
     compute_confusion_matrix: surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix
-  deployment:
-    convert_sklearn_to_onnx: surrogate_factory.catalog.model_deployment.onnx_converter.convert_sklearn_to_onnx
-    merge_onnx_models: surrogate_factory.catalog.model_deployment.onnx_converter.merge_onnx_models
+  # ONNX deployment not used in this pipeline (skl2onnx not installed)

@@ -316,7 +316,7 @@ class Workflow:
         file_path = os.path.join(self.config["data.folder"], outputFilename)
         
         if Path(file_path).exists():
-            self.logger.warning(f"File '{file_path}' already exists. Data is not saved. Rename or delete original file and reexecute")
+            self.logger.info(f"File '{file_path}' already exists — skipping save (delete data/ folder to rerun from scratch)")
         
         else:
             if format == "csv":

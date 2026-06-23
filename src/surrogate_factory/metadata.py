@@ -41,6 +41,12 @@ class MetadataManager:
         "predict":['metadata', 'Model_Validation'],
         "calculate_metrics":['metadata', 'Model_Validation'],
         "validate":['metadata', 'Model_Validation'],
+        # Data acquisition extras
+        "data_visualization":['metadata', 'Data_Acquisition_Generation', 'Data_Acquisition', 'Visualization'],
+        # Model validation extras
+        "split_validation":['metadata', 'Model_Validation'],
+        "distribution_tests":['metadata', 'Model_Validation'],
+        "plot":['metadata', 'Model_Validation'],
     }
 
 
@@ -492,7 +498,7 @@ class MetadataManager:
 
         validation_passed = False
         if self.schema is None:
-            self.logger.warning("Loading data without validation as no schema was provided.")
+            self.logger.debug("Loading data without validation as no schema was provided.")
             validation_passed = True
         elif not self.current_step: # Schema provided, no current_step, so validate all
             self.logger.warning("Validating entire provided data against the root schema.")
