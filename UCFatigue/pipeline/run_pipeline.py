@@ -21,9 +21,11 @@ from pathlib import Path
 # ── paths ──────────────────────────────────────────────────────────────────────
 PIPELINE_DIR = Path(__file__).resolve().parent
 SRC_DIR = PIPELINE_DIR.parent.parent / 'src'
+REPO_ROOT = PIPELINE_DIR.parent.parent  # for validationlib
 
 sys.path.insert(0, str(SRC_DIR))
 sys.path.insert(0, str(PIPELINE_DIR / 'python_nodes_library'))
+sys.path.insert(0, str(REPO_ROOT))
 
 # Workflow expects to be initialised from a directory that contains
 # pipeline_config.yaml, but set_paths() will cd to data.folder.
@@ -172,12 +174,39 @@ model_deployment(wf)
 print("\n=== Stage 9: Model Validation ===")
 load_stage(wf, 'SF_9_Model_Validation')
 
+from model_validation.split_val import split_validation
 from model_validation.prediction import predict
-from model_validation.score import calculate_metrics
+from model_validation.score import calculate_metrics, distribution_tests
+from model_validation.validation import validate
+from model_validation.visualize import plot
 
-Test_set = wf.load_data(f"{job}_Test_set.csv")
+Train_set = wf.load_data(f"{job}_Train_set.csv")
+Test_set  = wf.load_data(f"{job}_Test_set.csv")
+
+# 9.0 — split quality
+print("\n--- 9.0 Split Validation ---")
+split_validation(wf, Train_set, Test_set)
+
+# 9.1 — predictions on test set (and train set for distribution tests)
+print("\n--- 9.1 Predictions ---")
 model_output = predict(wf, Test_set)
+train_output = predict(wf, Train_set)
+
+# 9.2 — R² / MAE metrics
+print("\n--- 9.2 Metrics ---")
 metrics = calculate_metrics(wf, Test_set, model_output)
+
+# 9.2b — KS distribution tests on residuals
+print("\n--- 9.2b Distribution Tests (KS: train vs test residuals) ---")
+distribution_tests(wf, Train_set, Test_set, train_output, model_output)
+
+# 9.3 — validation against requirements
+print("\n--- 9.3 Validation against requirements ---")
+validate(wf, metrics)
+
+# 9.4 — plots
+print("\n--- 9.4 Plots ---")
+plot(wf, Test_set, model_output)
 
 # =============================================================================
 # Save metadata and print summary
