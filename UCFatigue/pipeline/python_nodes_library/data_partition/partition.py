@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 @sf.node
 def data_split(workflow, input_table):
     """Split dataset into train, test and validation sets."""
-    params = workflow.metadata.get_step_data()
+    params = workflow.metadata.get_step_data(['metadata', 'Data_Partition', 'data_split'])
     train_perc = params["percentages"].get("train", 0.8)
     test_perc = params["percentages"].get("test", 0.1)
     validation_perc = params["percentages"].get("validation", 0.1)
