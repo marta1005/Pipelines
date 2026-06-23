@@ -1,0 +1,79 @@
+Model_Selection:
+  hypertuning:
+    - inputs:
+        - input1
+        - input2
+        - input3
+      outputs:
+        - output1
+      method: optuna
+      settings:
+        model: MLPRegressor
+        search_space: 
+            hidden_layer_sizes: 
+              choices: 
+                - [200,300]
+                - [200,400]
+                - [200,600]
+                - [400,200]
+                - [400,600]
+                - [600,400, 200]
+                - [800,600]
+                - [800,600, 400]
+            solver: 
+              choices: ['adam', 'sgd', 'lbfgs']
+            alpha: 
+              range:
+                - 0.00001
+                - 0.1
+              log: True # L2 regularization
+            activation: 
+              choices: ['relu', 'tanh', 'logistic']
+            learning_rate_init: 
+              range:
+                - 0.00001
+                - 0.001
+              log: True # Used by 'sgd' and 'adam'    
+        static_params: 
+          random_state: 42
+          max_iter: 1000
+          early_stopping: True
+    - inputs:
+        - input1
+        - input2
+        - input3
+      outputs:
+        - output2
+      method: optuna
+      settings:
+        model: MLPRegressor
+        search_space: 
+            hidden_layer_sizes: 
+              choices: 
+                - [200,300]
+                - [200,400]
+                - [200,600]
+                - [400,200]
+                - [400,600]
+                - [600,400, 200]
+                - [800,600]
+                - [800,600, 400]
+            solver: 
+              choices: ['adam', 'sgd', 'lbfgs']
+            alpha: 
+              range: 
+                - 0.00001
+                - 0.1
+              log: True # L2 regularization
+            activation: 
+              choices: ['relu', 'tanh', 'logistic']
+            learning_rate_init: 
+              range: 
+                - 0.00001
+                - 0.001
+              log: True # Used by 'sgd' and 'adam'    
+        static_params: 
+          random_state: 42
+          max_iter: 1000
+          early_stopping: True
+ 

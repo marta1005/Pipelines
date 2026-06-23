@@ -1,0 +1,24 @@
+---
+Requirements:
+  usage: TBD
+  customer: TBD
+  center: TBD
+  domain: TBD
+  use_case: TBD
+  project: TBD
+  aircraft: TBD
+  life_cycle_step: TBD
+  model_inputs: TBD
+  model_outputs: TBD
+  accuracy:
+    - output: output1
+      metric: quantile90
+      value: 0.1
+    - output: output1
+      metric: quantile95
+      value: 0.1
+  time_target: TBD
+  component: TBD
+  sub-component: TBD 
+  structural_element: TBD
+  material_type: TBD

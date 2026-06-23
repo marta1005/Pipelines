@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "surrogate-factory"
+version = "2.2"
+description = "MLOps pipeline framework for surrogate model development"
+readme = "README.md"
+license = { text = "Airbus Inner Source shared-maintenance" }
+requires-python = ">=3.9"
+
+dependencies = [
+    "fsspec>=2023.1.0",
+    "toolz>=0.12",
+    "cytoolz>=0.12",
+    "pandas>=1.5",
+    "numpy>=1.23",
+    "PyYAML>=6.0",
+    "jsonschema>=4.17",
+    "scikit-learn>=1.2",
+    "matplotlib>=3.6",
+    "seaborn>=0.12",
+    "joblib>=1.2",
+    "ipywidgets>=8.0",
+    "ipython>=8.0",
+]
+
+[project.optional-dependencies]
+mlflow = [
+    "mlflow>=2.0",
+]
+onnx = [
+    "onnx>=1.14",
+    "skl2onnx>=1.15",
+    "tf2onnx>=1.15",
+]
+tuning = [
+    "optuna>=3.0",
+]
+profiling = [
+    "ydata-profiling>=4.0",
+]
+tensorflow = [
+    "tensorflow>=2.12",
+]
+all = [
+    "surrogate-factory[mlflow,onnx,tuning,profiling,tensorflow]",
+]
+
+[project.scripts]
+surrogate-factory = "surrogate_factory.build:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"surrogate_factory" = [
+    "templates/**/*",
+    "schemas/**/*.yaml",
+    "schemas/**/*.json",
+]

@@ -1,0 +1,5 @@
+Data_Acquisition_Generation:
+  Data_Acquisition:
+    Extract:
+      method: pandas.read_csv
+      path: /home/c05279/Pipelines/Training/datasets/dataset.csv

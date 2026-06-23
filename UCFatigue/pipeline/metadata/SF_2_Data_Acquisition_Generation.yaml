@@ -1,0 +1,6 @@
+Data_Acquisition_Generation:
+  Data_Acquisition:
+    Extract:
+      method: pandas.read_excel
+      path: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/datasets/Subset_Surrogate_Factory.xlsx
+      sse_filter: 2110017

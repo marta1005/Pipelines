@@ -1,0 +1,17 @@
+'# metadata_schema': Uncomment and add path to metadata schema
+Surrogate Factory: '2.2'
+artifacts.folder: /home/c05279/Pipelines/Training/working_pipeline/data/artifacts
+data.folder: /home/c05279/Pipelines/Training/working_pipeline/data
+input_data: /home/c05279/Pipelines/Training/datasets/dataset.csv
+job_name: TRAINING_1
+metadata.folder: /home/c05279/Pipelines/Training/working_pipeline/metadata
+pipeline.folder: /home/c05279/Pipelines/Training/working_pipeline/
+python_libs.folder: /home/c05279/Pipelines/Training/working_pipeline/python_nodes_library
+tracker:
+  options:
+    tracking_uri: http://127.0.0.1:55000
+  tool: mlflow
+catalog:
+  models:
+      MLPRegressor: sklearn.neural_network.MLPRegressor
+        

@@ -1,0 +1,6 @@
+## Define Model Validation method
+Model_Validation:
+    method: score
+    params: 
+      - name: criteria1
+        value: 0

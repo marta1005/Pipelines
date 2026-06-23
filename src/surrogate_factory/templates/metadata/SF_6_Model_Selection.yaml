@@ -1,0 +1,55 @@
+---
+Model_Selection:
+  algorithms:
+    - inputs: ##list of inputs
+        - input1
+        - input2
+        - input3
+      outputs: ##list of outputs. it can be only 1
+        - output1
+      algorithm: MLPRegressor
+      settings: ## normally here dictionary
+        hidden_layer_sizes:
+          - 800
+          - 1000
+          - 600
+          - 400
+          - 100
+        solver: adam
+        max_iter: 2000
+        random_state: 42
+        activation: relu
+        verbose: 1
+    - inputs:
+        - input1
+        - input2
+        - input3
+      outputs: 
+        - output2
+      algorithm: MLPClassifier
+      settings:
+        hidden_layer_sizes:
+          - 800
+          - 1000
+          - 600
+          - 400
+          - 100
+        solver: adam
+        max_iter: 2000
+        random_state: 42
+        activation: relu
+        verbose: 1
+    - inputs:
+        - input1
+        - input2
+        - input3
+      outputs: 
+        - output3
+      algorithm: LinearSVR
+      settings:
+        - name: epsilon
+          value: 0.0
+        - name: max_iter
+          value: 1000
+
+  

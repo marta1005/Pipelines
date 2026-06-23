@@ -1,0 +1,23 @@
+Requirements:
+  accuracy:
+    - output: "1g"
+      metric: quantile90
+      value: 0.1
+    - output: "Vertical maneuver"
+      metric: quantile90
+      value: 0.1
+    - output: "Vertical gust"
+      metric: quantile90
+      value: 0.1
+    - output: "Turn"
+      metric: quantile90
+      value: 0.1
+    - output: "Frontal gust"
+      metric: quantile90
+      value: 0.1
+    - output: "n0"
+      metric: quantile90
+      value: 0.1
+    - output: "Giro"
+      metric: quantile90
+      value: 0.1

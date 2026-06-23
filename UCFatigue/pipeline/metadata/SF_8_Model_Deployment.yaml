@@ -1,0 +1,4 @@
+Model_Deployment:
+  # method: sklearn  → saves a .pkl sklearn Pipeline (preprocessor + model).
+  # method: ONNX     → additionally converts to .onnx (requires skl2onnx).
+  method: sklearn

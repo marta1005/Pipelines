@@ -1,0 +1,37 @@
+---
+Feature_Selection:
+  Add_Remove_Features:
+    inputs: 
+      - input1
+      - input2
+      - input3
+    outputs:
+      - output1
+      - output2
+      - output3
+  Preprocess:
+    params:
+      - inputs: [input1, input2, input3]
+        outputs: [output1]
+        method: MethodName
+      - inputs: [input1, input2, input3]
+        outputs: [output2]
+        method: MethodName
+      - inputs: [input1, input2, input3]
+        outputs: [output3]
+        method: MethodName
+
+  Postprocess:
+    params:
+      - inputs: [output1]
+        outputs: [output1]
+        method: pandas
+        formula: output1 = output1
+      - inputs: [output2]
+        outputs: [output2]
+        method: pandas
+        formula: output2 = output2
+      - inputs: [output3]
+        outputs: [output3]
+        method: pandas
+        formula: output3 = output3

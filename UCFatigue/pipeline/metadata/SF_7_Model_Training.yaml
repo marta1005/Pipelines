@@ -1,0 +1,4 @@
+Model_Training:
+  # Hyperparameters and max_iter are defined in SF_6_Model_Selection.yaml.
+  # This step trains the single multioutput MLPRegressor and saves it.
+  note: "Single multioutput model — all 7 fatigue loads predicted simultaneously."

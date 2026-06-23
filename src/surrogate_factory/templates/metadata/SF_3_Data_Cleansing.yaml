@@ -1,0 +1,24 @@
+---
+Data_Cleansing:
+  Managing_Missing_Values:
+    output:
+      - name: output_name_1
+        filling_value: 0
+      - name: output_name_2
+        filling_value: 0
+      - name: output_name_3
+        filling_value: 0
+  Managing_Outliers:
+    output:
+      - name: output_name_1
+        range:
+          min: 0.1
+          max: 50.0
+      - name: output_name_2
+        range:
+          min: 0.1
+          max: 50.0
+      - name: output_name_3
+        range:
+          min: 0.1
+          max: 50.0

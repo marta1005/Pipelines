@@ -1,0 +1,24 @@
+---
+Data_Cleansing:
+  Managing_Missing_Values:
+    output:
+      - name: RF_Lug1
+        filling_value: 0
+      - name: RF_Lug2
+        filling_value: 0
+      - name: RF_Pin
+        filling_value: 0
+  Managing_Outliers:
+    output:
+      - name: RF_Lug1
+        range:
+          min: 0.1
+          max: 10.0
+      - name: RF_Lug2
+        range:
+          min: 0.1
+          max: 10.0
+      - name: RF_Pin
+        range:
+          min: 0.1
+          max: 10.0

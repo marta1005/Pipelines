@@ -1,0 +1,86 @@
+Model_Selection:
+  algorithms:
+  - inputs:
+    - Pin_D
+    - R_DextDint
+    - Male_Dt
+    - Male_RoD
+    - angle_env_reduc0
+    - angle_env_reduc1
+    - Female_RoD
+    - Female_Dt
+    - pin_doD
+    - TypeLC
+    - gap
+    - mat
+    outputs:
+    - RF_Lug1
+    algorithm: MLPRegressor
+    settings:
+      hidden_layer_sizes:
+      - 800
+      - 1000
+      - 600
+      - 400
+      - 100
+      solver: adam
+      max_iter: 20
+      random_state: 42
+      activation: relu
+      verbose: 1
+  - inputs:
+    - Pin_D
+    - R_DextDint
+    - Male_Dt
+    - Male_RoD
+    - angle_env_reduc0
+    - angle_env_reduc1
+    - Female_RoD
+    - Female_Dt
+    - pin_doD
+    - TypeLC
+    - gap
+    - mat
+    outputs:
+    - RF_Lug2
+    algorithm: MLPRegressor
+    settings:
+      hidden_layer_sizes:
+      - 800
+      - 1000
+      - 600
+      - 400
+      - 100
+      solver: adam
+      max_iter: 20
+      random_state: 42
+      activation: relu
+      verbose: 1
+  - inputs:
+    - Pin_D
+    - R_DextDint
+    - Male_Dt
+    - Male_RoD
+    - angle_env_reduc0
+    - angle_env_reduc1
+    - Female_RoD
+    - Female_Dt
+    - pin_doD
+    - TypeLC
+    - gap
+    - mat
+    outputs:
+    - RF_Pin
+    algorithm: MLPRegressor
+    settings:
+      hidden_layer_sizes:
+      - 800
+      - 1000
+      - 600
+      - 400
+      - 100
+      solver: adam
+      max_iter: 20
+      random_state: 42
+      activation: relu
+      verbose: 1

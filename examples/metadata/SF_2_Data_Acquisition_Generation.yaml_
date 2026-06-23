@@ -1,0 +1,146 @@
+---
+Data_acquisition_generation:
+  Data_generation:
+    Create_Design_of_Experiments:
+      Design_Space:
+        inputs:
+          - family: geometry
+            name: Pin_D
+            description: Pin Diameter
+            bounds: 
+              min: 5.0
+              max: 80.0
+          - family: geometry
+            name: R_DextDint
+            description: Ratio  of Dext to Dint
+            bounds: 
+              min: 1.0
+              max: 2.0
+          - family: geometry
+            name: Male_Dt
+            description: Male D/T ratio
+            bounds: 
+              min: 0.8
+              max: 10.0
+          - family: geometry
+            name: Male_RoD
+            description: Male R0/D ratio
+            bounds: 
+              min: 0.8
+              max: 2.2
+          - family: geometry
+            name: angle_env_reduc[0]
+            description: Load angle 0
+            bounds: 
+              min: 0.0
+              max: 180.0
+          - family: geometry
+            name: angle_env_reduc[1]
+            description: Load angle 1
+            bounds: 
+              min: 0.0
+              max: 180.0
+          - family: geometry
+            name: Female_RoD
+            description: Female Ro/D ratio
+            bounds: 
+              min: 0.8
+              max: 2.2
+          - family: geometry
+            name: Female_Dt
+            description: Female D/t ratio
+            bounds: 
+              min: 0.8
+              max: 10.0
+          - family: geometry
+            name: pin_doD
+            description: pin_d/pin_D
+            bounds: 
+              min: 0.1
+              max: 0.9
+          - family: geometry
+            name: gap
+            description: gap
+            bounds: 
+              min: 2.0
+              max: 15.0
+        constraints: []
+      DoE:
+        margin_on_bounds: 0.2
+        tool: 'python library: Sobol'
+        algorithm: Sobol
+        size: 200000
+        #isami_vars: '"Female_Dt", "Female_RoD" , "Male_Dt" , "Male_RoD" , "Pin_D"
+        #  , "angle_env_reduc[0]" , "angle_env_reduc[1]","R_DextDint"'
+        isami_vars: 
+          - Female_Dt
+          - Female_RoD
+          - Male_Dt
+          - Male_RoD
+          - Pin_D
+          - angle_env_reduc[0]
+          - angle_env_reduc[1]
+          - R_DextDint
+    Generate_Data:
+      analysis_software:
+        version: v11.6.0
+        analysis_template: path
+      fixed_parameters:
+        Male_Lug:
+          material:
+            type: tapered
+            id: Inconel_718_Lug
+            name: Inconel718_STA_Forging
+            specification: AIMS02-06-001_20degC
+          billet: 55
+          Cmax: 0.05
+          beta: 0
+        Female_Lug:
+          material:
+            type: tapered
+            id: Inconel_718_Lug
+            name: Inconel718_STA_Forging
+            specification: AIMS02-06-001_20degC
+          billet: 55
+          Cmax: 0.05
+          beta: 0
+        Pin:
+          material:
+            type: Tubular
+            id: Inconel_718_Pin
+            name: Inconel718_Bar
+            specification: AIMS02-02-002
+          billet: 30
+        Bushing:
+          material:
+            type: Metallic
+            id: Bush_Mat
+            name: Inconel718_Bar_20degC
+            specification: AIMS02-02-002_20degC
+          billet: 55
+  Data_acquisition:
+    batch_size: 250
+    Extract:
+      inputs: 
+        - Pin_D
+        - R_DextDint
+        - Male_Dt
+        - Male_RoD
+        - angle_env_reduc[0]
+        - angle_env_reduc[1]
+        - Female_RoD
+        - Female_Dt
+        - TypeLC
+      outputs: 
+        - RF_Lug1
+        - RF_Lug2
+        - RF_Pin
+      Templatefile: Lugs.xlsx
+    Transform:
+      Buckling_Type:
+        NPB: 1
+        LBE: 2
+        LBP: 3
+        GB: 4
+    Load:
+      path: path to the final DataFrame file

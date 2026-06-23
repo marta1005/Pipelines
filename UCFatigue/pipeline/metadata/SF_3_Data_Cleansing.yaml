@@ -1,0 +1,20 @@
+Data_Cleansing:
+  Managing_Missing_Values:
+    output:
+      - name: "Frontal gust"
+        filling_value: 0
+      - name: "Xcg(%CMA)"
+        filling_value: median
+  Managing_Outliers:
+    input:
+      - name: "Type_segment"
+        options:
+          - "FLT-1"
+          - "FLT-2"
+          - "FLT-3"
+          - "FLT-4"
+          - "FLT-7"
+          - "FLT-8"
+          - "FLT-9"
+          - "FLT-10"
+          - "FLT-11"

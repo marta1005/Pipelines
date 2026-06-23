@@ -1,0 +1,38 @@
+Feature_Selection:
+  Add_Remove_Features:
+    # SSE (FEM element number) is added to the dataset but NOT used as model input
+    # in this single-element run because it is constant (= 2110017).
+    # Add it to the inputs list below when training with multiple elements.
+    inputs:
+      - FLAP
+      - Altitude
+      - TAS
+      - Mass
+      - q
+      - gamma
+      - Type_segment
+      - "Xcg(%CMA)"
+    outputs:
+      - "1g"
+      - "Vertical maneuver"
+      - "Vertical gust"
+      - Turn
+      - "Frontal gust"
+      - n0
+      - Giro
+  Preprocess:
+    inputs:
+      - FLAP
+      - Altitude
+      - TAS
+      - Mass
+      - q
+      - gamma
+      - Type_segment
+      - "Xcg(%CMA)"
+    method: normalizer_transformer
+    # normalizer_transformer auto-classifies int columns as categorical.
+    # Altitude and Mass are continuous (stored as int in Excel) — force them numeric.
+    # FLAP is truly discrete (positions 0/10/15/23) — one-hot encode it.
+    categorical_features: "[FLAP, Type_segment]"
+    numerical_features: "[Altitude, TAS, Mass, q, gamma, Xcg(%CMA)]"

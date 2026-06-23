@@ -1,0 +1,21 @@
+Surrogate Factory: '2.2'
+job_name: UCFATIGUE_1
+data.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/data
+artifacts.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/data/artifacts
+metadata.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/metadata
+python_libs.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library
+input_data: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/datasets/Subset_Surrogate_Factory.xlsx
+tracker:
+  tool: default
+catalog:
+  models:
+    MLPRegressor: sklearn.neural_network.MLPRegressor
+    MultiOutputGradientBoosting: model_training.estimators.MultiOutputGradientBoosting
+  normalization:
+    normalizer_transformer: surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer
+  metrics:
+    compute_metrics: surrogate_factory.catalog.model_validation.metrics.compute_metrics
+    compute_confusion_matrix: surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix
+  deployment:
+    convert_sklearn_to_onnx: surrogate_factory.catalog.model_deployment.onnx_converter.convert_sklearn_to_onnx
+    merge_onnx_models: surrogate_factory.catalog.model_deployment.onnx_converter.merge_onnx_models

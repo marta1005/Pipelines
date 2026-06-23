@@ -1,0 +1,4 @@
+Model_Training:
+  params:
+    - name: epochs
+      value: 1000

@@ -1,0 +1,11 @@
+Requirements:
+  accuracy:
+  - output: RF_Lug1
+    metric: quantile90
+    value: 0.1
+  - output: RF_Lug2
+    metric: quantile90
+    value: 0.1
+  - output: RF_Pin
+    metric: quantile90
+    value: 0.1

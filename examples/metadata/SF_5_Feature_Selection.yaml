@@ -1,0 +1,69 @@
+Feature_Selection:
+  Add_Remove_Features:
+    inputs:
+    - Pin_D
+    - R_DextDint
+    - Male_Dt
+    - Male_RoD
+    - angle_env_reduc0
+    - angle_env_reduc1
+    - Female_RoD
+    - Female_Dt
+    - pin_doD
+    - TypeLC
+    - gap
+    - mat
+    outputs:
+    - RF_Lug1
+    - RF_Lug2
+    - RF_Pin
+  Preprocess:
+    params:
+    - inputs:
+      - Pin_D
+      - R_DextDint
+      - Male_Dt
+      - Male_RoD
+      - angle_env_reduc0
+      - angle_env_reduc1
+      - Female_RoD
+      - Female_Dt
+      - pin_doD
+      - TypeLC
+      - gap
+      - mat
+      outputs:
+      - RF_Lug1
+      method: normalizer_transformer
+    - inputs:
+      - Pin_D
+      - R_DextDint
+      - Male_Dt
+      - Male_RoD
+      - angle_env_reduc0
+      - angle_env_reduc1
+      - Female_RoD
+      - Female_Dt
+      - pin_doD
+      - TypeLC
+      - gap
+      - mat
+      outputs:
+      - RF_Lug2
+      method: normalizer_transformer
+    - inputs:
+      - Pin_D
+      - R_DextDint
+      - Male_Dt
+      - Male_RoD
+      - angle_env_reduc0
+      - angle_env_reduc1
+      - Female_RoD
+      - Female_Dt
+      - pin_doD
+      - TypeLC
+      - gap
+      - mat
+      outputs:
+      - RF_Pin
+      method: normalizer_transformer
