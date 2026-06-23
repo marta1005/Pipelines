@@ -64,8 +64,14 @@ def train(workflow, Train_set, Val_set):
         }
         models_info.append(info)
 
-        n_iter = getattr(model, 'n_iter_', getattr(model, 'n_estimators', '?'))
-        print(f"  [{label}] trained → {Path(model_file).name}  (iters/estimators: {n_iter})")
+        if hasattr(model, 'n_iter_'):                          # MLP
+            n_iter = model.n_iter_
+        elif hasattr(model, 'estimators_'):                    # MultiOutputRegressor
+            inner = model.estimators_[0]
+            n_iter = f"{inner.n_estimators} trees × {len(model.estimators_)} outputs"
+        else:
+            n_iter = getattr(model, 'n_estimators', '?')
+        print(f"  [{label}] trained → {Path(model_file).name}  ({n_iter})")
 
     workflow.metadata.update_step_data({'Models': models_info})
     workflow.tracker.stop_tracker(workflow, 'RUNNING')
