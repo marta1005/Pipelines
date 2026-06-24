@@ -34,10 +34,6 @@ def train(workflow, Train_set, Val_set):
             columns=scaler.get_feature_names_out()
         )
 
-    ms_copy = dict(ms)
-    ms_copy['run_name'] = 'model_comparison'
-    workflow.tracker.start_tracker(workflow, ms_copy)
-
     models_info = []
 
     for alg in algorithms:
@@ -47,6 +43,10 @@ def train(workflow, Train_set, Val_set):
         # YAML loads lists; MLPRegressor needs hidden_layer_sizes as tuple
         if 'hidden_layer_sizes' in settings and isinstance(settings['hidden_layer_sizes'], list):
             settings['hidden_layer_sizes'] = tuple(settings['hidden_layer_sizes'])
+
+        # One tracker run per algorithm so metrics are kept separate in MLflow
+        tracker_info = {'run_name': label, 'model': alg['name'], **settings}
+        workflow.tracker.start_tracker(workflow, tracker_info)
 
         model_cls = workflow.catalog.get_method(alg['name'])
         model = model_cls(**settings)
@@ -73,7 +73,8 @@ def train(workflow, Train_set, Val_set):
             n_iter = getattr(model, 'n_estimators', '?')
         print(f"  [{label}] trained → {Path(model_file).name}  ({n_iter})")
 
+        workflow.tracker.stop_tracker(workflow, 'FINISHED')
+
     workflow.metadata.update_step_data({'Models': models_info})
-    workflow.tracker.stop_tracker(workflow, 'RUNNING')
 
     return models_info

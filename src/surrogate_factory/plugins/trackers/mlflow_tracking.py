@@ -60,54 +60,64 @@ def setup_mlflow(flow_variables: Dict[str, Any]):
                 os.environ["REQUESTS_CA_BUNDLE"] = str(ca_path)
     pass
 
+def _flatten_params(d, prefix=""):
+    """Flatten nested dict to MLflow-compatible {str: str} params."""
+    items = {}
+    for k, v in d.items():
+        key = f"{prefix}{k}" if not prefix else f"{prefix}.{k}"
+        if isinstance(v, dict):
+            items.update(_flatten_params(v, key))
+        elif isinstance(v, (list, tuple)):
+            items[key] = str(v)
+        else:
+            items[key] = str(v)
+    return items
+
+
 def start_tracker(workflow, algorithm):
-    """This function will use your tracker to train the model provided
-
-    Args:
-        flow_variables (_type_): _description_
-        model (_type_): _description_
-        train_set (_type_): _description_
-        val_set (_type_, optional): _description_. Defaults to None.
-    """
     experiment_name = workflow.config['job_name']
-    workflow.metadata.update_step_data({'Tracking':{'experiment_name': experiment_name}})
-    # workdir = Path(experiment_name)
+    workflow.metadata.update_step_data({'Tracking': {'experiment_name': experiment_name}})
 
-
-    ## Set MLFlow tracker
+    # Create or reuse the experiment (artifactory location silently ignored locally)
     try:
-        mlflow.create_experiment(experiment_name, artifact_location="artifactory://sf-mlflow")
+        mlflow.create_experiment(experiment_name)
     except Exception:
         pass
-
     mlflow.set_experiment(experiment_name)
 
-    run_name = algorithm['run_name']
+    run_name = algorithm.get('run_name', algorithm.get('label', 'run'))
     mlflow.start_run(run_name=run_name)
 
     run = mlflow.active_run()
     run_id = run.info.run_id
-    print("run id:",run.info.run_id)
+    print(f"MLflow run started: {run_name}  (id: {run_id})")
 
-    workflow.metadata.update_step_data({'Tracking':{'eval':{run_name: {'run_id': run_id,
-                                                                       'algorithm': algorithm}}}}) #run.info.run_id
-    # flow_variables['metadata', 'Model_Training', 'Tracking', 'eval', flow_variables['currentColumnName'], 'params'] = params
-   
+    workflow.metadata.update_step_data({
+        'Tracking': {'eval': {run_name: {'run_id': run_id}}}
+    })
 
-    mlflow.log_params(algorithm)
+    # Log flattened params (MLflow requires str values, no nested dicts)
+    flat = _flatten_params({k: v for k, v in algorithm.items() if k != 'run_name'})
+    if flat:
+        mlflow.log_params(flat)
 
-    mlflow.autolog()
+    mlflow.autolog(log_models=True, silent=True)
 
     return run_id
 
 
 def stop_tracker(workflow, status):
-    mlflow.end_run(status=status)
+    # Map surrogate_factory status strings to valid MLflow terminal states
+    status_map = {
+        'RUNNING':  'FINISHED',
+        'FINISHED': 'FINISHED',
+        'FAILED':   'FAILED',
+        'KILLED':   'KILLED',
+    }
+    mlflow.end_run(status=status_map.get(status, 'FINISHED'))
 
 
-# @sf.node
 def log(run_id, metrics):
-
     mlflow.start_run(run_id=run_id)
     mlflow.log_metrics(metrics)
     mlflow.end_run()

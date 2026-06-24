@@ -6,7 +6,9 @@ metadata.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/
 python_libs.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library
 input_data: /Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/datasets/Subset_Surrogate_Factory.xlsx
 tracker:
-  tool: default
+  tool: mlflow
+  options:
+    tracking_uri: file:///Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/mlruns
 catalog:
   models:
     MLPRegressor: sklearn.neural_network.MLPRegressor

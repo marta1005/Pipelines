@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Lanza JupyterLab con el entorno aislado del pipeline UCFatigue.
-# Uso: ./start_jupyter.sh
+# Uso:
+#   ./start_jupyter.sh          → sólo JupyterLab
+#   ./start_jupyter.sh --mlflow → JupyterLab + MLflow UI en paralelo
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV="$SCRIPT_DIR/.venv"
+MLRUNS="$SCRIPT_DIR/UCFatigue/pipeline/mlruns"
 
 if [ ! -d "$VENV" ]; then
     echo "ERROR: entorno virtual no encontrado en $VENV"
@@ -11,8 +14,19 @@ if [ ! -d "$VENV" ]; then
     exit 1
 fi
 
-echo "Activando entorno: $VENV"
 source "$VENV/bin/activate"
+
+if [[ "$1" == "--mlflow" ]]; then
+    echo "Lanzando MLflow UI en http://localhost:5000  (tracking: $MLRUNS)"
+    mlflow ui --backend-store-uri "file://$MLRUNS" --port 5000 &
+    MLFLOW_PID=$!
+    echo "MLflow PID: $MLFLOW_PID"
+fi
 
 echo "Lanzando JupyterLab en: $SCRIPT_DIR/UCFatigue/pipeline"
 jupyter lab --notebook-dir="$SCRIPT_DIR/UCFatigue/pipeline"
+
+# Cuando se cierra JupyterLab, para también el MLflow UI
+if [[ -n "$MLFLOW_PID" ]]; then
+    kill "$MLFLOW_PID" 2>/dev/null
+fi

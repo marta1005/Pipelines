@@ -1,6 +1,10 @@
 # Generated data — delete before rerunning the pipeline
 UCFatigue/pipeline/data/
 
+# MLflow experiment tracking (local runs)
+mlruns/
+UCFatigue/pipeline/mlruns/
+
 # Python cache
 __pycache__/
 *.py[cod]
