@@ -17,7 +17,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -74,7 +83,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -138,7 +156,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -202,7 +229,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -266,7 +302,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -330,7 +375,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -394,7 +448,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -458,7 +521,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
@@ -522,7 +594,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "PYTHONPATH",
+                  "value": "/Users/martaarnabatmartin/Desktop/Pipelines/src"
+                },
+                {
+                  "env_var": "MLFLOW_ALLOW_FILE_STORE",
+                  "value": "true"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],

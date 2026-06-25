@@ -14,6 +14,7 @@ Logged per run:
 """
 
 import os
+import re
 import tempfile
 import warnings
 import matplotlib
@@ -21,6 +22,11 @@ matplotlib.use('Agg')   # non-interactive: safe in papermill / headless runs
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+
+def _mk(name):
+    """Sanitize a string to a valid MLflow metric/param key."""
+    return re.sub(r'[^a-zA-Z0-9_.:\- /]', '_', str(name))
 
 
 def log_eda(workflow, Train_set, Val_set, Test_set,
@@ -84,21 +90,23 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
         # ── 2. Per-feature statistics (metrics with no step) ───────────────
         for col in num_inputs:
             vals = pd.concat([Train_set[col], Val_set[col], Test_set[col]])
+            c = _mk(col)
             mlflow.log_metrics({
-                f'stat_{col}_mean':    float(vals.mean()),
-                f'stat_{col}_std':     float(vals.std()),
-                f'stat_{col}_min':     float(vals.min()),
-                f'stat_{col}_max':     float(vals.max()),
-                f'stat_{col}_missing': int(vals.isna().sum()),
+                f'stat_{c}_mean':    float(vals.mean()),
+                f'stat_{c}_std':     float(vals.std()),
+                f'stat_{c}_min':     float(vals.min()),
+                f'stat_{c}_max':     float(vals.max()),
+                f'stat_{c}_missing': int(vals.isna().sum()),
             })
 
         for col in outputs:
             vals = pd.concat([Train_set[col], Val_set[col], Test_set[col]])
+            c = _mk(col)
             mlflow.log_metrics({
-                f'stat_{col}_mean': float(vals.mean()),
-                f'stat_{col}_std':  float(vals.std()),
-                f'stat_{col}_min':  float(vals.min()),
-                f'stat_{col}_max':  float(vals.max()),
+                f'stat_{c}_mean': float(vals.mean()),
+                f'stat_{c}_std':  float(vals.std()),
+                f'stat_{c}_min':  float(vals.min()),
+                f'stat_{c}_max':  float(vals.max()),
             })
 
         # ── 3. Split quality (VTP) ─────────────────────────────────────────
@@ -117,18 +125,16 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
         if ks_results is not None:
             for lbl, out_ks in ks_results.items():
                 for col, pval in out_ks.items():
-                    safe_col = col.replace(' ', '_').replace('(', '').replace(')', '').replace('%', 'pct')
-                    mlflow.log_metric(f'ks_{lbl}_{safe_col}', float(pval))
+                    mlflow.log_metric(f'ks_{_mk(lbl)}_{_mk(col)}', float(pval))
 
         # ── 5. Validation metrics ──────────────────────────────────────────
         if metrics is not None:
             for lbl, out_metrics in metrics.items():
                 for col, m in out_metrics.items():
-                    safe_col = col.replace(' ', '_').replace('(', '').replace(')', '').replace('%', 'pct')
                     for key in ('R2', 'quantile90', 'mean_absolute_error'):
                         val = m.get(key)
                         if val is not None:
-                            mlflow.log_metric(f'{key}_{lbl}_{safe_col}', float(val))
+                            mlflow.log_metric(f'{key}_{_mk(lbl)}_{_mk(col)}', float(val))
 
         # ── 6. INPUT distributions plot ────────────────────────────────────
         ncols = 4
