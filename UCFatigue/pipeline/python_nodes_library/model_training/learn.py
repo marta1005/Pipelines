@@ -52,6 +52,25 @@ def train(workflow, Train_set, Val_set):
         model = model_cls(**settings)
         model.fit(X_scaled, Train_Y)
 
+        # Log step-wise training curves to MLflow (no-op if default tracker)
+        try:
+            import mlflow as _mlflow
+            if _mlflow.active_run():
+                if hasattr(model, 'loss_curve_'):          # MLP
+                    for step, loss in enumerate(model.loss_curve_):
+                        _mlflow.log_metric('train_loss', loss, step=step)
+                    val_scores = getattr(model, 'validation_scores_', None)
+                    if val_scores is not None:
+                        for step, score in enumerate(val_scores):
+                            _mlflow.log_metric('val_score', score, step=step)
+                    _mlflow.log_metric('n_iter', model.n_iter_)
+                elif hasattr(model, 'estimators_'):        # MultiOutputRegressor (GB)
+                    for col, est in zip(outputs, model.estimators_):
+                        for step, score in enumerate(est.train_score_):
+                            _mlflow.log_metric(f'train_loss_{col}', score, step=step)
+        except ImportError:
+            pass
+
         model_file = str(artifacts / f"model_{job_name}_{label}.modl")
         joblib.dump(model, model_file)
 
