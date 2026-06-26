@@ -154,7 +154,7 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
         fig.suptitle('Input Feature Distribution — Train vs Test', fontsize=11)
         plt.tight_layout()
         _save_artifact(fig, tmpdir, 'input_distributions.png', 'eda')
-        mlflow.log_artifact(os.path.join(tmpdir, 'input_distributions.png'), 'eda')
+        _log_artifact(os.path.join(tmpdir, 'input_distributions.png'), 'eda')
 
         # ── 7. OUTPUT distributions plot ───────────────────────────────────
         nrows2 = -(-len(outputs) // ncols)
@@ -173,7 +173,7 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
         fig.suptitle('Output Distribution — Train vs Test', fontsize=11)
         plt.tight_layout()
         _save_artifact(fig, tmpdir, 'output_distributions.png', 'eda')
-        mlflow.log_artifact(os.path.join(tmpdir, 'output_distributions.png'), 'eda')
+        _log_artifact(os.path.join(tmpdir, 'output_distributions.png'), 'eda')
 
         # ── 8. CORRELATION matrix ──────────────────────────────────────────
         all_num = pd.concat([Train_set[num_inputs], Val_set[num_inputs],
@@ -195,7 +195,7 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
         ax.set_title('Numeric Input Feature Correlations (full dataset)')
         plt.tight_layout()
         _save_artifact(fig, tmpdir, 'correlation_matrix.png', 'eda')
-        mlflow.log_artifact(os.path.join(tmpdir, 'correlation_matrix.png'), 'eda')
+        _log_artifact(os.path.join(tmpdir, 'correlation_matrix.png'), 'eda')
 
         # ── 9. PCA coverage scatter ────────────────────────────────────────
         try:
@@ -219,7 +219,7 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
             ax.legend(fontsize=8)
             plt.tight_layout()
             _save_artifact(fig, tmpdir, 'pca_coverage.png', 'eda')
-            mlflow.log_artifact(os.path.join(tmpdir, 'pca_coverage.png'), 'eda')
+            _log_artifact(os.path.join(tmpdir, 'pca_coverage.png'), 'eda')
         except Exception as e:
             warnings.warn(f"PCA plot skipped: {e}")
 
@@ -242,7 +242,7 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
             })
         feat_csv = os.path.join(tmpdir, 'feature_summary.csv')
         pd.DataFrame(rows).to_csv(feat_csv, index=False, float_format='%.4f')
-        mlflow.log_artifact(feat_csv, 'eda')
+        _log_artifact(feat_csv, 'eda')
 
         # ── 11. Validation results CSV ─────────────────────────────────────
         if metrics is not None:
@@ -258,7 +258,7 @@ def log_eda(workflow, Train_set, Val_set, Test_set,
                 val_rows.append(base)
             val_csv = os.path.join(tmpdir, 'validation_results.csv')
             pd.DataFrame(val_rows).to_csv(val_csv, index=False)
-            mlflow.log_artifact(val_csv, 'eda')
+            _log_artifact(val_csv, 'eda')
 
         print(f"[EDA] Run logged: {mlflow.active_run().info.run_id}")
 
@@ -267,3 +267,12 @@ def _save_artifact(fig, tmpdir, filename, folder):
     path = os.path.join(tmpdir, filename)
     fig.savefig(path, dpi=110, bbox_inches='tight')
     plt.close(fig)
+
+
+def _log_artifact(path, folder):
+    """Log artifact to MLflow, silently skipping if the backend is unavailable."""
+    try:
+        import mlflow as _mlflow
+        _mlflow.log_artifact(path, folder)
+    except Exception as e:
+        warnings.warn(f"[EDA] Artifact not logged ({os.path.basename(path)}): {e}")
