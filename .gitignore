@@ -31,3 +31,6 @@ build/
 
 # macOS
 .DS_Store
+
+# UCLoads — generated data (same as UCFatigue)
+UCLoads/pipeline/data/

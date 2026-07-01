@@ -1,0 +1,13 @@
+Data_Acquisition_Generation:
+  Data_Acquisition:
+    Extract:
+      method: load_mon
+      data_folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/datasets/TrainData
+      monitor_stations:
+        - file: MS_WINGROOT_RHS.mon
+          outputs: ["Fz", "Mx", "My"]
+          suffix: "_WINGROOT"
+        - file: MS_FUS_FTJ.mon
+          outputs: ["Fy", "Fz", "Mx", "My", "Mz"]
+          suffix: "_FUS"
+      inputs: ["Mach", "Altitude_ft", "ALPHA_deg"]

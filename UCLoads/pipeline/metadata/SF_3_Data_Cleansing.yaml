@@ -1,0 +1,7 @@
+Data_Cleansing:
+  Missing_Values:
+    # All inputs and outputs are numerical — drop rows with NaN
+    strategy: dropna
+  Outliers:
+    # Use IQR-based filtering per column (3*IQR fence)
+    method: none

@@ -1,0 +1,23 @@
+Feature_Selection:
+  Add_Remove_Features:
+    inputs:
+      - "Mach"
+      - "Altitude_ft"
+      - "ALPHA_deg"
+    outputs:
+      - "Fz_WINGROOT"
+      - "Mx_WINGROOT"
+      - "My_WINGROOT"
+      - "Fy_FUS"
+      - "Fz_FUS"
+      - "Mx_FUS"
+      - "My_FUS"
+      - "Mz_FUS"
+  Preprocess:
+    inputs:
+      - "Mach"
+      - "Altitude_ft"
+      - "ALPHA_deg"
+    method: normalizer_transformer
+    # All inputs are continuous floats — auto-detection classifies them as numerical
+    # No categorical_features or numerical_features overrides needed

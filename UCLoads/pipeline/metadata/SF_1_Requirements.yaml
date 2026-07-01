@@ -1,0 +1,26 @@
+Requirements:
+  accuracy:
+    - output: "Fz_WINGROOT"
+      metric: quantile90
+      value: 0.10
+    - output: "Mx_WINGROOT"
+      metric: quantile90
+      value: 0.10
+    - output: "My_WINGROOT"
+      metric: quantile90
+      value: 0.10
+    - output: "Fy_FUS"
+      metric: quantile90
+      value: 0.10
+    - output: "Fz_FUS"
+      metric: quantile90
+      value: 0.10
+    - output: "Mx_FUS"
+      metric: quantile90
+      value: 0.10
+    - output: "My_FUS"
+      metric: quantile90
+      value: 0.10
+    - output: "Mz_FUS"
+      metric: quantile90
+      value: 0.10

@@ -1,0 +1,7 @@
+Data_Partition:
+  data_split:
+    algorithm: sklearn.model_selection.train_test_split
+    percentages:
+      train: 0.70
+      test: 0.20
+      validation: 0.10

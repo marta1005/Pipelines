@@ -1,0 +1,268 @@
+{
+  "doc_type": "pipeline",
+  "version": "3.0",
+  "json_schema": "http://api.dataplatform.ibm.com/schemas/common-pipeline/pipeline-flow/pipeline-flow-v3-schema.json",
+  "id": "ucloads-pipeline",
+  "primary_pipeline": "primary",
+  "pipelines": [
+    {
+      "id": "primary",
+      "nodes": [
+        {
+          "id": "node-sf1",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_1_Requirements.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_1_Requirements",
+            "ui_data": {
+              "label": "SF_1_Requirements",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 50,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf2",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_2_Data_Acquisition.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_2_Data_Acquisition",
+            "ui_data": {
+              "label": "SF_2_Data_Acquisition",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 250,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-1-2", "node_id_ref": "node-sf1", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf3",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_3_Data_Cleaning.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_3_Data_Cleaning",
+            "ui_data": {
+              "label": "SF_3_Data_Cleaning",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 450,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-2-3", "node_id_ref": "node-sf2", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf4",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_4_Data_Partitioning.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_4_Data_Partitioning",
+            "ui_data": {
+              "label": "SF_4_Data_Partitioning",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 650,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-3-4", "node_id_ref": "node-sf3", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf5",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_5_Feature_Selection.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_5_Feature_Selection",
+            "ui_data": {
+              "label": "SF_5_Feature_Selection",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 850,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-4-5", "node_id_ref": "node-sf4", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf6",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_6_Model_Selection.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_6_Model_Selection",
+            "ui_data": {
+              "label": "SF_6_Model_Selection",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 1050,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-5-6", "node_id_ref": "node-sf5", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf7",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_7_Model_Training.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_7_Model_Training",
+            "ui_data": {
+              "label": "SF_7_Model_Training",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 1250,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-6-7", "node_id_ref": "node-sf6", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf8",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_8_Model_Deployment.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_8_Model_Deployment",
+            "ui_data": {
+              "label": "SF_8_Model_Deployment",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 1450,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-7-8", "node_id_ref": "node-sf7", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        },
+        {
+          "id": "node-sf9",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_9_Model_Validation.ipynb",
+              "runtime_image": "",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "SF_9_Model_Validation",
+            "ui_data": {
+              "label": "SF_9_Model_Validation",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 1650,
+              "y_pos": 50
+            }
+          },
+          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-8-9", "node_id_ref": "node-sf8", "port_id_ref": "outPort"}]}],
+          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+        }
+      ],
+      "app_data": {
+        "ui_data": {"comments": []},
+        "version": 8,
+        "runtime_type": "LOCAL",
+        "properties": {
+          "name": "UCLoads",
+          "runtime": "local"
+        }
+      },
+      "runtime_ref": "local"
+    }
+  ],
+  "schemas": []
+}

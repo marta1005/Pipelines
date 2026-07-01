@@ -1,0 +1,20 @@
+Surrogate Factory: '2.2'
+job_name: UCLOADS_1
+data.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data
+artifacts.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts
+metadata.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/metadata
+python_libs.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library
+input_data: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/datasets/TrainData
+tracker:
+  tool: mlflow
+  options:
+    tracking_uri: file:///Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/mlruns
+catalog:
+  models:
+    MLPRegressor: sklearn.neural_network.MLPRegressor
+    MultiOutputGradientBoosting: model_training.estimators.MultiOutputGradientBoosting
+  normalization:
+    normalizer_transformer: surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer
+  metrics:
+    compute_metrics: surrogate_factory.catalog.model_validation.metrics.compute_metrics
+    compute_confusion_matrix: surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix
