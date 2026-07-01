@@ -13,8 +13,11 @@ from bs4 import BeautifulSoup
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Paths that must be importable inside the executed notebook
-_REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", "..", "..", ".."))
-_LIB_DIR   = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
+# SCRIPT_DIR = .../Pipelines/UCFatigue/pipeline/python_nodes_library/model_validation
+# 4 levels up  → Pipelines/  (repo root, contains validationlib/ and src/)
+# 1 level up   → python_nodes_library/  (needed for model_validation imports)
+_REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", "..", ".."))
+_LIB_DIR   = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 
 
 def _make_temp_kernelspec():
