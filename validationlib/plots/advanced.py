@@ -193,7 +193,7 @@ def boxplot(
                         data_dict[val] = np.clip(data_dict[val], mean - trimStds * stds, mean + trimStds * stds)
 
         for j, data_dict in enumerate(data_dict_list):
-            color = mlp.cm.get_cmap("tab10").colors[j]
+            color = mlp.colormaps["tab10"].colors[j]
             colorprops = {
                 "boxprops": {"color": color},
                 "medianprops": {"color": color},
@@ -333,7 +333,7 @@ def violinPlot(
 
         legend_labels = []
         for j, data_dict in enumerate(data_dict_list):
-            color = mlp.cm.get_cmap("tab10").colors[j]
+            color = mlp.colormaps["tab10"].colors[j]
 
             hue_label = hue_labels[j] if hue_labels is not None else None
 

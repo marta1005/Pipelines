@@ -181,8 +181,14 @@ def anovaTests(data: pd.DataFrame, x: List[str], y: List[str], info: bool=True):
         DataFrame with ANOVA results.
     """
 
-    # Format column names according to statmodels requirements
-    fmt_cols = {col: col.replace(".", "_").replace(" ", "_") for col in data.columns}
+    # Format column names to valid Python identifiers (required by patsy/statsmodels)
+    import re as _re
+    def _safe_name(col):
+        name = _re.sub(r'[^a-zA-Z0-9_]', '_', str(col))
+        if name and name[0].isdigit():
+            name = "_" + name
+        return name
+    fmt_cols = {col: _safe_name(col) for col in data.columns}
     inv_fmt_cols_mapping = {fmt_col : col for col, fmt_col in fmt_cols.items()}
     data.rename(columns=fmt_cols, inplace=True)
 

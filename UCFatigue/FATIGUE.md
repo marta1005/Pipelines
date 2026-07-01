@@ -1,5 +1,43 @@
 # UCFatigue — Surrogate Model for Fatigue Load Prediction
 
+## Validation Results Summary
+
+> Results on the **development subset** (~870 rows, element SSE 2110017). Full-dataset results will differ, especially for outputs with sparse coverage (Frontal gust, Giro).
+
+### Selected model: GradientBoosting
+
+GradientBoosting outperforms MLP on every output. The reports below are generated automatically by SF_9 as HTML files per model.
+
+| Output | R² | Q90 error | Pass (< 0.10) | KS residuals (train vs test) |
+|---|---|---|---|---|
+| 1g | 0.980 | 0.026 | ✅ | ⚠️ p=0.004 (differ) |
+| Vertical maneuver | 0.972 | 0.032 | ✅ | ✅ p=0.161 |
+| Vertical gust | 0.991 | 0.026 | ✅ | ⚠️ p=0.042 (differ) |
+| Turn | 0.929 | 0.035 | ✅ | ⚠️ p=0.044 (differ) |
+| Frontal gust | 0.996 | 0.280 | ❌ | ✅ p=0.974 |
+| n0 | 0.932 | 0.015 | ✅ | ⚠️ p=0.032 (differ) |
+| Giro | 0.950 | 0.222 | ❌ | ⚠️ p=0.017 (differ) |
+
+### Key findings from the extended validation report
+
+**Split quality (VTP method):** excellent — residual voxel proportion = 0.0, chi² p-value = 0.80, no p-hacking, no isolated test points. The train/test split is statistically sound.
+
+**Accuracy:** GradientBoosting achieves R² ≥ 0.929 on 5 of 7 outputs. The two failing outputs — **Frontal gust** (Q90 = 28 %) and **Giro** (Q90 = 22 %) — fail the ±10 % requirement. Both are low-amplitude loads with high relative variability; more simulation data in those regimes is needed.
+
+**Overfitting signal:** KS tests on train vs test residuals flag 5/7 GradientBoosting outputs as statistically different distributions. The absolute errors still meet requirements, but the model has memorised some training noise. Regularisation or ensemble smoothing may help on the full dataset.
+
+**Error distribution (P(E)):** For most outputs the residue is well-fit by a normal or near-normal distribution (confirmed by AD goodness-of-fit in the HTML report). Frontal gust shows a heavy right tail driven by a small number of high-error test cases.
+
+**Bias (P(E|X), P(E|Y)):** Pearson and Spearman trend tables show no significant monotonic bias against inputs. Binned boxplot and Kruskal-Wallis tests reveal mild heteroscedasticity in Turn and Giro (error variance increases at high output values).
+
+**Uncertainty (95th-percentile CI):** The `BinnedUncertaintyModel` is calibrated on the val set (87 samples) and evaluated on the test set (174 samples). With the adaptive `min_elems` parameter, coverage on the global model is reported in the HTML. Local (output-conditioned and input-conditioned) models use `n_bins = max(2, n_cal // min_elems)` to stay within the calibration set size.
+
+**MLP:** R² is negative for `n0` (−0.73) and `Giro` (−0.10) — worse than a constant-mean predictor. Q90 for `Frontal gust` is 11.33 (1 133 % relative error), making it unsuitable for production use on the current subset.
+
+**Recommendation:** Use GradientBoosting on the full dataset, investigate Frontal gust and Giro coverage in the simulation plan, and re-evaluate on the full dataset before freezing the model for TRL-4 delivery.
+
+---
+
 ## Overview
 
 UCFatigue is a machine-learning surrogate that replaces expensive finite-element (FEM) simulations for predicting fatigue loads on aircraft structural elements. Given a set of flight parameters, the model predicts 7 fatigue-load outputs in milliseconds instead of the hours required by a full structural simulation.
@@ -80,7 +118,8 @@ SF_7  Model Training        Train both models, save .modl artifacts
 SF_8  Model Deployment      Save sklearn Pipeline (.modl) with preprocessor + model
   ↓
 SF_9  Model Validation      Split quality, predictions, metrics, distribution tests,
-                            requirement check, scatter/ratio plots
+                            requirement check, scatter/ratio plots,
+                            full HTML report (validationlib template), MLflow EDA run
 ```
 
 ### Running the pipeline
@@ -191,6 +230,10 @@ Stage 9 applies four layers of validation:
 | 9.2c | doubleHistogram + doublecumulative (validationlib) | Residual distribution visualisation per model |
 | 9.3 | Requirement check | Pass/fail table against Q90 < 0.10 target |
 | 9.4 | Scatter + ratio plots | y_pred vs y_true, y_pred/y_true per output |
+| 9.5 | Full HTML validation report (validationlib template) | Per-model extended analysis: DATA EDA, train-test split, error quantification P(E) / P(E\|X) / P(E\|Y), bias detection, uncertainty models |
+| 9.6 | MLflow EDA run | Logs metrics, distribution plots, PCA coverage, feature summary and validation results to MLflow |
+
+The HTML reports are generated automatically via `validation_script.py` + `validation_template.ipynb` and saved to `data/artifacts/validation_reports/{model}_validation_output.html`.
 
 ---
 
@@ -229,18 +272,25 @@ UCFatigue/
             ├── prediction.py           ← predict()
             ├── score.py                ← calculate_metrics(), distribution_tests()
             ├── validation.py           ← validate() — requirement check
-            └── visualize.py           ← plot() — scatter + ratio plots
+            ├── visualize.py            ← plot() — quick scatter + ratio plots (in-notebook)
+            ├── export_validation_csvs.py  ← exports x/yt/yh CSVs per model for the template
+            ├── validation_script.py    ← runs validation_template.ipynb → HTML report
+            └── validation_template.ipynb  ← parameterised validationlib report template
 
 validationlib/                          ← Airbus Inner Source validation library
 ├── misc/
 │   ├── split_validation.py             ← voxel_tesselation_proximity_method()
-│   └── metrics.py                      ← ratio, residual, abs_residual metrics
+│   └── metrics.py                      ← DistanceMetrics (Residue, AbsErr)
 ├── plots/
-│   ├── scatter.py                      ← scatterplot(), binnedScatterplot()
+│   ├── scatter.py                      ← scatterplot(), hist2D()
 │   ├── hist.py                         ← histogram(), doubleHistogram()
-│   └── cumu.py                         ← doublecumulative()
+│   ├── cumu.py                         ← cumulative(), doublecumulative()
+│   ├── advanced.py                     ← boxplot(), violinPlot()
+│   └── ...
 └── tests/
-    └── dist.py                         ← dist_similarity() — KS, AD, MW tests
+    ├── dist.py                         ← dist_similarity_table() — KS, AD, MW
+    ├── bias.py                         ← trend_table(), bias_detection_table(), parametric_bias_quantification_pipeline()
+    └── interval.py                     ← BinnedUncertaintyModel, ModelCoverage, CombinedUncertaintyModel
 
 start_jupyter.sh                        ← launch JupyterLab with .venv
 .venv/                                  ← isolated Python environment (gitignored)

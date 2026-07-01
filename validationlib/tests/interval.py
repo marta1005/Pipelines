@@ -439,7 +439,7 @@ class BinnedUncertaintyModel:
                     axes.scatter(x_test, y_test, s=1, label="Test", alpha=alpha)
             elif plot_type == "histogram" and testset_mask is not None:
                 if logscale:
-                    norm = mcolors.LogNorm()
+                    norm = mcolors.LogNorm(vmin=1)
                 else:
                     norm = None
 
@@ -464,19 +464,28 @@ class BinnedUncertaintyModel:
             if self.ci_type != "right_tailed" and focus_on_ci:
                 y_lim_min = np.nanmin(y_ci[y_ci != -np.inf])
             else:
-                y_lim_min = np.nanmin([np.nanmin(y_test), np.nanmin(y_cal)])
+                finite_vals = np.concatenate([
+                    np.asarray(y_test)[np.isfinite(y_test)],
+                    np.asarray(y_cal)[np.isfinite(y_cal)]
+                ])
+                y_lim_min = np.min(finite_vals) if len(finite_vals) else 0.0
 
             if self.ci_type != "left_tailed" and focus_on_ci:
                 y_lim_max = np.nanmax(y_ci[y_ci != np.inf])
             else:
-                y_lim_max = np.nanmax([np.nanmax(y_test), np.nanmax(y_cal)])
+                finite_vals = np.concatenate([
+                    np.asarray(y_test)[np.isfinite(y_test)],
+                    np.asarray(y_cal)[np.isfinite(y_cal)]
+                ])
+                y_lim_max = np.max(finite_vals) if len(finite_vals) else 1.0
 
             y_lim_range = y_lim_max - y_lim_min
 
             y_lim_min_plot = y_lim_min - y_lim_range * margin
             y_lim_max_plot = y_lim_max + y_lim_range * margin
             axes.margins(x=margin / 2)
-            axes.set_ylim([y_lim_min_plot, y_lim_max_plot])
+            if np.isfinite(y_lim_min_plot) and np.isfinite(y_lim_max_plot):
+                axes.set_ylim([y_lim_min_plot, y_lim_max_plot])
 
             if self.model_type == "categorical":
                 categorical_plot(axes, xbins_plot, y_ci, y_mean)
