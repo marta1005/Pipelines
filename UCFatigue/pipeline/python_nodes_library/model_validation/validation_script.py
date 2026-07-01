@@ -1,7 +1,8 @@
 import os
+import sys
+import json
 import argparse
-
-from tqdm import tqdm
+import tempfile
 
 import nbformat
 from nbconvert.exporters import HTMLExporter
@@ -10,6 +11,44 @@ from nbconvert.preprocessors import ExecutePreprocessor, CellExecutionError
 from bs4 import BeautifulSoup
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Paths that must be importable inside the executed notebook
+_REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", "..", "..", ".."))
+_LIB_DIR   = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
+
+
+def _make_temp_kernelspec():
+    """
+    Create a throw-away kernelspec pointing to the current Python executable.
+    Returns (tmpdir, kernel_name) — caller is responsible for cleanup.
+    This avoids any dependency on a named kernel being installed in the system.
+    """
+    kernel_name = "sf_validation_kernel"
+    tmpdir = tempfile.mkdtemp()
+    # jupyter_client looks in {JUPYTER_PATH}/kernels/{name}/kernel.json
+    spec_dir = os.path.join(tmpdir, "kernels", kernel_name)
+    os.makedirs(spec_dir)
+
+    pythonpath = ":".join([
+        os.path.join(_REPO_ROOT, "src"),  # surrogate_factory
+        _REPO_ROOT,                        # validationlib
+        _LIB_DIR,                          # python_nodes_library
+    ])
+
+    spec = {
+        "argv": [sys.executable, "-m", "ipykernel_launcher", "-f", "{connection_file}"],
+        "display_name": "SF Validation",
+        "language": "python",
+        "env": {
+            "PYTHONPATH": pythonpath,
+            "MLFLOW_ALLOW_FILE_STORE": "true",
+        },
+    }
+    with open(os.path.join(spec_dir, "kernel.json"), "w") as f:
+        json.dump(spec, f)
+
+    return tmpdir, kernel_name
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a Validation Notebook and export it to HTML")
@@ -38,14 +77,26 @@ if __name__ == "__main__":
     notebook["cells"][0]["source"] = notebook["cells"][0]["source"] + "\n\n" + config_str
 
     if not args.omit_execution:
-        # Execute notebook — use the ucfatigue kernel so surrogate_factory / validationlib are available
-        ep = ExecutePreprocessor(timeout=600, kernel_name="ucfatigue")
-        resources = {'metadata': {'path': SCRIPT_DIR}}
+        tmpdir, kernel_name = _make_temp_kernelspec()
         try:
+            ep = ExecutePreprocessor(
+                timeout=600,
+                kernel_name=kernel_name,
+                # Tell jupyter_client where to find our temporary kernelspec
+                kernel_manager_class="jupyter_client.manager.KernelManager",
+            )
+            # Prepend the temp dir so our kernelspec is found first
+            os.environ["JUPYTER_PATH"] = tmpdir + os.pathsep + os.environ.get("JUPYTER_PATH", "")
+            resources = {"metadata": {"path": SCRIPT_DIR}}
             ep.preprocess(notebook, resources)
         except CellExecutionError as e:
             print(f"Error executing the notebook: {e}")
-            exit(1)
+            import shutil
+            shutil.rmtree(tmpdir, ignore_errors=True)
+            sys.exit(1)
+        finally:
+            import shutil
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
     if args.output_dir is None:
         output_dir = os.path.join(args.csv_dir, "validation_output")
