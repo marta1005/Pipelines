@@ -86,11 +86,18 @@ def train(workflow, Train_set, Val_set):
 
         if hasattr(model, 'n_iter_'):                          # MLP
             n_iter = model.n_iter_
-        elif hasattr(model, 'estimators_'):                    # MultiOutputRegressor
+        elif hasattr(model, 'n_estimators_'):                  # RandomForest
+            n_iter = f"{model.n_estimators_} trees"
+        elif hasattr(model, 'n_estimators'):                   # RF (before fit alias)
+            n_iter = f"{model.n_estimators} trees"
+        elif hasattr(model, 'estimators_'):                    # MultiOutputRegressor (GB/XGB)
             inner = model.estimators_[0]
-            n_iter = f"{inner.n_estimators} trees × {len(model.estimators_)} outputs"
+            if hasattr(inner, 'n_estimators'):
+                n_iter = f"{inner.n_estimators} trees × {len(model.estimators_)} outputs"
+            else:
+                n_iter = f"{len(model.estimators_)} outputs"
         else:
-            n_iter = getattr(model, 'n_estimators', '?')
+            n_iter = '?'
         print(f"  [{label}] trained → {Path(model_file).name}  ({n_iter})")
 
         workflow.tracker.stop_tracker(workflow, 'FINISHED')

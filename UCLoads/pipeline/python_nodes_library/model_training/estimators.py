@@ -9,6 +9,12 @@ def MultiOutputGradientBoosting(**kwargs):
     return MultiOutputRegressor(GradientBoostingRegressor(**kwargs))
 
 
+def RandomForest(**kwargs):
+    """RandomForestRegressor — natively multi-output, no wrapper needed."""
+    from sklearn.ensemble import RandomForestRegressor
+    return RandomForestRegressor(**kwargs)
+
+
 def MultiOutputXGBoost(**kwargs):
     """XGBRegressor wrapped for multioutput regression.
 

@@ -13,6 +13,7 @@ catalog:
   models:
     MLPRegressor: sklearn.neural_network.MLPRegressor
     MultiOutputGradientBoosting: model_training.estimators.MultiOutputGradientBoosting
+    RandomForest: model_training.estimators.RandomForest
     MultiOutputXGBoost: model_training.estimators.MultiOutputXGBoost
     PyTorchNN: model_training.estimators.PyTorchNN
   normalization:

@@ -4,18 +4,18 @@
 
 > Results on **500 synthetic rows** (plausible aerodynamic physics, `random_state=42`). Real data results will differ significantly once `.mon` files from CFD are available.
 
-### 4-model comparison (MLP · GradientBoosting · XGBoost · PyTorchNN)
+### 5-model comparison (MLP · GradientBoosting · RandomForest · XGBoost · PyTorchNN)
 
-| Output | MLP R² | GB R² | XGB R² | PyTorchNN R² | GB Q90 | PyTorchNN Q90 | Note |
-|---|---|---|---|---|---|---|---|
-| Fz_WINGROOT | 0.922 | 0.990 | 0.971 | **0.994** | **0.094 ✅** | 0.142 | Vertical force at wing root |
-| Mx_WINGROOT | 0.739 | 0.977 | 0.955 | **0.991** | 0.264 | 0.497 | Roll moment |
-| My_WINGROOT | 0.917 | 0.989 | 0.970 | **0.992** | **0.098 ✅** | 0.133 | Pitch moment at wing root |
-| Fy_FUS | 0.036 | −0.037 | −0.095 | 0.008 | 3.004 | 2.109 | Side force — near-zero + noise (all models fail) |
-| Fz_FUS | 0.929 | 0.992 | 0.972 | **0.993** | **0.089 ✅** | 0.163 | Vertical force at fuselage |
-| Mx_FUS | 0.059 | 0.964 | 0.922 | **0.987** | 0.723 | 0.554 | Roll moment at fuselage |
-| My_FUS | 0.928 | 0.991 | 0.976 | **0.993** | **0.088 ✅** | 0.161 | Pitch moment at fuselage |
-| Mz_FUS | 0.838 | 0.973 | 0.960 | **0.989** | 0.183 | 0.342 | Yaw moment |
+| Output | MLP R² | GB R² | RF R² | XGB R² | PyTorchNN R² | GB Q90 | PyTorchNN Q90 | Note |
+|---|---|---|---|---|---|---|---|---|
+| Fz_WINGROOT | 0.922 | 0.990 | 0.975 | 0.971 | **0.994** | **0.094 ✅** | 0.142 | Vertical force at wing root |
+| Mx_WINGROOT | 0.739 | 0.977 | 0.841 | 0.955 | **0.991** | 0.264 | 0.497 | Roll moment |
+| My_WINGROOT | 0.917 | 0.989 | 0.974 | 0.970 | **0.992** | **0.098 ✅** | 0.133 | Pitch moment at wing root |
+| Fy_FUS | 0.036 | −0.037 | −0.033 | −0.095 | 0.008 | 3.004 | 2.109 | Side force — near-zero + noise (all fail) |
+| Fz_FUS | 0.929 | 0.992 | 0.977 | 0.972 | **0.993** | **0.089 ✅** | 0.163 | Vertical force at fuselage |
+| Mx_FUS | 0.059 | 0.964 | 0.376 | 0.922 | **0.987** | 0.723 | 0.554 | Roll moment at fuselage |
+| My_FUS | 0.928 | 0.991 | 0.980 | 0.976 | **0.993** | **0.088 ✅** | 0.161 | Pitch moment at fuselage |
+| Mz_FUS | 0.838 | 0.973 | 0.895 | 0.960 | **0.989** | 0.183 | 0.342 | Yaw moment |
 
 ### KS test (overfitting indicator — should not reject H₀)
 
@@ -35,6 +35,11 @@
 - Perfect KS test: 8/8 outputs pass → no overfitting
 - Early stopped at epoch 43 (val loss 0.115 in normalised space)
 - **Critical**: outputs must be Y-standardised before training; without it PyTorchNN fails completely (MSE dominated by large-amplitude loads)
+
+**RandomForest** (200 trees, `RandomForestRegressor` nativo — multi-output nativo):
+- R² 0.97–0.98 en las salidas simples (Fz, My), pero falla en Mx_FUS (R²=0.38) y Mx_WINGROOT (R²=0.84)
+- Sin paso Q90 — peor que GradientBoosting y XGBoost en las cargas de momento de rodadura
+- KS: esperado fallo similar a GB (sobreajuste con árboles y 360 muestras)
 
 **GradientBoosting** (100 trees per output × 8 MultiOutputRegressor):
 - Best Q90: 4/8 outputs pass the ≤ 10 % target (Fz_WINGROOT, My_WINGROOT, Fz_FUS, My_FUS)
@@ -126,9 +131,9 @@ SF_4  Data Partitioning     70 / 10 / 20 % train / val / test split
   ↓
 SF_5  Feature Selection     StandardScale 3 numerical inputs → 3 scaled features
   ↓
-SF_6  Model Selection       Define MLP, GradientBoosting, XGBoost, PyTorchNN architectures
+SF_6  Model Selection       Define MLP, GradientBoosting, RandomForest, XGBoost, PyTorchNN
   ↓
-SF_7  Model Training        Train all 4 models; log loss curves to MLflow
+SF_7  Model Training        Train all 5 models; log loss curves to MLflow
   ↓
 SF_8  Model Deployment      Save sklearn Pipeline (.pkl) with scaler + model
   ↓
@@ -218,6 +223,18 @@ One independent `GradientBoostingRegressor` per output (8 models), wrapped in `M
 | learning_rate | 0.1 |
 | subsample | 0.8 |
 | min_samples_leaf | 5 |
+
+### Random Forest
+
+`RandomForestRegressor` — natively supports multi-output regression (no `MultiOutputRegressor` wrapper needed).
+
+| Hyperparameter | Value |
+|---|---|
+| n_estimators | 200 |
+| max_depth | None (fully grown) |
+| min_samples_leaf | 4 |
+| max_features | 1.0 (all 3 inputs) |
+| n_jobs | 1 |
 
 ### XGBoost
 
