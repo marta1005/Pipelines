@@ -8,11 +8,13 @@ input_data: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/datasets/TrainDa
 tracker:
   tool: mlflow
   options:
-    tracking_uri: file:///Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/mlruns
+    tracking_uri: sqlite:///Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/mlruns.db
 catalog:
   models:
     MLPRegressor: sklearn.neural_network.MLPRegressor
     MultiOutputGradientBoosting: model_training.estimators.MultiOutputGradientBoosting
+    MultiOutputXGBoost: model_training.estimators.MultiOutputXGBoost
+    PyTorchNN: model_training.estimators.PyTorchNN
   normalization:
     normalizer_transformer: surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer
   metrics:

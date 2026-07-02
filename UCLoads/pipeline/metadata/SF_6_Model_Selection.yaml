@@ -16,7 +16,6 @@ Model_Selection:
     - name: MLPRegressor
       label: MLP
       settings:
-        # 3 inputs → 64 → 32 → 8 outputs  (α=0.01 L2 reg)
         hidden_layer_sizes: [64, 32]
         activation: relu
         solver: adam
@@ -30,7 +29,7 @@ Model_Selection:
         n_iter_no_change: 20
         tol: 0.00001
         random_state: 42
-        verbose: true
+        verbose: false
 
     - name: MultiOutputGradientBoosting
       label: GradientBoosting
@@ -42,3 +41,32 @@ Model_Selection:
         min_samples_leaf: 5
         random_state: 42
         verbose: 0
+
+    - name: MultiOutputXGBoost
+      label: XGBoost
+      settings:
+        n_estimators: 300
+        max_depth: 5
+        learning_rate: 0.05
+        subsample: 0.8
+        colsample_bytree: 0.8
+        min_child_weight: 5
+        reg_alpha: 0.1
+        reg_lambda: 1.0
+        random_state: 42
+        verbosity: 0
+        nthread: 1
+
+    - name: PyTorchNN
+      label: PyTorchNN
+      settings:
+        n_hidden: 128
+        n_layers: 4
+        lr: 0.001
+        epochs: 500
+        batch_size: 64
+        patience: 30
+        weight_decay: 0.0001
+        loss: mse
+        random_state: 42
+        verbose: true

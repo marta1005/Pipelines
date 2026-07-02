@@ -4,37 +4,58 @@
 
 > Results on **500 synthetic rows** (plausible aerodynamic physics, `random_state=42`). Real data results will differ significantly once `.mon` files from CFD are available.
 
-### Selected model: GradientBoosting
+### 4-model comparison (MLP · GradientBoosting · XGBoost · PyTorchNN)
 
-GradientBoosting dominates on all learnable outputs. The reports below are generated automatically by SF_9 as HTML files per model.
+| Output | MLP R² | GB R² | XGB R² | PyTorchNN R² | GB Q90 | PyTorchNN Q90 | Note |
+|---|---|---|---|---|---|---|---|
+| Fz_WINGROOT | 0.922 | 0.990 | 0.971 | **0.994** | **0.094 ✅** | 0.142 | Vertical force at wing root |
+| Mx_WINGROOT | 0.739 | 0.977 | 0.955 | **0.991** | 0.264 | 0.497 | Roll moment |
+| My_WINGROOT | 0.917 | 0.989 | 0.970 | **0.992** | **0.098 ✅** | 0.133 | Pitch moment at wing root |
+| Fy_FUS | 0.036 | −0.037 | −0.095 | 0.008 | 3.004 | 2.109 | Side force — near-zero + noise (all models fail) |
+| Fz_FUS | 0.929 | 0.992 | 0.972 | **0.993** | **0.089 ✅** | 0.163 | Vertical force at fuselage |
+| Mx_FUS | 0.059 | 0.964 | 0.922 | **0.987** | 0.723 | 0.554 | Roll moment at fuselage |
+| My_FUS | 0.928 | 0.991 | 0.976 | **0.993** | **0.088 ✅** | 0.161 | Pitch moment at fuselage |
+| Mz_FUS | 0.838 | 0.973 | 0.960 | **0.989** | 0.183 | 0.342 | Yaw moment |
 
-| Output | R² GB | Q90 GB | Pass (< 0.10) | R² MLP | Note |
-|---|---|---|---|---|---|
-| Fz_WINGROOT | 0.990 | 0.094 | ✅ | 0.922 | Lift force at wing root |
-| Mx_WINGROOT | 0.977 | 0.264 | ❌ | 0.739 | Roll moment — harder to learn |
-| My_WINGROOT | 0.989 | 0.098 | ✅ | 0.917 | Pitch moment at wing root |
-| Fy_FUS | −0.037 | 3.004 | ❌ | 0.036 | Side force — near-zero with high noise |
-| Fz_FUS | 0.992 | 0.089 | ✅ | 0.929 | Vertical force at fuselage |
-| Mx_FUS | 0.964 | 0.723 | ❌ | 0.059 | Roll moment — MLP fails, GB partially |
-| My_FUS | 0.991 | 0.088 | ✅ | 0.928 | Pitch moment at fuselage |
-| Mz_FUS | 0.973 | 0.183 | ❌ | 0.838 | Yaw moment — lower signal-to-noise |
+### KS test (overfitting indicator — should not reject H₀)
+
+| Model | Passes / 8 outputs | Interpretation |
+|---|---|---|
+| **PyTorchNN** | **8 / 8** | No overfitting — train and test residuals same distribution |
+| MLP | 7 / 8 | Slight generalization gap on Fz_FUS |
+| GradientBoosting | 0 / 8 | Overfits (expected with 100 trees / 360 samples) |
+| XGBoost | 0 / 8 | Overfits (expected with 300 trees / 360 samples) |
 
 ### Key findings
 
-**Split quality:** excellent — residual voxel proportion = 0.0, no phacking, no isolated train points. The random 70/10/20 split on 3 continuous inputs produces a statistically sound partition.
+**Split quality:** excellent — residual voxel proportion = 0.0, no phacking, no isolated train points.
 
-**Accuracy (GradientBoosting):** 4/8 outputs pass Q90 < 10 %. The four failing outputs all relate to issues in the synthetic data design:
-- **Fy_FUS** (side force): designed with near-zero mean and large relative noise → Q90 > 300 % regardless of model
-- **Mx_WINGROOT**, **Mx_FUS**: rolling moments require more data to capture the full input interaction
-- **Mz_FUS**: yaw moment has lower amplitude variation → higher relative error
+**PyTorchNN** (residual deep network, 4 blocks, 128 hidden units):
+- Best R² on 7/8 outputs (wins over GradientBoosting on every learnable output)
+- Perfect KS test: 8/8 outputs pass → no overfitting
+- Early stopped at epoch 43 (val loss 0.115 in normalised space)
+- **Critical**: outputs must be Y-standardised before training; without it PyTorchNN fails completely (MSE dominated by large-amplitude loads)
 
-**On real CFD data:** these outputs are expected to have physically consistent, deterministic signal. The Q90 failures here are artefacts of the synthetic noise model, not model architecture.
+**GradientBoosting** (100 trees per output × 8 MultiOutputRegressor):
+- Best Q90: 4/8 outputs pass the ≤ 10 % target (Fz_WINGROOT, My_WINGROOT, Fz_FUS, My_FUS)
+- Strong R² 0.96–0.99 on all learnable outputs
+- Overfits on synthetic data (KS p < 0.05 on all 8) — regularise with `max_depth=3` on real data
 
-**MLP:** struggles on Fy_FUS (R²≈0) and Mx_FUS (R²≈0.06). GradientBoosting is strongly preferred.
+**XGBoost** (300 trees per output, `nthread=1` required on macOS):
+- R² 0.92–0.97 on learnable outputs, close second to GradientBoosting
+- No Q90 passes (closest: My_FUS at 0.134, My_WINGROOT at 0.147)
+- Overfits similarly to GradientBoosting
 
-**KS overfitting signal:** all 8 outputs fail the KS test for GradientBoosting (train vs test residuals differ). This is expected with 360 training samples and 100 GB trees — regularisation would help on real data.
+**MLP** (64→32 ReLU):
+- R² 0.92–0.93 on simple outputs; fails on Mx_FUS (R²=0.06)
+- Q90 ~0.99 on test set despite reasonable R² (predicted values off-scale on tail samples)
 
-**Recommendation:** Use GradientBoosting. When real CFD data is available, prioritise augmenting the Fy_FUS and moment load cases. Add a `max_depth=3` constraint to reduce overfitting.
+**Fy_FUS**: near-zero mean with high relative noise in synthetic design → all models fail this output. Not a model limitation — artefact of synthetic generation.
+
+**Recommendation for real CFD data:**
+- **PyTorchNN** is the primary candidate: best generalisation and highest accuracy
+- **GradientBoosting** as reference: faster to train, interpretable, already meets Q90 on 4/8 on synthetic data
+- Fy_FUS needs more training samples with varied sideslip angles
 
 ---
 
@@ -105,9 +126,9 @@ SF_4  Data Partitioning     70 / 10 / 20 % train / val / test split
   ↓
 SF_5  Feature Selection     StandardScale 3 numerical inputs → 3 scaled features
   ↓
-SF_6  Model Selection       Define MLP and GradientBoosting architectures
+SF_6  Model Selection       Define MLP, GradientBoosting, XGBoost, PyTorchNN architectures
   ↓
-SF_7  Model Training        Train both models; log loss curves to MLflow
+SF_7  Model Training        Train all 4 models; log loss curves to MLflow
   ↓
 SF_8  Model Deployment      Save sklearn Pipeline (.pkl) with scaler + model
   ↓
@@ -197,6 +218,36 @@ One independent `GradientBoostingRegressor` per output (8 models), wrapped in `M
 | learning_rate | 0.1 |
 | subsample | 0.8 |
 | min_samples_leaf | 5 |
+
+### XGBoost
+
+One independent `XGBRegressor` per output (8 models), wrapped in `MultiOutputRegressor`.
+
+| Hyperparameter | Value |
+|---|---|
+| n_estimators | 300 |
+| max_depth | 5 |
+| learning_rate | 0.05 |
+| subsample | 0.8 |
+| colsample_bytree | 0.8 |
+| min_child_weight | 5 |
+| reg_alpha / reg_lambda | 0.1 / 1.0 |
+| nthread | 1 (required on macOS to avoid segfault) |
+
+### PyTorchNN (Residual Deep Network)
+
+Sklearn-compatible wrapper around a deep residual PyTorch network. **Requires Y-standardisation** — outputs are normalised before training and de-normalised at prediction time.
+
+| Hyperparameter | Value |
+|---|---|
+| Architecture | Input → 128 → 4× ResBlock(128) → 8 |
+| Block structure | Linear → LayerNorm → GELU → Linear → LayerNorm + skip + GELU |
+| Optimiser | Adam (lr=0.001, weight_decay=1e-4) |
+| Scheduler | ReduceLROnPlateau (factor=0.5, patience=10) |
+| Batch size | 64 |
+| Max epochs | 500 |
+| Early stopping | Patience 30 (internal 15 % val split) |
+| Y-normalisation | StandardScaler per output (fit inside `fit()`, applied in `predict()`) |
 
 ---
 

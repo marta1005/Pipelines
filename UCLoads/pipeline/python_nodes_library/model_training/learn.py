@@ -64,10 +64,11 @@ def train(workflow, Train_set, Val_set):
                         for step, score in enumerate(val_scores):
                             _mlflow.log_metric('val_score', score, step=step)
                     _mlflow.log_metric('n_iter', model.n_iter_)
-                elif hasattr(model, 'estimators_'):        # MultiOutputRegressor (GB)
+                elif hasattr(model, 'estimators_'):        # MultiOutputRegressor (GB / XGB)
                     for col, est in zip(outputs, model.estimators_):
-                        for step, score in enumerate(est.train_score_):
-                            _mlflow.log_metric(f'train_loss_{col}', score, step=step)
+                        if hasattr(est, 'train_score_'):
+                            for step, score in enumerate(est.train_score_):
+                                _mlflow.log_metric(f'train_loss_{col}', score, step=step)
         except ImportError:
             pass
 

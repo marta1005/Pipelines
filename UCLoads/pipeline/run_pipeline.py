@@ -18,6 +18,9 @@ import yaml
 import subprocess
 from pathlib import Path
 
+# Disable OpenMP multi-threading to prevent XGBoost segfault on macOS
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+
 PIPELINE_DIR = Path(__file__).resolve().parent
 REPO_ROOT    = PIPELINE_DIR.parent.parent  # Desktop/Pipelines
 
