@@ -20,11 +20,18 @@ def calculate_metrics(workflow, Test_set, model_output):
 
     for col in outputs:
         y_test = Test_set[[col]]
+        # Normalise Q90 by mean(|true|) so the metric is stable when loads cross zero.
+        # Standard relative error |err|/|true| explodes near zero crossings.
+        scale = float(np.abs(y_test.values).mean()) or 1.0
         row = f"{col:<28}"
         for label in labels:
             y_pred = model_output[[f"{label}__{col}"]]
             metrics = compute_metrics(y_pred, y_test)
             metrics_clean = {k: float(v) if v is not None else None for k, v in metrics.items()}
+            # Replace quantile90/95/99 with scale-normalised versions
+            abs_err = np.abs(y_pred.values.ravel() - y_test.values.ravel())
+            for q, pct in [('quantile90', 0.90), ('quantile95', 0.95), ('quantile99', 0.99)]:
+                metrics_clean[q] = float(np.quantile(abs_err, pct) / scale)
             all_metrics[label][col] = metrics_clean
             r2 = metrics_clean.get('R2')
             row += f"{r2:{col_w}.4f}" if r2 is not None else f"{'?':>{col_w}}"
