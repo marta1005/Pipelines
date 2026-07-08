@@ -32,8 +32,34 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf2",
@@ -59,8 +85,41 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-1-2", "node_id_ref": "node-sf1", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-1-2",
+                  "node_id_ref": "node-sf1",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf3",
@@ -86,8 +145,41 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-2-3", "node_id_ref": "node-sf2", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-2-3",
+                  "node_id_ref": "node-sf2",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf4",
@@ -113,8 +205,41 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-3-4", "node_id_ref": "node-sf3", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-3-4",
+                  "node_id_ref": "node-sf3",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf5",
@@ -140,8 +265,41 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-4-5", "node_id_ref": "node-sf4", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-4-5",
+                  "node_id_ref": "node-sf4",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf6",
@@ -167,8 +325,41 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-5-6", "node_id_ref": "node-sf5", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-5-6",
+                  "node_id_ref": "node-sf5",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf7",
@@ -194,8 +385,41 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-6-7", "node_id_ref": "node-sf6", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-6-7",
+                  "node_id_ref": "node-sf6",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf8",
@@ -221,8 +445,41 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-7-8", "node_id_ref": "node-sf7", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-7-8",
+                  "node_id_ref": "node-sf7",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         },
         {
           "id": "node-sf9",
@@ -248,17 +505,60 @@
               "y_pos": 50
             }
           },
-          "inputs": [{"id": "inPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Input Port"}}, "links": [{"id": "link-8-9", "node_id_ref": "node-sf8", "port_id_ref": "outPort"}]}],
-          "outputs": [{"id": "outPort", "app_data": {"ui_data": {"cardinality": {"min": 0, "max": -1}, "label": "Output Port"}}}]
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-8-9",
+                  "node_id_ref": "node-sf8",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         }
       ],
       "app_data": {
-        "ui_data": {"comments": []},
+        "ui_data": {
+          "comments": []
+        },
         "version": 8,
-        "runtime_type": "LOCAL",
         "properties": {
           "name": "UCLoads",
-          "runtime": "local"
+          "runtime": "Generic",
+          "pipeline_defaults": {
+            "kubernetes_pod_labels": [],
+            "kubernetes_tolerations": [],
+            "kubernetes_shared_mem_size": {},
+            "mounted_volumes": [],
+            "kubernetes_pod_annotations": [],
+            "env_vars": [],
+            "kubernetes_secrets": []
+          }
         }
       },
       "runtime_ref": "local"
