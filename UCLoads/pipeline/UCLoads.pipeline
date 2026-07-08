@@ -15,7 +15,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_1_Requirements.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -68,7 +68,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_2_Data_Acquisition.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -128,7 +128,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_3_Data_Cleaning.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -188,7 +188,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_4_Data_Partitioning.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -248,7 +248,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_5_Feature_Selection.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -308,7 +308,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_6_Model_Selection.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -368,7 +368,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_7_Model_Training.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -428,7 +428,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_8_Model_Deployment.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
@@ -488,7 +488,7 @@
           "app_data": {
             "component_parameters": {
               "filename": "SF_9_Model_Validation.ipynb",
-              "runtime_image": "",
+              "runtime_image": "continuumio/anaconda3:2021.11",
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
