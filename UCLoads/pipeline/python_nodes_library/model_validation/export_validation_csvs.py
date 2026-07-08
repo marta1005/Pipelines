@@ -38,35 +38,41 @@ def export_validation_csvs(workflow,
     artifacts = Path(workflow.config['artifacts.folder'])
     num_inputs = Train_set[inputs].select_dtypes(include='number').columns.tolist()
 
+    # Cap exported rows so HTML reports stay manageable on large datasets
+    MAX_REPORT = 10_000
+
+    def _cap(df):
+        return df.sample(min(MAX_REPORT, len(df)), random_state=42).reset_index(drop=True)
+
     dirs = {}
     for info in models_info:
         label = info['label']
         csv_dir = artifacts / f'validation_{label}'
         csv_dir.mkdir(parents=True, exist_ok=True)
 
+        tr = _cap(Train_set)
+        va = _cap(Val_set)
+        te = _cap(Test_set)
+
         # ── Inputs (numeric only — validationlib plots require numeric) ──────
-        Train_set[num_inputs].reset_index(drop=True).to_csv(
-            csv_dir / 'x_train.csv', index=False)
-        Val_set[num_inputs].reset_index(drop=True).to_csv(
-            csv_dir / 'x_val.csv',   index=False)
-        Test_set[num_inputs].reset_index(drop=True).to_csv(
-            csv_dir / 'x_test.csv',  index=False)
+        tr[num_inputs].to_csv(csv_dir / 'x_train.csv', index=False)
+        va[num_inputs].to_csv(csv_dir / 'x_val.csv',   index=False)
+        te[num_inputs].to_csv(csv_dir / 'x_test.csv',  index=False)
 
         # ── True outputs ──────────────────────────────────────────────────────
-        Train_set[outputs].reset_index(drop=True).to_csv(
-            csv_dir / 'yt_train.csv', index=False)
-        Val_set[outputs].reset_index(drop=True).to_csv(
-            csv_dir / 'yt_val.csv',   index=False)
-        Test_set[outputs].reset_index(drop=True).to_csv(
-            csv_dir / 'yt_test.csv',  index=False)
+        tr[outputs].to_csv(csv_dir / 'yt_train.csv', index=False)
+        va[outputs].to_csv(csv_dir / 'yt_val.csv',   index=False)
+        te[outputs].to_csv(csv_dir / 'yt_test.csv',  index=False)
 
-        # ── Predictions (rename '{label}__{col}' → '{col}') ──────────────────
+        # ── Predictions aligned with capped indices ───────────────────────────
+        va_idx = va.index
+        te_idx = te.index
         pd.DataFrame(
-            {col: val_output[f'{label}__{col}'].values   for col in outputs}
+            {col: val_output[f'{label}__{col}'].iloc[va_idx].values   for col in outputs}
         ).to_csv(csv_dir / 'yh_val.csv',  index=False)
 
         pd.DataFrame(
-            {col: model_output[f'{label}__{col}'].values for col in outputs}
+            {col: model_output[f'{label}__{col}'].iloc[te_idx].values for col in outputs}
         ).to_csv(csv_dir / 'yh_test.csv', index=False)
 
         dirs[label] = csv_dir

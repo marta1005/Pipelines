@@ -9,10 +9,18 @@ def split_validation(workflow, Train_set, Test_set):
 
     inputs = workflow.metadata.get_step_data(['metadata', 'Model_Selection', 'inputs'])
 
-    # All inputs are numerical — no categorical columns
+    # VTP is O(n²) — cap at 2000 samples to avoid memory explosion on large datasets
+    MAX_VTP = 2000
+    train_in = Train_set[inputs]
+    test_in  = Test_set[inputs]
+    if len(train_in) > MAX_VTP:
+        train_in = train_in.sample(MAX_VTP, random_state=42)
+    if len(test_in) > MAX_VTP:
+        test_in  = test_in.sample(MAX_VTP, random_state=42)
+
     result = voxel_tesselation_proximity_method(
-        Train_set[inputs].values,
-        Test_set[inputs].values,
+        train_in.values,
+        test_in.values,
         categorical_variables=[],
         verbose=False,
     )

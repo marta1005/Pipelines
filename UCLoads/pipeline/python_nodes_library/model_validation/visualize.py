@@ -11,6 +11,11 @@ def plot(workflow, Test_set, model_output):
     models_info = workflow.metadata.get_step_data(['metadata', 'Model_Training', 'Models'])
     outputs = workflow.metadata.get_step_data(['metadata', 'Model_Selection', 'outputs'])
 
+    # Cap plot samples to avoid huge PNGs on large datasets
+    MAX_PLOT = 5000
+    import numpy as np
+    plot_idx = (np.random.default_rng(42).choice(len(Test_set), min(MAX_PLOT, len(Test_set)), replace=False))
+
     for info in models_info:
         label = info['label']
         ncols = 4
@@ -22,8 +27,8 @@ def plot(workflow, Test_set, model_output):
         fig.suptitle(f'Predicted vs True — {label}', fontsize=13)
 
         for i, col in enumerate(outputs):
-            y_true = Test_set[col].values
-            y_pred = model_output[f'{label}__{col}'].values
+            y_true = Test_set[col].values[plot_idx]
+            y_pred = model_output[f'{label}__{col}'].values[plot_idx]
 
             ax = axes[i]
             lo = min(y_true.min(), y_pred.min())
@@ -50,8 +55,8 @@ def plot(workflow, Test_set, model_output):
         fig2.suptitle(f'Ratio y_pred / y_true — {label}', fontsize=13)
 
         for i, col in enumerate(outputs):
-            y_true = Test_set[col].values
-            y_pred = model_output[f'{label}__{col}'].values
+            y_true = Test_set[col].values[plot_idx]
+            y_pred = model_output[f'{label}__{col}'].values[plot_idx]
             # avoid division by zero
             mask = y_true != 0
             ratio = y_pred[mask] / y_true[mask]
