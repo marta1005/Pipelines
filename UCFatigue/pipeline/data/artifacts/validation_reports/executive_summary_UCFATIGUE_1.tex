@@ -30,7 +30,7 @@
   {\Huge\textbf{\textcolor{primary}{Executive Summary}}}\\[6pt]
   {\large Surrogate Model Validation Report}\\[4pt]
   {\large \texttt{UCFATIGUE\_1}}\\[10pt]
-  {\normalsize July 17, 2026}
+  {\normalsize July 27, 2026}
 \end{center}
 
 \noindent\rule{\textwidth}{1.5pt}
@@ -54,12 +54,27 @@
   \textbf{Models}      & MLP, GradientBoosting \\
   \textbf{Outputs}     & 7 (1g, Vertical maneuver, Vertical gust, Turn, Frontal gust, n0, Giro) \\
   \textbf{Inputs}      & FLAP, Altitude, TAS, Mass, q, gamma, Type\_segment, Xcg(\%CMA) \\
-  \textbf{Train / Val / Test} & — / — / — rows \\
+  \textbf{Train / Val / Test split} & 80\% / 10\% / 10\% \\
   \textbf{Requirement} & Q90 relative error $< 10\%$ per output \\
 \end{tabular}
 
-% ── 2. Model Comparison ───────────────────────────────────────────────────────
-\section*{2.\enspace Model Comparison (Test Set)}
+\section*{2.\enspace Predicted vs.\ True --- Visual Overview}
+
+\begin{figure}[h!]
+  \centering
+  \hfill \begin{minipage}[t]{0.45\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../scatter_MLP.png}\\[2pt]
+  \small\textbf{MLP}
+\end{minipage}\hfill \begin{minipage}[t]{0.45\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{../scatter_GradientBoosting.png}\\[2pt]
+  \small\textbf{GradientBoosting}
+\end{minipage}\hfill
+\end{figure}
+
+% ── 3. Model Comparison ───────────────────────────────────────────────────────
+\section*{3.\enspace Model Comparison (Test Set)}
 
 \renewcommand{\arraystretch}{1.25}
 \begin{tabular}{lrrr}
@@ -76,8 +91,8 @@
 \noindent\textit{Q90 target: $<10\%$ relative error at 90th percentile.
 KS test: $p \geq 0.05$ means train and test residuals follow the same distribution (no overfitting).}
 
-% ── 3. Metrics per Output ─────────────────────────────────────────────────────
-\section*{3.\enspace Metrics per Output (Q90 target $< 10\%$)}
+% ── 4. Metrics per Output ─────────────────────────────────────────────────────
+\section*{4.\enspace Metrics per Output (Q90 target $< 10\%$)}
 
 \renewcommand{\arraystretch}{1.25}
 \begin{tabular}{lrrrr}
@@ -102,8 +117,8 @@ KS test: $p \geq 0.05$ means train and test residuals follow the same distributi
 \textcolor{orange}{\textbf{$0.80 \leq$ R\textsuperscript{2} $< 0.95$}}\enspace
 \textcolor{red}{\textbf{R\textsuperscript{2} $< 0.80$}}
 
-% ── 4. Overfitting Check ──────────────────────────────────────────────────────
-\section*{4.\enspace Overfitting Check (KS Test p-values)}
+% ── 5. Overfitting Check ──────────────────────────────────────────────────────
+\section*{5.\enspace Overfitting Check (KS Test p-values)}
 
 \noindent$H_0$: train and test residuals follow the same distribution.
 Rejection ($p < 0.05$) indicates overfitting.
@@ -123,8 +138,8 @@ Rejection ($p < 0.05$) indicates overfitting.
   \bottomrule
 \end{tabular}
 
-% ── 5. Split Quality ──────────────────────────────────────────────────────────
-\section*{5.\enspace Train/Test Split Quality}
+% ── 6. Split Quality ──────────────────────────────────────────────────────────
+\section*{6.\enspace Train/Test Split Quality}
 
 \begin{tabular}{ll}
   \textbf{Residual voxel proportion}  & 0.000\enspace $\times$ \\
@@ -135,8 +150,8 @@ Rejection ($p < 0.05$) indicates overfitting.
     & 0.7969\enspace $\checkmark$ ($\geq 0.05$) \\
 \end{tabular}
 
-% ── 6. Recommendation ─────────────────────────────────────────────────────────
-\section*{6.\enspace Recommendation}
+% ── 7. Recommendation ─────────────────────────────────────────────────────────
+\section*{7.\enspace Recommendation}
 
 \begin{itemize}
   \item \textbf{Recommended model:} \textbf{GradientBoosting}

@@ -51,7 +51,7 @@ def extract(meta_path: Path) -> dict:
     val  = root['Model_Validation']
     sel  = root['Model_Selection']
     trn  = root.get('Model_Training', {})
-    part = root.get('Data_Partition', {}).get('Data_Partition', {})
+    part = root.get('Data_Partition', {}).get('data_split', {}).get('percentages', {})
     req  = root.get('Requirements', {})
 
     models  = [m['label'] for m in trn.get('Models', [])]
@@ -89,15 +89,15 @@ def extract(meta_path: Path) -> dict:
         scores=scores, dist=dist, vres=vres, split=split,
         q90_target=q90_target, best_model=best_model,
         avg_r2=avg_r2, q90_pass=q90_pass, ks_pass=ks_pass,
-        n_train=part.get('train', '—'), n_test=part.get('test', '—'),
-        n_val=part.get('val', '—'),
+        pct_train=part.get('train'), pct_test=part.get('test'),
+        pct_val=part.get('validation') or part.get('val'),
         use_case=meta_path.stem.replace('metadata_', ''),
     )
 
 
 # ── LaTeX document ─────────────────────────────────────────────────────────────
 
-def build_latex(d: dict) -> str:
+def build_latex(d: dict, scatter_paths: dict) -> str:
     models     = d['models']
     outputs    = d['outputs']
     scores     = d['scores']
@@ -201,6 +201,37 @@ def build_latex(d: dict) -> str:
     q90_pct_lt = rf'{q90_target * 100:.0f}\%'   # e.g. "10\%"
     q90_pct_ge = rf'{q90_target * 100:.0f}\%'
 
+    # ── Data partition percentages ─────────────────────────────────────────────
+    def _pct(v):
+        return f'{v * 100:.0f}\\%' if v is not None else '—'
+    pct_train = _pct(d.get('pct_train'))
+    pct_val   = _pct(d.get('pct_val'))
+    pct_test  = _pct(d.get('pct_test'))
+
+    # ── Scatter plot figures (one subfigure per model) ─────────────────────────
+    scatter_figs = ''
+    n_scatter = len([p for p in scatter_paths.values() if p])
+    if n_scatter:
+        width = f'{0.90 / max(n_scatter, 1):.2f}'
+        parts = []
+        for m in models:
+            path = scatter_paths.get(m, '')
+            if path:
+                parts.append(
+                    r'\begin{minipage}[t]{' + width + r'\textwidth}' + '\n'
+                    r'  \centering' + '\n'
+                    r'  \includegraphics[width=\textwidth]{' + path + r'}\\[2pt]' + '\n'
+                    r'  \small\textbf{' + _esc(m) + r'}' + '\n'
+                    r'\end{minipage}'
+                )
+        scatter_figs = (
+            r'\section*{2.\enspace Predicted vs.\ True --- Visual Overview}' + '\n\n'
+            r'\begin{figure}[h!]' + '\n'
+            r'  \centering' + '\n'
+            r'  \hfill ' + r'\hfill '.join(parts) + r'\hfill' + '\n'
+            r'\end{figure}' + '\n'
+        )
+
     return rf"""
 \documentclass[11pt,a4paper]{{article}}
 \usepackage[margin=2.5cm]{{geometry}}
@@ -257,12 +288,13 @@ def build_latex(d: dict) -> str:
   \textbf{{Models}}      & {', '.join(_esc(m) for m in models)} \\
   \textbf{{Outputs}}     & {n_out} ({', '.join(_esc(o) for o in outputs)}) \\
   \textbf{{Inputs}}      & {inputs_str} \\
-  \textbf{{Train / Val / Test}} & {d['n_train']} / {d['n_val']} / {d['n_test']} rows \\
+  \textbf{{Train / Val / Test split}} & {pct_train} / {pct_val} / {pct_test} \\
   \textbf{{Requirement}} & Q90 relative error $< {q90_pct_lt}$ per output \\
 \end{{tabular}}
 
-% ── 2. Model Comparison ───────────────────────────────────────────────────────
-\section*{{2.\enspace Model Comparison (Test Set)}}
+{scatter_figs}
+% ── 3. Model Comparison ───────────────────────────────────────────────────────
+\section*{{3.\enspace Model Comparison (Test Set)}}
 
 \renewcommand{{\arraystretch}}{{1.25}}
 \begin{{tabular}}{{lrrr}}
@@ -278,8 +310,8 @@ def build_latex(d: dict) -> str:
 \noindent\textit{{Q90 target: $<{q90_pct_lt}$ relative error at 90th percentile.
 KS test: $p \geq 0.05$ means train and test residuals follow the same distribution (no overfitting).}}
 
-% ── 3. Metrics per Output ─────────────────────────────────────────────────────
-\section*{{3.\enspace Metrics per Output (Q90 target $< {q90_pct_lt}$)}}
+% ── 4. Metrics per Output ─────────────────────────────────────────────────────
+\section*{{4.\enspace Metrics per Output (Q90 target $< {q90_pct_lt}$)}}
 
 \renewcommand{{\arraystretch}}{{1.25}}
 \begin{{tabular}}{{{col_spec}}}
@@ -298,8 +330,8 @@ KS test: $p \geq 0.05$ means train and test residuals follow the same distributi
 \textcolor{{orange}}{{\textbf{{$0.80 \leq$ R\textsuperscript{{2}} $< 0.95$}}}}\enspace
 \textcolor{{red}}{{\textbf{{R\textsuperscript{{2}} $< 0.80$}}}}
 
-% ── 4. Overfitting Check ──────────────────────────────────────────────────────
-\section*{{4.\enspace Overfitting Check (KS Test p-values)}}
+% ── 5. Overfitting Check ──────────────────────────────────────────────────────
+\section*{{5.\enspace Overfitting Check (KS Test p-values)}}
 
 \noindent$H_0$: train and test residuals follow the same distribution.
 Rejection ($p < 0.05$) indicates overfitting.
@@ -313,8 +345,8 @@ Rejection ($p < 0.05$) indicates overfitting.
   \bottomrule
 \end{{tabular}}
 
-% ── 5. Split Quality ──────────────────────────────────────────────────────────
-\section*{{5.\enspace Train/Test Split Quality}}
+% ── 6. Split Quality ──────────────────────────────────────────────────────────
+\section*{{6.\enspace Train/Test Split Quality}}
 
 \begin{{tabular}}{{ll}}
   \textbf{{Residual voxel proportion}}  & {split_rvp_val}\enspace {split_rvp_icon} \\
@@ -325,8 +357,8 @@ Rejection ($p < 0.05$) indicates overfitting.
     & {split_chi_val}\enspace {split_chi_icon} \\
 \end{{tabular}}
 
-% ── 6. Recommendation ─────────────────────────────────────────────────────────
-\section*{{6.\enspace Recommendation}}
+% ── 7. Recommendation ─────────────────────────────────────────────────────────
+\section*{{7.\enspace Recommendation}}
 
 \begin{{itemize}}
   \item \textbf{{Recommended model:}} \textbf{{{_esc(best)}}}
@@ -353,8 +385,20 @@ def main():
     out_dir   = Path(args.output) if args.output else meta_path.parent
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    d   = extract(meta_path)
-    tex = build_latex(d)
+    d = extract(meta_path)
+
+    # Scatter PNGs live next to the metadata file (artifacts/) — compute paths
+    # relative to the .tex output directory so \includegraphics can find them.
+    artifacts_dir = meta_path.parent.resolve()
+    out_dir_abs   = out_dir.resolve()
+    scatter_paths = {}
+    for m in d['models']:
+        png = artifacts_dir / f'scatter_{m}.png'
+        if png.exists():
+            # Compute relative path from tex file location to the PNG
+            import os
+            scatter_paths[m] = os.path.relpath(str(png.resolve()), str(out_dir_abs))
+    tex = build_latex(d, scatter_paths)
 
     tex_file = out_dir / f'executive_summary_{d["use_case"]}.tex'
     pdf_file = out_dir / f'executive_summary_{d["use_case"]}.pdf'
