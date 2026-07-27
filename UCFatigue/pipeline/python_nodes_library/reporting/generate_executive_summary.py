@@ -210,26 +210,20 @@ def build_latex(d: dict, scatter_paths: dict) -> str:
 
     # ── Scatter plot figures (one subfigure per model) ─────────────────────────
     scatter_figs = ''
-    n_scatter = len([p for p in scatter_paths.values() if p])
-    if n_scatter:
-        width = f'{0.90 / max(n_scatter, 1):.2f}'
+    if any(scatter_paths.values()):
         parts = []
         for m in models:
             path = scatter_paths.get(m, '')
             if path:
                 parts.append(
-                    r'\begin{minipage}[t]{' + width + r'\textwidth}' + '\n'
-                    r'  \centering' + '\n'
-                    r'  \includegraphics[width=\textwidth]{' + path + r'}\\[2pt]' + '\n'
+                    r'\begin{center}' + '\n'
+                    r'  \includegraphics[width=0.80\textwidth]{' + path + r'}\\[4pt]' + '\n'
                     r'  \small\textbf{' + _esc(m) + r'}' + '\n'
-                    r'\end{minipage}'
+                    r'\end{center}'
                 )
         scatter_figs = (
             r'\section*{2.\enspace Predicted vs.\ True --- Visual Overview}' + '\n\n'
-            r'\begin{figure}[h!]' + '\n'
-            r'  \centering' + '\n'
-            r'  \hfill ' + r'\hfill '.join(parts) + r'\hfill' + '\n'
-            r'\end{figure}' + '\n'
+            + '\n\n'.join(parts) + '\n'
         )
 
     return rf"""
