@@ -265,11 +265,13 @@ def build_latex(d: dict, scatter_paths: dict) -> str:
 
 % ── Banner ────────────────────────────────────────────────────────────────────
 \begin{{center}}
-  \colorbox{{{banner_color}}}{{\parbox{{0.85\textwidth}}{{\centering\large\textbf{{{banner_text}}}\\
-  Best model: \textbf{{{_esc(best)}}} \quad
-  Avg R\textsuperscript{{2}}: \textbf{{{best_avg_r2:.4f}}} \quad
-  Q90 pass: \textbf{{{best_q90_pass}/{n_out}}} \quad
-  KS pass: \textbf{{{best_ks_pass}/{n_out}}}}}}}
+  \colorbox{{{banner_color}}}{{\parbox{{0.70\textwidth}}{{\centering
+    \large\textbf{{{banner_text}}}\\[6pt]
+    \normalsize
+    Best model: \textbf{{{_esc(best)}}}\\[2pt]
+    Avg R\textsuperscript{{2}}: \textbf{{{best_avg_r2:.4f}}}\\[2pt]
+    Q90 pass: \textbf{{{best_q90_pass}/{n_out}}} outputs\\[2pt]
+    KS pass: \textbf{{{best_ks_pass}/{n_out}}} outputs}}}}
 \end{{center}}
 
 \vspace{{4pt}}
