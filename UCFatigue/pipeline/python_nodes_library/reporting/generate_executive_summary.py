@@ -1,14 +1,16 @@
 """
-Generate a professional two-part PDF validation report from a Surrogate Factory
+Generate a professional multi-part PDF validation report from a Surrogate Factory
 metadata JSON.
 
-Structure
----------
-  Part 1 (≤ 2 pages)  Executive Summary — winner model, verdict banner with
-                       colour-coded metric rows, analysis, scatter plot, KS check.
-  Separator page       Decorative divider.
-  Part 2               Technical Appendix — full prose report mirroring the
-                       validation template, with TOC on its own page.
+Document structure
+------------------
+  Part 1  Executive Summary  (≤ 2 pages) — winner model only.
+  Part 2  Model Comparison   — all models, side-by-side tables.
+  ─── separator page ───
+  Part 3  Technical Review   — full report mirroring the HTML validation output:
+          TOC (own page) → Introduction → Accuracy → Scatter plots →
+          Ratio-error plots → KS overfitting → Split quality →
+          Improvement roadmap.
 
 Usage
 -----
@@ -37,11 +39,9 @@ def _esc(s: str) -> str:
 
 
 def _pct(v, decimals=0):
-    """Return a LaTeX-safe percentage string, e.g. 0.10 → '10\\%'."""
     if v is None:
         return r'\textemdash'
-    fmt = f'{v * 100:.{decimals}f}'
-    return rf'{fmt}\%'
+    return rf'{v * 100:.{decimals}f}\%'
 
 
 def _r2cell(r2):
@@ -129,7 +129,7 @@ def extract(meta_path: Path) -> dict:
     )
 
 
-# ── Per-output stats ───────────────────────────────────────────────────────────
+# ── Per-output row list ────────────────────────────────────────────────────────
 
 def _per_output(d, model):
     vres_map = {vr['output']: vr for vr in d['vres']}
@@ -147,7 +147,6 @@ def _per_output(d, model):
 # ── Recommendation bullets ─────────────────────────────────────────────────────
 
 def _recommendations(d, model, rows, detailed=False):
-    """Return list of LaTeX bullet strings. detailed=True adds more context."""
     target   = d['q90_target']
     failed   = [r for r in rows if not r['passed']]
     low_r2   = [r for r in rows if r['r2'] is not None and r['r2'] < 0.80]
@@ -166,52 +165,40 @@ def _recommendations(d, model, rows, detailed=False):
         severe = [r for r in failed if r['gap'] is not None and r['gap'] >= 0.05]
         if slight:
             names = ', '.join(_esc(r['output']) for r in slight)
-            extra = (
-                r' Collect additional flight-condition data near the boundaries '
-                r'where these outputs show the largest residuals.'
-                if detailed else ''
-            )
+            extra = (r' Collect additional data near under-represented '
+                     r'flight conditions for these outputs.' if detailed else '')
             bullets.append(
-                rf'\textbf{{Marginal failures}} (\textit{{{names}}}): Q90 is within '
-                rf'5\% of target. Targeted data augmentation is likely sufficient.{extra}'
+                rf'\textbf{{Marginal failures}} (\textit{{{names}}}): '
+                rf'Q90 within 5\% of target. Targeted data augmentation likely sufficient.{extra}'
             )
         if severe:
             names = ', '.join(_esc(r['output']) for r in severe)
-            extra = (
-                r' Consider whether additional physical drivers of these outputs '
-                r'are missing from the input feature set, or evaluate a more '
-                r'expressive architecture (e.g.\ deeper network, ensemble).'
-                if detailed else ''
-            )
+            extra = (r' Review whether additional physical drivers are missing '
+                     r'from the input feature set, or consider a more expressive '
+                     r'architecture (deeper network, ensemble).' if detailed else '')
             bullets.append(
                 rf'\textbf{{Significant failures}} (\textit{{{names}}}): '
-                rf'Q90 exceeds target by $\geq 5\%$. Investigate input features '
-                rf'and model capacity.{extra}'
+                rf'Q90 exceeds target by $\geq 5\%$. '
+                rf'Investigate input features and model capacity.{extra}'
             )
 
     if low_r2:
         names = ', '.join(_esc(r['output']) for r in low_r2)
-        extra = (
-            r' A low R\textsuperscript{2} often indicates missing physical '
-            r'drivers or highly nonlinear behaviour that requires richer features '
-            r'or a more flexible model.'
-            if detailed else ''
-        )
+        extra = (r' A low R\textsuperscript{2} often indicates missing physical '
+                 r'drivers or highly nonlinear behaviour requiring richer features.'
+                 if detailed else '')
         bullets.append(
             rf'\textbf{{Low R\textsuperscript{{2}}}} (\textit{{{names}}}): '
-            rf'Coefficient of determination below 0.80 --- high unexplained variance.{extra}'
+            rf'Below 0.80 --- high unexplained variance.{extra}'
         )
 
     if ks_fails:
         names = ', '.join(_esc(o) for o in ks_fails)
-        extra = (
-            r' Increase regularisation strength (dropout rate, weight decay, '
-            r'early-stopping patience) or reduce model capacity.'
-            if detailed else ''
-        )
+        extra = (r' Increase regularisation (dropout, weight decay, '
+                 r'early-stopping patience) or reduce model capacity.' if detailed else '')
         bullets.append(
-            rf'\textbf{{Overfitting detected}} (\textit{{{names}}}): KS test '
-            rf'rejects equal residual distributions on train and test.{extra}'
+            rf'\textbf{{Overfitting detected}} (\textit{{{names}}}): '
+            rf'KS test rejects equal residual distributions on train and test.{extra}'
         )
     else:
         bullets.append(
@@ -245,17 +232,17 @@ _PREAMBLE = r"""\documentclass[9pt,a4paper]{article}
 \definecolor{primary}{RGB}{0,70,127}
 \definecolor{sepgray}{RGB}{130,130,130}
 
-% ── Section style (Part 2 only) ───────────────────────────────────────────────
+% ── Section style ─────────────────────────────────────────────────────────────
 \titleformat{\section}{\normalsize\bfseries\color{primary}}{}{0em}{}
             [\vspace{-4pt}\textcolor{primary}{\rule{\linewidth}{0.5pt}}]
 \titlespacing{\section}{0pt}{10pt}{4pt}
 
-% ── Lightweight heading safe inside minipage / Part 1 ─────────────────────────
+% ── Lightweight heading (safe inside minipage) ────────────────────────────────
 \newcommand{\exhead}[1]{%
   \medskip\noindent{\small\bfseries\color{primary}#1}%
   \par\vspace{-5pt}\noindent\textcolor{primary}{\rule{\linewidth}{0.4pt}}\vspace{2pt}}
 
-% ── Page header / footer ──────────────────────────────────────────────────────
+% ── Page style ────────────────────────────────────────────────────────────────
 \pagestyle{fancy}\fancyhf{}
 \lhead{\small\textcolor{primary}{\textbf{Surrogate Factory}}}
 \chead{\small\textcolor{sepgray}{CONFIDENTIAL}}
@@ -267,10 +254,10 @@ _PREAMBLE = r"""\documentclass[9pt,a4paper]{article}
 """
 
 
-# ── Part 1: Executive Summary ──────────────────────────────────────────────────
+# ── Banner (Part 1) ────────────────────────────────────────────────────────────
 
-def _banner(d, best):
-    """Colour-coded verdict banner with one row per metric."""
+def _banner(d, best, rows):
+    """Verdict banner: 3 colour-coded rows (R², Q90, KS) with output names."""
     n_out     = len(d['outputs'])
     best_r2   = d['avg_r2'].get(best, 0)
     best_q90p = d['q90_pass'].get(best, 0)
@@ -280,74 +267,103 @@ def _banner(d, best):
     box_color   = 'passgreen' if overall_ok else 'warnamber'
     verdict_txt = 'ALL REQUIREMENTS MET' if overall_ok else 'REQUIREMENTS PARTIALLY MET'
 
-    # R² metric row
+    # R² row
     if best_r2 >= 0.95:
         r2_color, r2_label = 'r2green',  'Excellent'
     elif best_r2 >= 0.80:
         r2_color, r2_label = 'r2amber',  'Acceptable'
     else:
         r2_color, r2_label = 'failred',  'Poor --- needs attention'
+    r2_str = f'{best_r2:.4f}'
 
-    # Q90 metric row
+    # Q90 row — list which outputs pass/fail
+    q90_passed_names = [_esc(r['output']) for r in rows if r['passed']]
+    q90_failed_names = [_esc(r['output']) for r in rows if not r['passed']]
     if best_q90p == n_out:
-        q90_color, q90_label = 'passgreen', 'All outputs meet requirements'
+        q90_color  = 'passgreen'
+        q90_label  = 'All outputs pass'
+        q90_detail = ', '.join(q90_passed_names)
+        q90_fail   = ''
     elif best_q90p > 0:
-        q90_color, q90_label = 'warnamber', f'{best_q90p}/{n_out} outputs pass --- partially met'
+        q90_color  = 'warnamber'
+        q90_label  = 'Partially met'
+        q90_detail = 'Pass: ' + ', '.join(q90_passed_names)
+        q90_fail   = 'Fail: ' + ', '.join(q90_failed_names)
     else:
-        q90_color, q90_label = 'failred',   'No output meets requirements'
+        q90_color  = 'failred'
+        q90_label  = 'No output meets requirement'
+        q90_detail = ''
+        q90_fail   = 'Fail: ' + ', '.join(q90_failed_names)
 
-    # KS metric row
+    # KS row — list which outputs pass/fail
+    ks_passed_names = [_esc(o) for o in d['outputs']
+                       if (d['dist'].get(best, {}).get(o) or 1.0) >= 0.05]
+    ks_failed_names = [_esc(o) for o in d['outputs']
+                       if (d['dist'].get(best, {}).get(o) or 1.0) < 0.05]
     if best_ksp == n_out:
-        ks_color, ks_label = 'passgreen', 'No overfitting detected'
+        ks_color  = 'passgreen'
+        ks_label  = 'No overfitting detected'
+        ks_detail = ', '.join(ks_passed_names)
+        ks_fail   = ''
     elif best_ksp > n_out // 2:
-        ks_color, ks_label = 'warnamber', f'{best_ksp}/{n_out} outputs pass --- minor overfitting'
+        ks_color  = 'warnamber'
+        ks_label  = 'Minor overfitting'
+        ks_detail = 'Pass: ' + ', '.join(ks_passed_names)
+        ks_fail   = 'Fail: ' + ', '.join(ks_failed_names)
     else:
-        ks_color, ks_label = 'failred',   f'{best_ksp}/{n_out} outputs pass --- overfitting present'
+        ks_color  = 'failred'
+        ks_label  = 'Overfitting present'
+        ks_detail = ('Pass: ' + ', '.join(ks_passed_names)) if ks_passed_names else ''
+        ks_fail   = 'Fail: ' + ', '.join(ks_failed_names)
 
-    best_esc  = _esc(best)
-    r2_str    = f'{best_r2:.4f}'
-    q90p_str  = str(best_q90p)
-    ksp_str   = str(best_ksp)
-    nout_str  = str(n_out)
+    best_esc = _esc(best)
+
+    def _metric_row(color, title, label, detail, fail):
+        lines = [rf'{{\small\bfseries {title}}} \enspace---\enspace {{\small {label}}}']
+        if detail:
+            lines.append(rf'{{\footnotesize {detail}}}')
+        if fail:
+            lines.append(rf'{{\footnotesize\color{{red}} {fail}}}')
+        body = r'\\[1pt]'.join(lines)
+        return (
+            rf'\colorbox{{{color}}}{{\begin{{minipage}}{{0.97\linewidth}}'
+            rf'\vspace{{2pt}}\centering {body}\vspace{{2pt}}\end{{minipage}}}}'
+        )
+
+    r2_row  = _metric_row(r2_color,  rf'Avg R\textsuperscript{{2}}: {r2_str}',
+                          r2_label, '', '')
+    q90_row = _metric_row(q90_color, 'Q90 Accuracy', q90_label, q90_detail, q90_fail)
+    ks_row  = _metric_row(ks_color,  'Overfitting check (KS)', ks_label, ks_detail, ks_fail)
 
     return rf"""\begin{{center}}
-\colorbox{{{box_color}}}{{\begin{{minipage}}{{0.62\linewidth}}
+\colorbox{{{box_color}}}{{\begin{{minipage}}{{0.66\linewidth}}
   \vspace{{5pt}}\centering
-  {{\normalsize\bfseries {verdict_txt}}}\\[5pt]
+  {{\normalsize\bfseries {verdict_txt}}}\\[4pt]
   {{\small\bfseries Recommended model:}} {{\small {best_esc}}}\\[5pt]
-  \colorbox{{{r2_color}}}{{\begin{{minipage}}{{0.97\linewidth}}
-    \vspace{{2pt}}\centering
-    {{\small\textbf{{Avg R\textsuperscript{{2}}: {r2_str}}} \enspace---\enspace {r2_label}}}
-    \vspace{{2pt}}
-  \end{{minipage}}}}\\[2pt]
-  \colorbox{{{q90_color}}}{{\begin{{minipage}}{{0.97\linewidth}}
-    \vspace{{2pt}}\centering
-    {{\small\textbf{{Q90 accuracy: {q90p_str}/{nout_str} outputs}} \enspace---\enspace {q90_label}}}
-    \vspace{{2pt}}
-  \end{{minipage}}}}\\[2pt]
-  \colorbox{{{ks_color}}}{{\begin{{minipage}}{{0.97\linewidth}}
-    \vspace{{2pt}}\centering
-    {{\small\textbf{{Overfitting check: {ksp_str}/{nout_str} outputs}} \enspace---\enspace {ks_label}}}
-    \vspace{{2pt}}
-  \end{{minipage}}}}
+  {r2_row}\\[2pt]
+  {q90_row}\\[2pt]
+  {ks_row}
   \vspace{{5pt}}
 \end{{minipage}}}}
 \end{{center}}"""
 
 
-def _part1(d, best, rows, recs, scatter_paths):
-    uc         = _esc(d['use_case'])
-    n_out      = len(d['outputs'])
-    n_models   = len(d['models'])
-    date_str   = datetime.today().strftime('%d %B %Y')
-    inputs_str = ', '.join(_esc(i) for i in d['inputs'])
-    outputs_str= ', '.join(_esc(o) for o in d['outputs'])
-    target_pct = _pct(d['q90_target'])
-    ptr        = _pct(d.get('pct_train'))
-    pvl        = _pct(d.get('pct_val'))
-    pts        = _pct(d.get('pct_test'))
+# ── Part 1: Executive Summary ──────────────────────────────────────────────────
 
-    # ── Performance table (winner only, with \hline) ───────────────────────────
+def _part1(d, best, rows, recs, scatter_paths):
+    uc          = _esc(d['use_case'])
+    n_out       = len(d['outputs'])
+    n_models    = len(d['models'])
+    date_str    = datetime.today().strftime('%d %B %Y')
+    inputs_str  = ', '.join(_esc(i) for i in d['inputs'])
+    outputs_str = ', '.join(_esc(o) for o in d['outputs'])
+    target_pct  = _pct(d['q90_target'])
+    ptr         = _pct(d.get('pct_train'))
+    pvl         = _pct(d.get('pct_val'))
+    pts         = _pct(d.get('pct_test'))
+    best_esc    = _esc(best)
+
+    # Performance table
     perf_rows = []
     for r in rows:
         status = (r'\cellcolor{passgreen}\textbf{PASS}'
@@ -361,207 +377,125 @@ def _part1(d, best, rows, recs, scatter_paths):
             + status + r' \\ \hline'
         )
     perf_table = '\n  '.join(perf_rows)
+    rec_items  = '\n  '.join(r'\item ' + b for b in recs)
 
-    # ── Recommendations ────────────────────────────────────────────────────────
-    rec_items = '\n  '.join(r'\item ' + b for b in recs)
-
-    # ── Scatter plot (winner only) ─────────────────────────────────────────────
-    scatter_path = scatter_paths.get(best, '')
+    # Scatter (winner only)
     scatter_tex = ''
-    if scatter_path:
-        best_esc = _esc(best)
-        scatter_tex = rf"""\exhead{{Predicted vs True --- {best_esc} (Test Set, sample of 5\,000 points)}}
-\begin{{center}}
-  \includegraphics[width=0.82\linewidth]{{{scatter_path}}}
-\end{{center}}"""
+    path = scatter_paths.get(best, '')
+    if path:
+        scatter_tex = (
+            rf'\exhead{{Predicted vs True --- {best_esc} (Test Set, up to 5\,000 points)}}' + '\n'
+            r'\begin{center}' + '\n'
+            rf'  \includegraphics[width=0.82\linewidth]{{{path}}}' + '\n'
+            r'\end{center}'
+        )
 
-    # ── KS test compact (winner only) ─────────────────────────────────────────
+    # KS compact (winner only)
     ks_cells = []
     for o in d['outputs']:
         pval = d['dist'].get(best, {}).get(o)
         ks_cells.append(_esc(o) + ' & ' + _kscell(pval) + r' \\ \hline')
     ks_tex = '\n  '.join(ks_cells)
-    best_esc = _esc(best)
 
-    return rf"""% ════════════════════════════════════════════════════════════════
-%  PART 1 — EXECUTIVE SUMMARY
-% ════════════════════════════════════════════════════════════════
-\thispagestyle{{fancy}}
-
-\begin{{center}}
-  {{\large\bfseries\color{{primary}}
-    Executive Summary --- Surrogate Model Validation Report}}\\[2pt]
-  {{\small\color{{sepgray}}
-    Use case: \textbf{{{uc}}}
-    \quad|\quad {date_str}
-    \quad|\quad {n_models} model(s) evaluated}}
-\end{{center}}
-\vspace{{-4pt}}\noindent\rule{{\linewidth}}{{1pt}}\vspace{{3pt}}
-
-{_banner(d, best)}
-
-\vspace{{4pt}}
-
-\exhead{{Project Overview}}
-\renewcommand{{\arraystretch}}{{1.2}}
-\begin{{tabular}}{{|l|p{{0.60\linewidth}}|}}
-  \hline
-  \textbf{{Use case}}          & {uc} \\ \hline
-  \textbf{{Inputs}}            & {inputs_str} \\ \hline
-  \textbf{{Outputs}}           & {n_out}: {outputs_str} \\ \hline
-  \textbf{{Train / Val / Test}}& {ptr} / {pvl} / {pts} \\ \hline
-  \textbf{{Accuracy target}}   & Q90 $<$ {target_pct} relative error per output \\ \hline
-\end{{tabular}}
-
-\vspace{{4pt}}
-
-\exhead{{Model Performance --- \textbf{{{best_esc}}} (Test Set)}}
-\renewcommand{{\arraystretch}}{{1.2}}
-\begin{{tabular}}{{|l|r|r|r|r|c|}}
-  \hline
-  \textbf{{Output}} &
-  \textbf{{R\textsuperscript{{2}}}} &
-  \textbf{{Q90}} &
-  \textbf{{Target}} &
-  \textbf{{Gap}} &
-  \textbf{{Status}} \\ \hline
-  {perf_table}
-\end{{tabular}}
-
-\smallskip
-{{\footnotesize
-  \colorbox{{passgreen}}{{\ }} Q90 $<$ {target_pct}\enspace
-  \colorbox{{failred}}{{\ }} Q90 $\geq$ {target_pct}\enspace
-  \colorbox{{r2green}}{{\ }} R\textsuperscript{{2}} $\geq 0.95$\enspace
-  \colorbox{{r2amber}}{{\ }} R\textsuperscript{{2}} $\in[0.80,0.95)$\enspace
-  Gap $=$ Q90\,$-$\,target (negative\,$\Rightarrow$\,margin)
-}}
-
-\vspace{{4pt}}
-
-\exhead{{Analysis \& Recommendations}}
-\begin{{itemize}}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]
-  {rec_items}
-\end{{itemize}}
-
-\vspace{{4pt}}
-
-{scatter_tex}
-
-\vspace{{4pt}}
-
-\exhead{{Overfitting Check --- KS Test p-values ({best_esc})}}
-{{\footnotesize $H_0$: residuals on train and test follow the same distribution.
-\colorbox{{passgreen}}{{$p \geq 0.05$}} = no overfitting.\enspace
-\colorbox{{failred}}{{$p < 0.05$}} = overfitting.}}\\[3pt]
-\renewcommand{{\arraystretch}}{{1.15}}
-\begin{{tabular}}{{|l|r|}}
-  \hline
-  \textbf{{Output}} & \textbf{{KS p-value}} \\ \hline
-  {ks_tex}
-\end{{tabular}}
-
-\vspace{{6pt}}
-\noindent\textcolor{{sepgray}}{{\small\textit{{%
-  Full technical details in the
-  \hyperref[sec:appendix]{{Technical Appendix}} (page~\pageref{{sec:appendix}}).%
-}}}}
-"""
+    return (
+        '% ════ PART 1 — EXECUTIVE SUMMARY ════\n'
+        r'\thispagestyle{fancy}' + '\n\n'
+        r'\begin{center}' + '\n'
+        rf'  {{\large\bfseries\color{{primary}} Executive Summary --- Surrogate Model Validation Report}}\\[2pt]' + '\n'
+        rf'  {{\small\color{{sepgray}} Use case: \textbf{{{uc}}} \quad|\quad {date_str} \quad|\quad {n_models} model(s) evaluated}}' + '\n'
+        r'\end{center}' + '\n'
+        r'\vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{3pt}' + '\n\n'
+        + _banner(d, best, rows) + '\n\n'
+        r'\vspace{4pt}' + '\n\n'
+        rf'\exhead{{Project Overview}}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        r'\begin{tabular}{|l|p{0.60\linewidth}|}' + '\n'
+        r'  \hline' + '\n'
+        rf'  \textbf{{Use case}}           & {uc} \\ \hline' + '\n'
+        rf'  \textbf{{Inputs}}             & {inputs_str} \\ \hline' + '\n'
+        rf'  \textbf{{Outputs}}            & {n_out}: {outputs_str} \\ \hline' + '\n'
+        rf'  \textbf{{Train / Val / Test}} & {ptr} / {pvl} / {pts} \\ \hline' + '\n'
+        rf'  \textbf{{Accuracy target}}    & Q90 $<$ {target_pct} relative error per output \\ \hline' + '\n'
+        r'\end{tabular}' + '\n\n'
+        r'\vspace{4pt}' + '\n\n'
+        rf'\exhead{{Model Performance --- \textbf{{{best_esc}}} (Test Set)}}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        r'\begin{tabular}{|l|r|r|r|r|c|}' + '\n'
+        r'  \hline' + '\n'
+        r'  \textbf{Output} & \textbf{R\textsuperscript{2}} & \textbf{Q90} &'
+        r' \textbf{Target} & \textbf{Gap} & \textbf{Status} \\ \hline' + '\n'
+        f'  {perf_table}\n'
+        r'\end{tabular}' + '\n'
+        r'{\footnotesize' + '\n'
+        rf'  \colorbox{{passgreen}}{{\ }} Q90 $<$ {target_pct}\enspace'
+        rf'  \colorbox{{failred}}{{\ }} Q90 $\geq$ {target_pct}\enspace'
+        r'  \colorbox{r2green}{\ } R\textsuperscript{2} $\geq 0.95$\enspace'
+        r'  \colorbox{r2amber}{\ } R\textsuperscript{2} $\in[0.80,0.95)$\enspace'
+        r'  Gap $=$ Q90$-$target ($<0$\,$\Rightarrow$\,margin)' + '\n'
+        r'}' + '\n\n'
+        r'\vspace{4pt}' + '\n\n'
+        r'\exhead{Analysis \& Recommendations}' + '\n'
+        r'\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]' + '\n'
+        f'  {rec_items}\n'
+        r'\end{itemize}' + '\n\n'
+        r'\vspace{4pt}' + '\n\n'
+        + scatter_tex + '\n\n'
+        r'\vspace{4pt}' + '\n\n'
+        rf'\exhead{{Overfitting Check --- KS Test p-values ({best_esc})}}' + '\n'
+        r'{\footnotesize $H_0$: residuals on train and test follow the same distribution.\enspace'
+        r'\colorbox{passgreen}{$p \geq 0.05$} no overfitting.\enspace'
+        r'\colorbox{failred}{$p < 0.05$} overfitting.}\\[3pt]' + '\n'
+        r'\renewcommand{\arraystretch}{1.15}' + '\n'
+        r'\begin{tabular}{|l|r|}' + '\n'
+        r'  \hline' + '\n'
+        r'  \textbf{Output} & \textbf{KS p-value} \\ \hline' + '\n'
+        f'  {ks_tex}\n'
+        r'\end{tabular}' + '\n\n'
+        r'\vspace{6pt}' + '\n'
+        r'\noindent\textcolor{sepgray}{\small\textit{%' + '\n'
+        r'  Full technical details in the'
+        r' \hyperref[sec:techreview]{Technical Review} (page~\pageref{sec:techreview}).%' + '\n'
+        r'}}' + '\n'
+    )
 
 
-# ── Separator page ─────────────────────────────────────────────────────────────
+# ── Part 2: Model Comparison ───────────────────────────────────────────────────
 
-def _separator(uc):
-    return rf"""\clearpage
-\thispagestyle{{empty}}
-\vspace*{{\fill}}
-\begin{{center}}
-  \textcolor{{sepgray}}{{\rule{{0.30\linewidth}}{{0.6pt}}}}\\[14pt]
-  {{\Large\bfseries\color{{primary}} Technical Appendix}}\\[6pt]
-  {{\normalsize\color{{sepgray}} {_esc(uc)} --- Full Validation Report}}\\[14pt]
-  \textcolor{{sepgray}}{{\rule{{0.30\linewidth}}{{0.6pt}}}}
-\end{{center}}
-\vspace*{{\fill}}
-\clearpage
-"""
-
-
-# ── Part 2: Technical Appendix ─────────────────────────────────────────────────
-
-def _part2(d, scatter_paths):
+def _model_comparison(d):
     models     = d['models']
     outputs    = d['outputs']
     scores     = d['scores']
-    dist       = d['dist']
     vres       = d['vres']
-    split      = d['split']
-    best       = d['best_model']
     n_out      = len(outputs)
     n_mdl      = len(models)
+    best       = d['best_model']
     target_pct = _pct(d['q90_target'])
     vres_map   = {vr['output']: vr for vr in vres}
+    uc         = _esc(d['use_case'])
+    date_str   = datetime.today().strftime('%d %B %Y')
 
-    # ── 0. Introduction prose ─────────────────────────────────────────────────
-    model_list = ', '.join(_esc(m) for m in models)
-    n_inputs   = len(d['inputs'])
-    inputs_str = ', '.join(_esc(i) for i in d['inputs'])
-    outputs_str= ', '.join(_esc(o) for o in d['outputs'])
-    best_esc   = _esc(best)
-    best_r2    = d['avg_r2'].get(best, 0)
-    best_q90p  = d['q90_pass'].get(best, 0)
-    best_ksp   = d['ks_pass'].get(best, 0)
-    uc_esc     = _esc(d['use_case'])
-
-    intro_prose = (
-        rf'This appendix documents the full validation of surrogate models for use case '
-        rf'\textbf{{{uc_esc}}}. A total of {n_mdl} model architecture(s) '
-        rf'were trained and evaluated: {model_list}. '
-        rf'The models predict {n_out} output quantities '
-        rf'({outputs_str}) '
-        rf'from {n_inputs} input features ({inputs_str}). '
-        rf'The accuracy criterion requires that the 90th-percentile relative error (Q90) '
-        rf'remains below {target_pct} for every output.'
-    )
-
-    # ── 1. Model comparison table ──────────────────────────────────────────────
+    # Summary comparison table
     comp_rows = []
     for m in models:
         q90p = d['q90_pass'].get(m, 0)
         ksp  = d['ks_pass'].get(m, 0)
         avg  = d['avg_r2'].get(m, 0)
-        is_best = (m == best)
-        b = r'\bfseries' if is_best else ''
-        star = r'\ $\star$' if is_best else ''
+        b    = r'\bfseries' if m == best else ''
+        star = r'\ $\star$' if m == best else ''
         comp_rows.append(
             rf'  {{{b} {_esc(m)}{star}}} & {{{b} {avg:.4f}}} '
             rf'& {{{b} {q90p}/{n_out}}} & {{{b} {ksp}/{n_out}}} \\ \hline'
         )
     comp_tex = '\n'.join(comp_rows)
 
-    # Prose: rationale for winner
-    runner_up = [m for m in models if m != best]
-    if runner_up:
-        ru_r2s = ', '.join(f'{_esc(m)} (R\\textsuperscript{{2}}={d["avg_r2"].get(m,0):.4f})'
-                           for m in runner_up)
-        selection_prose = (
-            rf'\textbf{{{best_esc}}} achieved the highest average '
-            rf'R\textsuperscript{{2}} on the test set ({best_r2:.4f}), '
-            rf'outperforming {ru_r2s}. It is therefore the recommended model '
-            rf'for production deployment.'
-        )
-    else:
-        selection_prose = (
-            rf'\textbf{{{best_esc}}} is the sole model evaluated '
-            rf'(avg R\textsuperscript{{2}} = {best_r2:.4f}).'
-        )
-
-    # ── 2. Full Q90 / R² metrics table (all models) ───────────────────────────
-    col_spec  = 'l' + '|rrr' * n_mdl
-    mdl_span  = ' & '.join(
-        rf'\multicolumn{{3}}{{c|}}{{\textbf{{{_esc(m)}}}}}'
+    # Full Q90+R² per output per model
+    col_spec = 'l' + '|rrr' * n_mdl
+    _star = {m: (r'\ $\star$' if m == best else '') for m in models}
+    mdl_span = ' & '.join(
+        rf'\multicolumn{{3}}{{c|}}{{\textbf{{{_esc(m)}}}{_star[m]}}}'
         for m in models
     )
-    sub_hdr   = (r' & R\textsuperscript{2} & Q90 & Gap') * n_mdl
+    sub_hdr  = (r' & R\textsuperscript{2} & Q90 & Gap') * n_mdl
 
     metric_rows = []
     for o in outputs:
@@ -576,75 +510,208 @@ def _part2(d, scatter_paths):
         metric_rows.append(' & '.join(cells) + r' \\ \hline')
     metrics_tex = '\n  '.join(metric_rows)
 
-    # Prose: accuracy summary
-    all_pass = best_q90p == n_out
+    return (
+        '% ════ PART 2 — MODEL COMPARISON ════\n'
+        r'\clearpage' + '\n'
+        r'\begin{center}' + '\n'
+        rf'  {{\large\bfseries\color{{primary}} Model Comparison --- {uc}}}\\[2pt]' + '\n'
+        rf'  {{\small\color{{sepgray}} {date_str}}}' + '\n'
+        r'\end{center}' + '\n'
+        r'\vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{6pt}' + '\n\n'
+        r'\exhead{Overall Summary}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        r'\begin{tabular}{|l|r|r|r|}' + '\n'
+        r'  \hline' + '\n'
+        r'  \textbf{Model} & \textbf{Avg R\textsuperscript{2}} &'
+        rf' \textbf{{Q90 pass ({n_out} outputs)}} & \textbf{{KS pass ({n_out} outputs)}} \\ \hline' + '\n'
+        + comp_tex + '\n'
+        r'\end{tabular}' + '\n'
+        r'{\footnotesize $\star$ Recommended model.\enspace'
+        rf' Q90 target: $<{target_pct}$.\enspace KS: $p\geq 0.05$ = no overfitting.}}' + '\n\n'
+        r'\vspace{6pt}' + '\n\n'
+        r'\exhead{Per-Output Metrics (all models)}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        rf'\begin{{tabular}}{{{col_spec}|}}' + '\n'
+        r'  \hline' + '\n'
+        rf'  \textbf{{Output}} & {mdl_span} \\ \hline' + '\n'
+        rf'  & {sub_hdr[3:]} \\ \hline' + '\n'
+        f'  {metrics_tex}\n'
+        r'\end{tabular}' + '\n'
+        r'{\footnotesize'
+        r'  \colorbox{r2green}{\ } R\textsuperscript{2} $\geq 0.95$\enspace'
+        r'  \colorbox{r2amber}{\ } R\textsuperscript{2} $\in[0.80,0.95)$\enspace'
+        r'  \colorbox{failred}{\ } Fail\enspace'
+        r'  Gap $=$ Q90$-$target}' + '\n'
+    )
+
+
+# ── Separator page ─────────────────────────────────────────────────────────────
+
+def _separator(uc):
+    return (
+        r'\clearpage' + '\n'
+        r'\thispagestyle{empty}' + '\n'
+        r'\vspace*{\fill}' + '\n'
+        r'\begin{center}' + '\n'
+        r'  \textcolor{sepgray}{\rule{0.30\linewidth}{0.6pt}}\\[14pt]' + '\n'
+        rf'  {{\Large\bfseries\color{{primary}} Technical Review}}\\[6pt]' + '\n'
+        rf'  {{\normalsize\color{{sepgray}} {_esc(uc)} --- Full Validation Report}}\\[14pt]' + '\n'
+        r'  \textcolor{sepgray}{\rule{0.30\linewidth}{0.6pt}}' + '\n'
+        r'\end{center}' + '\n'
+        r'\vspace*{\fill}' + '\n'
+        r'\clearpage' + '\n'
+    )
+
+
+# ── Part 3: Technical Review ───────────────────────────────────────────────────
+
+def _tech_review(d, scatter_paths, ratio_paths):
+    models     = d['models']
+    outputs    = d['outputs']
+    scores     = d['scores']
+    dist       = d['dist']
+    vres       = d['vres']
+    split      = d['split']
+    best       = d['best_model']
+    n_out      = len(outputs)
+    n_mdl      = len(models)
+    target_pct = _pct(d['q90_target'])
+    vres_map   = {vr['output']: vr for vr in vres}
+    uc_esc     = _esc(d['use_case'])
+    best_esc   = _esc(best)
+    best_r2    = d['avg_r2'].get(best, 0)
+    best_q90p  = d['q90_pass'].get(best, 0)
+    best_ksp   = d['ks_pass'].get(best, 0)
+    model_list = ', '.join(_esc(m) for m in models)
+    inputs_str = ', '.join(_esc(i) for i in d['inputs'])
+    n_inputs   = len(d['inputs'])
+
+    # ── Introduction prose ────────────────────────────────────────────────────
+    intro = (
+        rf'This report documents the full validation of surrogate models for use case '
+        rf'\textbf{{{uc_esc}}}. {n_mdl} model architecture(s) were trained and evaluated: '
+        rf'{model_list}. Each model predicts {n_out} structural output quantities from '
+        rf'{n_inputs} input features ({inputs_str}). '
+        rf'The accuracy criterion requires the 90th-percentile relative error (Q90) '
+        rf'to remain below {target_pct} for every output on unseen test data.'
+    )
+
+    # ── Model selection prose ─────────────────────────────────────────────────
+    runners = [m for m in models if m != best]
+    if runners:
+        ru_str = ', '.join(
+            rf'{_esc(m)} (R\textsuperscript{{2}}={d["avg_r2"].get(m,0):.4f})'
+            for m in runners
+        )
+        sel_prose = (
+            rf'\textbf{{{best_esc}}} achieved the highest average R\textsuperscript{{2}} '
+            rf'on the test set ({best_r2:.4f}), outperforming {ru_str}. '
+            rf'It is the recommended model for deployment.'
+        )
+    else:
+        sel_prose = (
+            rf'\textbf{{{best_esc}}} is the sole model evaluated '
+            rf'(avg R\textsuperscript{{2}} = {best_r2:.4f}).'
+        )
+
+    # ── Full metrics table (all models) ───────────────────────────────────────
+    col_spec  = 'l' + '|rrr' * n_mdl
+    _star2    = {m: (r'\ $\star$' if m == best else '') for m in models}
+    mdl_span  = ' & '.join(
+        rf'\multicolumn{{3}}{{c|}}{{\textbf{{{_esc(m)}}}{_star2[m]}}}'
+        for m in models
+    )
+    sub_hdr   = (r' & R\textsuperscript{2} & Q90 & Gap') * n_mdl
+    mrows = []
+    for o in outputs:
+        cells = [_esc(o)]
+        for m in models:
+            r2   = scores.get(m, {}).get(o, {}).get('R2')
+            mres = vres_map.get(o, {}).get('models', {}).get(m, {})
+            q90  = mres.get('score')
+            ok   = mres.get('passed', False)
+            gap  = round(q90 - d['q90_target'], 6) if q90 is not None else None
+            cells += [_r2cell(r2), _q90cell(q90, ok), _gapcell(gap)]
+        mrows.append(' & '.join(cells) + r' \\ \hline')
+    metrics_tex = '\n  '.join(mrows)
+
+    # Accuracy prose
     fail_names = [r['output'] for r in _per_output(d, best) if not r['passed']]
     pass_names = [r['output'] for r in _per_output(d, best) if r['passed']]
-    if all_pass:
+    if best_q90p == n_out:
         acc_prose = (
-            rf'The recommended model \textbf{{{best_esc}}} satisfies the Q90 '
-            rf'accuracy requirement on \textbf{{all {n_out} outputs}}. '
-            rf'No corrective action is required for deployment.'
+            rf'\textbf{{{best_esc}}} satisfies the Q90 requirement on '
+            rf'all {n_out} outputs. No corrective action is required for deployment.'
         )
     else:
         fn = ', '.join(_esc(o) for o in fail_names)
         pn = ', '.join(_esc(o) for o in pass_names)
         acc_prose = (
-            rf'The recommended model \textbf{{{best_esc}}} satisfies Q90 on '
-            rf'{best_q90p} out of {n_out} outputs. '
-            rf'Passing outputs: {pn}. '
-            rf'Failing outputs: \textcolor{{red}}{{{fn}}}. '
-            rf'See the Analysis \& Recommendations section in the Executive Summary '
-            rf'for targeted improvement actions.'
+            rf'\textbf{{{best_esc}}} satisfies Q90 on {best_q90p}/{n_out} outputs. '
+            rf'Passing: {pn}. '
+            rf'Failing: \textcolor{{red}}{{\textit{{{fn}}}}}. '
+            rf'Refer to the Improvement Roadmap for targeted corrective actions.'
         )
 
-    # ── 3. Scatter plots (all models) ─────────────────────────────────────────
+    # ── Scatter plots (all models) ────────────────────────────────────────────
     scatter_tex = ''
     for m in models:
         path = scatter_paths.get(m, '')
         if path:
             m_esc = _esc(m)
+            label = rf'{m_esc}' + (r' $\star$' if m == best else '')
             scatter_tex += (
-                rf'\subsection*{{\normalsize {m_esc}}}' + '\n'
+                rf'\subsection*{{\normalsize {label}}}' + '\n'
                 r'\begin{center}' + '\n'
-                rf'  \includegraphics[width=0.82\linewidth]{{{path}}}' + '\n'
+                rf'  \includegraphics[width=0.85\linewidth]{{{path}}}' + '\n'
                 r'\end{center}' + '\n\n'
             )
 
-    # ── 4. KS test table (all models) ─────────────────────────────────────────
-    ks_col   = '|l' + '|r' * n_mdl + '|'
-    ks_hdrs  = ' & '.join(r'\textbf{' + _esc(m) + '}' for m in models)
-    ks_rows2 = []
+    # ── Ratio / relative-error plots (all models) ─────────────────────────────
+    ratio_tex = ''
+    for m in models:
+        path = ratio_paths.get(m, '')
+        if path:
+            m_esc = _esc(m)
+            label = rf'{m_esc}' + (r' $\star$' if m == best else '')
+            ratio_tex += (
+                rf'\subsection*{{\normalsize {label}}}' + '\n'
+                r'\begin{center}' + '\n'
+                rf'  \includegraphics[width=0.85\linewidth]{{{path}}}' + '\n'
+                r'\end{center}' + '\n\n'
+            )
+
+    # ── KS test (all models) ──────────────────────────────────────────────────
+    ks_col  = '|l' + '|r' * n_mdl + '|'
+    ks_hdrs = ' & '.join(r'\textbf{' + _esc(m) + '}' for m in models)
+    ks_rows = []
     for o in outputs:
         cells = [_esc(o)]
         for m in models:
             cells.append(_kscell(d['dist'].get(m, {}).get(o)))
-        ks_rows2.append(' & '.join(cells) + r' \\ \hline')
-    ks_tex2 = '\n  '.join(ks_rows2)
+        ks_rows.append(' & '.join(cells) + r' \\ \hline')
+    ks_tex = '\n  '.join(ks_rows)
 
-    # Prose: overfitting summary
-    ks_ok = best_ksp == n_out
-    if ks_ok:
+    # KS prose
+    ks_fail_names = [o for o in outputs
+                     if (dist.get(best, {}).get(o) or 1.0) < 0.05]
+    if best_ksp == n_out:
         ks_prose = (
-            rf'The KS test confirms that the residual distributions of '
-            rf'\textbf{{{best_esc}}} are statistically consistent between the '
-            rf'training and test sets for all {n_out} outputs ($p \geq 0.05$ in every case). '
-            rf'There is no statistical evidence of overfitting.'
+            rf'The KS test confirms statistically consistent residual distributions '
+            rf'between train and test sets for all {n_out} outputs of '
+            rf'\textbf{{{best_esc}}} ($p \geq 0.05$ in every case). '
+            rf'There is no evidence of overfitting.'
         )
     else:
-        ks_fail_names = [o for o in outputs
-                         if (d['dist'].get(best, {}).get(o) or 1.0) < 0.05]
         kfn = ', '.join(_esc(o) for o in ks_fail_names)
         ks_prose = (
-            rf'The KS test detects distributional differences between train and test '
-            rf'residuals for \textbf{{{best_esc}}} on the following outputs: '
-            rf'\textcolor{{red}}{{\textit{{{kfn}}}}}. '
-            rf'This suggests localised overfitting. '
-            rf'Increasing regularisation or reducing model capacity for these outputs '
-            rf'is recommended before deployment.'
+            rf'The KS test detects distributional differences for '
+            rf'\textbf{{{best_esc}}} on: \textcolor{{red}}{{\textit{{{kfn}}}}}. '
+            rf'This suggests localised overfitting on these outputs. '
+            rf'Increasing regularisation or reducing model capacity is recommended.'
         )
 
-    # ── 5. Split quality ──────────────────────────────────────────────────────
+    # ── Split quality ─────────────────────────────────────────────────────────
     def _sv(key, fmt='.3f'):
         v = split.get(key)
         return f'{v:{fmt}}' if v is not None else r'\textemdash'
@@ -657,181 +724,127 @@ def _part2(d, scatter_paths):
         return (r'\cellcolor{passgreen}$\checkmark$' if ok
                 else r'\cellcolor{failred}$\times$')
 
-    rvp_val  = _sv('residual_voxel_proportion')
-    rvp_icon = _sicon('residual_voxel_proportion', '<=', 0.05)
-    vtp_val  = _sv('valid_test_proportion')
-    pht_val  = _sv('phacking_test_proportion')
-    itp_val  = _sv('isolated_test_proportion')
-    chi_val  = _sv('chi_squared_pvalue', '.4f')
-    chi_icon = _sicon('chi_squared_pvalue', '>=', 0.05)
+    rvp = split.get('residual_voxel_proportion', 1.0)
+    chi = split.get('chi_squared_pvalue') or 0.0
+    split_prose = (
+        r'The VTP analysis confirms the test set is well-distributed within '
+        r'the training space (residual voxel proportion $\leq 0.05$, no isolated '
+        r'test points). The chi-squared test validates the split is statistically '
+        r'unbiased. Train/test partition is of high quality.'
+        if rvp <= 0.05 and chi >= 0.05 else
+        r'One or more split quality metrics fall outside acceptable bounds. '
+        r'Review the data collection strategy and consider resampling the split '
+        r'or collecting additional data in sparse input regions.'
+    )
 
-    rvp_num = split.get('residual_voxel_proportion', 1.0)
-    chi_num = split.get('chi_squared_pvalue', 0.0) or 0.0
-    if rvp_num <= 0.05 and chi_num >= 0.05:
-        split_prose = (
-            r'The Voronoi Tesselation Proximity (VTP) analysis confirms that the '
-            r'test set is well-distributed within the training space '
-            r'(residual voxel proportion $\leq 0.05$, no isolated test points). '
-            r'The chi-squared test ($p \geq 0.05$) validates that the split is '
-            r'statistically unbiased. The train/test partition is of high quality.'
+    # ── Detailed recommendations ──────────────────────────────────────────────
+    detail_items = '\n  '.join(
+        r'\item ' + b
+        for b in _recommendations(d, best, _per_output(d, best), detailed=True)
+    )
+
+    return (
+        '% ════ PART 3 — TECHNICAL REVIEW ════\n'
+        r'\label{sec:techreview}' + '\n'
+        r'\phantomsection' + '\n'
+        r'\addcontentsline{toc}{section}{Technical Review}' + '\n\n'
+        r'\begin{center}' + '\n'
+        rf'  {{\normalsize\bfseries\color{{primary}} Technical Review --- {uc_esc}}}' + '\n'
+        r'\end{center}' + '\n'
+        r'\tableofcontents' + '\n'
+        r'\clearpage' + '\n\n'
+
+        r'\section{Introduction}' + '\n'
+        r'\label{sec:intro}' + '\n\n'
+        + intro + '\n\n'
+
+        r'\section{Model Selection}' + '\n'
+        r'\label{sec:selection}' + '\n\n'
+        + sel_prose + '\n\n'
+
+        r'\section{Accuracy Assessment (Q90 \& R\textsuperscript{2})}' + '\n'
+        r'\label{sec:accuracy}' + '\n\n'
+        + acc_prose + '\n\n'
+        r'\vspace{4pt}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        rf'\begin{{tabular}}{{{col_spec}|}}' + '\n'
+        r'  \hline' + '\n'
+        rf'  \textbf{{Output}} & {mdl_span} \\ \hline' + '\n'
+        rf'  & {sub_hdr[3:]} \\ \hline' + '\n'
+        f'  {metrics_tex}\n'
+        r'\end{tabular}' + '\n'
+        r'{\footnotesize'
+        r'  \colorbox{r2green}{\ } R\textsuperscript{2} $\geq 0.95$\enspace'
+        r'  \colorbox{r2amber}{\ } R\textsuperscript{2} $\in[0.80,0.95)$\enspace'
+        r'  \colorbox{failred}{\ } Fail\enspace'
+        r'  Gap $=$ Q90$-$target ($<0$\,$\Rightarrow$\,margin)}' + '\n\n'
+
+        r'\section{Predicted vs True (Scatter Plots, Test Set)}' + '\n'
+        r'\label{sec:scatter}' + '\n\n'
+        r'Each plot shows up to 5\,000 test-set points. '
+        r'The dashed diagonal represents perfect prediction ($\hat{y}=y$). '
+        r'Systematic bias or fan-shaped spread (heteroscedasticity) indicate model limitations.' + '\n\n'
+        + scatter_tex
+
+        + (
+            r'\section{Relative Error Analysis (Ratio Plots, Test Set)}' + '\n'
+            r'\label{sec:ratio}' + '\n\n'
+            r'Each panel shows the ratio $\hat{y}/y$ as a function of the true value. '
+            r'A ratio of 1.0 (dashed line) corresponds to perfect prediction. '
+            r'Systematic deviation from 1.0 reveals bias; increasing spread with magnitude '
+            r'reveals heteroscedasticity.' + '\n\n'
+            + ratio_tex
+            if ratio_tex else ''
         )
-    else:
-        split_prose = (
-            r'One or more split quality metrics fall outside acceptable bounds. '
-            r'The test set may contain points poorly covered by the training distribution. '
-            r'Review the data collection strategy and consider resampling the split '
-            r'or collecting additional data in sparse regions.'
-        )
 
-    # ── 6. Detailed recommendations ───────────────────────────────────────────
-    detail_recs = _recommendations(d, best, _per_output(d, best), detailed=True)
-    detail_items = '\n  '.join(r'\item ' + b for b in detail_recs)
+        + r'\section{Overfitting Assessment (KS Test)}' + '\n'
+        r'\label{sec:ks}' + '\n\n'
+        r'The Kolmogorov--Smirnov test compares residual distributions on train vs test sets. '
+        r'$H_0$: both distributions are identical (no overfitting). '
+        r'$p < 0.05$ is statistical evidence of overfitting.' + '\n\n'
+        + ks_prose + '\n\n'
+        r'\vspace{4pt}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        rf'\begin{{tabular}}{{{ks_col}}}' + '\n'
+        r'  \hline' + '\n'
+        rf'  \textbf{{Output}} & {ks_hdrs} \\ \hline' + '\n'
+        f'  {ks_tex}\n'
+        r'\end{tabular}' + '\n'
+        r'{\footnotesize'
+        r'  \colorbox{passgreen}{\ } $p \geq 0.05$ no overfitting\enspace'
+        r'  \colorbox{failred}{\ } $p < 0.05$ overfitting detected}' + '\n\n'
 
-    return rf"""% ════════════════════════════════════════════════════════════════
-%  PART 2 — TECHNICAL APPENDIX
-% ════════════════════════════════════════════════════════════════
-\label{{sec:appendix}}
-\phantomsection
-\addcontentsline{{toc}}{{section}}{{Technical Appendix}}
+        + r'\section{Data Split Quality (VTP Analysis)}' + '\n'
+        r'\label{sec:split}' + '\n\n'
+        r'The Voronoi Tesselation Proximity method verifies whether test points '
+        r'lie within the training distribution. '
+        r'A residual voxel proportion $\leq 0.05$ and chi-squared $p \geq 0.05$ '
+        r'confirm a high-quality, unbiased split.' + '\n\n'
+        + split_prose + '\n\n'
+        r'\vspace{4pt}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        r'\begin{tabular}{|l|r|c|}' + '\n'
+        r'  \hline' + '\n'
+        r'  \textbf{Metric} & \textbf{Value} & \textbf{Pass} \\ \hline' + '\n'
+        rf'  Residual voxel proportion ($\leq 0.05$) & {_sv("residual_voxel_proportion")} & {_sicon("residual_voxel_proportion","<=",0.05)} \\ \hline' + '\n'
+        rf'  Valid test proportion & {_sv("valid_test_proportion")} & \\ \hline' + '\n'
+        rf'  Phacking test proportion & {_sv("phacking_test_proportion")} & \\ \hline' + '\n'
+        rf'  Isolated test proportion & {_sv("isolated_test_proportion")} & \\ \hline' + '\n'
+        rf'  Chi\textsuperscript{{2}} p-value ($\geq 0.05$) & {_sv("chi_squared_pvalue",".4f")} & {_sicon("chi_squared_pvalue",">=",0.05)} \\ \hline' + '\n'
+        r'\end{tabular}' + '\n\n'
 
-\begin{{center}}
-  {{\normalsize\bfseries\color{{primary}}
-    Technical Appendix --- Full Validation Report --- {uc_esc}}}
-\end{{center}}
-\vspace{{2pt}}
-
-\tableofcontents
-\clearpage
-
-% ── Introduction ──────────────────────────────────────────────────────────────
-\section{{Introduction}}
-\label{{sec:intro}}
-
-{intro_prose}
-
-% ── 1. Model Selection ────────────────────────────────────────────────────────
-\section{{Model Selection}}
-\label{{sec:selection}}
-
-{selection_prose}
-
-\vspace{{4pt}}
-\renewcommand{{\arraystretch}}{{1.2}}
-\begin{{tabular}}{{|l|r|r|r|}}
-  \hline
-  \textbf{{Model}} &
-  \textbf{{Avg R\textsuperscript{{2}}}} &
-  \textbf{{Q90 pass ({n_out} outputs)}} &
-  \textbf{{KS pass ({n_out} outputs)}} \\ \hline
-{comp_tex}
-\end{{tabular}}
-
-\smallskip
-\noindent{{\footnotesize
-$\star$ Recommended model.\enspace
-Q90 target: $<{target_pct}$ relative error at 90th percentile.\enspace
-KS: $p\geq 0.05$ = no overfitting detected.
-}}
-
-% ── 2. Accuracy Assessment ────────────────────────────────────────────────────
-\section{{Accuracy Assessment (Q90 \& R\textsuperscript{{2}})}}
-\label{{sec:accuracy}}
-
-{acc_prose}
-
-\vspace{{4pt}}
-\renewcommand{{\arraystretch}}{{1.2}}
-\begin{{tabular}}{{{col_spec}|}}
-  \hline
-  \textbf{{Output}} & {mdl_span} \\ \hline
-  & {sub_hdr[3:]} \\ \hline
-  {metrics_tex}
-\end{{tabular}}
-
-\smallskip
-\noindent{{\footnotesize
-  \colorbox{{r2green}}{{\ }} R\textsuperscript{{2}} $\geq 0.95$\enspace
-  \colorbox{{r2amber}}{{\ }} R\textsuperscript{{2}} $\in[0.80, 0.95)$\enspace
-  \colorbox{{failred}}{{\ }} R\textsuperscript{{2}} $< 0.80$ or Q90 fail\enspace
-  Gap $=$ Q90 $-$ target (negative $\Rightarrow$ margin above target)
-}}
-
-% ── 3. Predicted vs True ──────────────────────────────────────────────────────
-\section{{Predicted vs True (Scatter Plots, Test Set)}}
-\label{{sec:scatter}}
-
-Each scatter plot displays a random sample of up to 5\,000 test-set points.
-The dashed diagonal represents perfect prediction ($\hat{{y}} = y$).
-Systematic bias (points consistently above or below the diagonal) or
-fan-shaped spread (heteroscedasticity) are indicators of model limitations.
-
-{scatter_tex}
-
-% ── 4. Overfitting Assessment ─────────────────────────────────────────────────
-\section{{Overfitting Assessment (KS Test)}}
-\label{{sec:ks}}
-
-The Kolmogorov--Smirnov (KS) test compares the empirical distribution of
-training residuals with that of test residuals.
-$H_0$: both distributions are identical (no overfitting).
-A p-value below 0.05 provides statistical evidence of overfitting.
-
-\vspace{{4pt}}
-{ks_prose}
-
-\vspace{{4pt}}
-\renewcommand{{\arraystretch}}{{1.2}}
-\begin{{tabular}}{{{ks_col}}}
-  \hline
-  \textbf{{Output}} & {ks_hdrs} \\ \hline
-  {ks_tex2}
-\end{{tabular}}
-
-\smallskip
-\noindent{{\footnotesize
-  \colorbox{{passgreen}}{{\ }} $p \geq 0.05$ --- residual distributions consistent\enspace
-  \colorbox{{failred}}{{\ }} $p < 0.05$ --- overfitting detected
-}}
-
-% ── 5. Data Split Quality ─────────────────────────────────────────────────────
-\section{{Data Split Quality (VTP Analysis)}}
-\label{{sec:split}}
-
-The Voronoi Tesselation Proximity (VTP) method evaluates whether the test
-set is representative of, and well-covered by, the training distribution.
-A low residual voxel proportion indicates that test points are not isolated
-outside the training space.
-
-\vspace{{4pt}}
-{split_prose}
-
-\vspace{{4pt}}
-\renewcommand{{\arraystretch}}{{1.2}}
-\begin{{tabular}}{{|l|r|c|}}
-  \hline
-  \textbf{{Metric}} & \textbf{{Value}} & \textbf{{Pass}} \\ \hline
-  Residual voxel proportion   ($\leq 0.05$) & {rvp_val} & {rvp_icon} \\ \hline
-  Valid test proportion                      & {vtp_val} & \\ \hline
-  Phacking test proportion                   & {pht_val} & \\ \hline
-  Isolated test proportion                   & {itp_val} & \\ \hline
-  Chi\textsuperscript{{2}} p-value ($\geq 0.05$) & {chi_val} & {chi_icon} \\ \hline
-\end{{tabular}}
-
-% ── 6. Improvement Roadmap ────────────────────────────────────────────────────
-\section{{Improvement Roadmap}}
-\label{{sec:roadmap}}
-
-The following actions are prioritised based on the failure analysis above.
-
-\begin{{itemize}}[leftmargin=1.4em,itemsep=3pt,topsep=3pt]
-  {detail_items}
-\end{{itemize}}
-"""
+        + r'\section{Improvement Roadmap}' + '\n'
+        r'\label{sec:roadmap}' + '\n\n'
+        r'Prioritised actions based on the failure analysis above.' + '\n\n'
+        r'\begin{itemize}[leftmargin=1.4em,itemsep=3pt,topsep=3pt]' + '\n'
+        f'  {detail_items}\n'
+        r'\end{itemize}' + '\n'
+    )
 
 
 # ── Main builder ───────────────────────────────────────────────────────────────
 
-def build_latex(d: dict, scatter_paths: dict) -> str:
+def build_latex(d: dict, scatter_paths: dict, ratio_paths: dict) -> str:
     best = d['best_model']
     rows = _per_output(d, best)
     recs = _recommendations(d, best, rows, detailed=False)
@@ -843,8 +856,9 @@ def build_latex(d: dict, scatter_paths: dict) -> str:
         preamble
         + r'\begin{document}' + '\n'
         + _part1(d, best, rows, recs, scatter_paths)
+        + _model_comparison(d)
         + _separator(uc)
-        + _part2(d, scatter_paths)
+        + _tech_review(d, scatter_paths, ratio_paths)
         + '\n' + r'\end{document}' + '\n'
     )
 
@@ -867,13 +881,14 @@ def main():
     d = extract(meta_path)
 
     artifacts_dir = meta_path.parent.resolve()
-    scatter_paths = {}
+    scatter_paths, ratio_paths = {}, {}
     for m in d['models']:
-        png = artifacts_dir / f'scatter_{m}.png'
-        if png.exists():
-            scatter_paths[m] = os.path.relpath(str(png), str(out_dir))
+        for kind, store in [('scatter', scatter_paths), ('ratio', ratio_paths)]:
+            png = artifacts_dir / f'{kind}_{m}.png'
+            if png.exists():
+                store[m] = os.path.relpath(str(png), str(out_dir))
 
-    tex = build_latex(d, scatter_paths)
+    tex = build_latex(d, scatter_paths, ratio_paths)
 
     use_case = d['use_case']
     tex_file = out_dir / f'executive_summary_{use_case}.tex'
@@ -890,7 +905,7 @@ def main():
         print(f'PDF generated  → {pdf_file}')
     else:
         print('tectonic STDERR:\n', result.stderr[-3000:])
-        print('LaTeX source saved — compile manually with pdflatex or Overleaf.')
+        print('LaTeX source saved — compile manually.')
         sys.exit(1)
 
 
