@@ -1,164 +1,267 @@
 
-\documentclass[11pt,a4paper]{article}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage{booktabs, colortbl, xcolor, array, makecell}
-\usepackage{amsmath, amssymb}
+\documentclass[9pt,a4paper]{article}
+\usepackage[margin=1.8cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{booktabs,colortbl,xcolor,array,makecell,multicol}
+\usepackage{amsmath,amssymb}
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
-\usepackage{fancyhdr, graphicx, hyperref}
-\usepackage{parskip}
+\usepackage{fancyhdr,graphicx}
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=primary,bookmarks=true]{hyperref}
+\usepackage{parskip,enumitem}
+\usepackage{titlesec}
+\setlength{\parskip}{3pt}
 
-% ── Colours ────────────────────────────────────────────────────────────────────
 \definecolor{passgreen}{RGB}{198,239,206}
 \definecolor{failred}{RGB}{255,199,206}
 \definecolor{warnamber}{RGB}{255,235,156}
+\definecolor{r2green}{RGB}{198,239,206}
+\definecolor{r2amber}{RGB}{255,235,156}
 \definecolor{darkgreen}{RGB}{0,128,0}
 \definecolor{primary}{RGB}{0,70,127}
+\definecolor{sepgray}{RGB}{120,120,120}
 
-\hypersetup{colorlinks=true, linkcolor=primary, urlcolor=primary}
+\titleformat{\section}{\normalfont\normalsize\bfseries\color{primary}}{}{0em}{}[\vspace{-4pt}\rule{\linewidth}{0.4pt}]
+\titlespacing{\section}{0pt}{8pt}{4pt}
+% Lightweight heading safe inside minipage
+\newcommand{\exhead}[1]{\medskip\noindent{\small\bfseries\color{primary}#1}\par\vspace{-5pt}\noindent\textcolor{primary}{\rule{\linewidth}{0.4pt}}\vspace{2pt}}
 
-\pagestyle{fancy}
-\fancyhf{}
-\lhead{\textcolor{primary}{\textbf{Surrogate Factory — Executive Summary}}}
-\rhead{UCFATIGUE\_1}
-\cfoot{\thepage}
-
+\pagestyle{fancy}\fancyhf{}
+\lhead{\small\textcolor{primary}{\textbf{Surrogate Factory}}}
+\chead{\small\textcolor{sepgray}{CONFIDENTIAL}}
+\rhead{\small\textcolor{primary}{UCFATIGUE\_1}}
+\lfoot{\small\textcolor{sepgray}{Surrogate Factory v2.2 --- Automated Validation Report}}
+\rfoot{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
 \begin{document}
 
-% ── Cover ─────────────────────────────────────────────────────────────────────
-\begin{center}
-  {\Huge\textbf{\textcolor{primary}{Executive Summary}}}\\[6pt]
-  {\large Surrogate Model Validation Report}\\[4pt]
-  {\large \texttt{UCFATIGUE\_1}}\\[10pt]
-  {\normalsize July 27, 2026}
-\end{center}
+% ════════════════════════════════════════════════════════════════
+%  PART 1 — EXECUTIVE SUMMARY
+% ════════════════════════════════════════════════════════════════
+\thispagestyle{fancy}
 
-\noindent\rule{\textwidth}{1.5pt}
-
-% ── Banner ────────────────────────────────────────────────────────────────────
+% Title block
 \begin{center}
-  \colorbox{warnamber}{\parbox{0.70\textwidth}{\centering
-    \large\textbf{REQUIREMENTS PARTIALLY MET}\\[6pt]
-    \normalsize
-    Best model: \textbf{GradientBoosting}\\[2pt]
-    Avg R\textsuperscript{2}: \textbf{0.9643}\\[2pt]
-    Q90 pass: \textbf{5/7} outputs\\[2pt]
-    KS pass: \textbf{2/7} outputs}}
+  {\large\bfseries\color{primary} Executive Summary --- Surrogate Model Validation}\\[2pt]
+  {\normalsize\color{sepgray} Use case: \textbf{UCFATIGUE\_1} \quad|\quad 28 July 2026 \quad|\quad 2 model(s) evaluated}
 \end{center}
+\vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{2pt}
+
+% Verdict banner
+\begin{center}
+\colorbox{warnamber}{\parbox{0.55\linewidth}{\centering\small
+  \textbf{REQUIREMENTS PARTIALLY MET}\\[3pt]
+  Recommended model: \textbf{GradientBoosting}\enspace|\enspace
+  Avg R\textsuperscript{2}: \textbf{0.9643}\enspace|\enspace
+  Q90: \textbf{5/7}\enspace|\enspace
+  KS: \textbf{2/7}}}
+\end{center}
+\vspace{4pt}
+
+% ── Overview + Legend side by side ────────────────────────────────────────────
+\begin{minipage}[t]{0.52\linewidth}
+\exhead{Project Overview}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}lp{0.58\linewidth}}
+  \textbf{Use case}    & UCFATIGUE\_1 \\
+  \textbf{Inputs}      & FLAP, Altitude, TAS, Mass, q, gamma, Type\_segment, Xcg(\%CMA) \\
+  \textbf{Outputs}     & 7: 1g, Vertical maneuver, Vertical gust, Turn, Frontal gust, n0, Giro \\
+  \textbf{Split}       & Train 80\% / Val 10\% / Test 10\% \\
+  \textbf{Requirement} & Q90 $<$ 10\% per output \\
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.44\linewidth}
+\exhead{Reading the Table Below}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}ll}
+  R\textsuperscript{2} & Goodness of fit (higher = better) \\
+  Q90                    & 90th pct.\ relative error \\
+  Gap                    & Q90 $-$ target ($<0$ = margin) \\
+  \cellcolor{passgreen}PASS & Q90 $<$ 10\% \\
+  \cellcolor{failred}FAIL   & Q90 $\geq$ 10\% \\
+  \cellcolor{r2green}       & R\textsuperscript{2} $\geq 0.95$ \\
+  \cellcolor{r2amber}       & $0.80 \leq$ R\textsuperscript{2} $< 0.95$ \\
+  \cellcolor{failred}       & R\textsuperscript{2} $< 0.80$ \\
+\end{tabular}
+\end{minipage}
 
 \vspace{4pt}
 
-% ── 1. Overview ───────────────────────────────────────────────────────────────
-\section*{1.\enspace Project Overview}
+% ── Performance table ─────────────────────────────────────────────────────────
+\section{Model Performance --- \textbf{GradientBoosting} (Test Set)}
 
-\begin{tabular}{ll}
-  \textbf{Use case}    & UCFATIGUE\_1 \\
-  \textbf{Models}      & MLP, GradientBoosting \\
-  \textbf{Outputs}     & 7 (1g, Vertical maneuver, Vertical gust, Turn, Frontal gust, n0, Giro) \\
-  \textbf{Inputs}      & FLAP, Altitude, TAS, Mass, q, gamma, Type\_segment, Xcg(\%CMA) \\
-  \textbf{Train / Val / Test split} & 80\% / 10\% / 10\% \\
-  \textbf{Requirement} & Q90 relative error $< 10\%$ per output \\
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lrrrrrc}
+  \toprule
+  \textbf{Output} &
+  \textbf{R\textsuperscript{2}} &
+  \textbf{Q90} &
+  \textbf{Target} &
+  \textbf{Gap} &
+  \textbf{Status} \\
+  \midrule
+  1g & \cellcolor{r2green}0.9797 & \cellcolor{passgreen}0.0257 & 10\% & \cellcolor{passgreen}-0.0743 & \cellcolor{passgreen}\textbf{PASS} \\
+  Vertical maneuver & \cellcolor{r2green}0.9723 & \cellcolor{passgreen}0.0318 & 10\% & \cellcolor{passgreen}-0.0682 & \cellcolor{passgreen}\textbf{PASS} \\
+  Vertical gust & \cellcolor{r2green}0.9914 & \cellcolor{passgreen}0.0262 & 10\% & \cellcolor{passgreen}-0.0738 & \cellcolor{passgreen}\textbf{PASS} \\
+  Turn & \cellcolor{r2amber}0.9286 & \cellcolor{passgreen}0.0351 & 10\% & \cellcolor{passgreen}-0.0649 & \cellcolor{passgreen}\textbf{PASS} \\
+  Frontal gust & \cellcolor{r2green}0.9964 & \cellcolor{failred}0.2795 & 10\% & \cellcolor{failred}+0.1795 & \cellcolor{failred}\textbf{FAIL} \\
+  n0 & \cellcolor{r2amber}0.9317 & \cellcolor{passgreen}0.0149 & 10\% & \cellcolor{passgreen}-0.0851 & \cellcolor{passgreen}\textbf{PASS} \\
+  Giro & \cellcolor{r2amber}0.9499 & \cellcolor{failred}0.2215 & 10\% & \cellcolor{failred}+0.1215 & \cellcolor{failred}\textbf{FAIL} \\
+  \bottomrule
 \end{tabular}
 
-\section*{2.\enspace Predicted vs.\ True --- Visual Overview}
+\vspace{4pt}
+
+% ── Analysis ─────────────────────────────────────────────────────────────────
+\section{Analysis \& Recommendations}
+
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=2pt]
+  \item \textbf{Significant failures} (\textit{Frontal gust, Giro}): Error is substantially above target. Investigate whether additional input features explain the residual variance, or consider a more expressive model architecture.
+  \item \textbf{Overfitting detected} (\textit{1g, Vertical gust, Turn, n0, Giro}): KS test rejects distributional equality between train and test residuals. Apply stronger regularisation (dropout, weight decay) or reduce model complexity.
+\end{itemize}
+
+\vspace{4pt}\noindent\textcolor{sepgray}{\small
+  \textit{Full technical details --- scatter plots, KS overfitting test, split quality ---
+  in the \hyperref[sec:appendix]{Technical Appendix} (page \pageref{sec:appendix}).}
+}
+
+% ════════════════════════════════════════════════════════════════
+%  SEPARATOR
+% ════════════════════════════════════════════════════════════════
+\clearpage
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+  \textcolor{sepgray}{\rule{0.3\linewidth}{0.6pt}}\\[12pt]
+  {\Large\bfseries\color{primary} Technical Appendix}\\[6pt]
+  {\normalsize\color{sepgray} UCFATIGUE\_1 --- Full Validation Report}\\[12pt]
+  \textcolor{sepgray}{\rule{0.3\linewidth}{0.6pt}}
+\end{center}
+\vspace*{\fill}
+\clearpage
+
+% ════════════════════════════════════════════════════════════════
+%  PART 2 — TECHNICAL APPENDIX
+% ════════════════════════════════════════════════════════════════
+\label{sec:appendix}
+\phantomsection
+\addcontentsline{toc}{section}{Technical Appendix}
 
 \begin{center}
-  \includegraphics[width=0.80\textwidth]{../scatter_MLP.png}\\[4pt]
-  \small\textbf{MLP}
+  {\normalsize\bfseries\color{primary} Technical Appendix --- Contents}
 \end{center}
+\tableofcontents
+\vspace{8pt}
 
-\begin{center}
-  \includegraphics[width=0.80\textwidth]{../scatter_GradientBoosting.png}\\[4pt]
-  \small\textbf{GradientBoosting}
-\end{center}
+% ── 1. Model Comparison ───────────────────────────────────────────────────────
+\section{Model Comparison (Test Set)}
+\label{sec:comparison}
 
-% ── 3. Model Comparison ───────────────────────────────────────────────────────
-\section*{3.\enspace Model Comparison (Test Set)}
-
-\renewcommand{\arraystretch}{1.25}
+\renewcommand{\arraystretch}{1.15}
 \begin{tabular}{lrrr}
   \toprule
   \textbf{Model} & \textbf{Avg R\textsuperscript{2}} &
   \textbf{Q90 pass (7 outputs)} & \textbf{KS pass (7 outputs)} \\
   \midrule
-    {MLP} & {0.5237} & {5/7} & {7/7} \\
-    \textbf{GradientBoosting} & \textbf{0.9643} & \textbf{5/7} & \textbf{2/7} \\
+  { MLP} & { 0.5237} & { 5/7} & { 7/7} \\
+  {\bfseries GradientBoosting $\star$} & {\bfseries 0.9643} & {\bfseries 5/7} & {\bfseries 2/7} \\
   \bottomrule
 \end{tabular}
 
-\medskip
-\noindent\textit{Q90 target: $<10\%$ relative error at 90th percentile.
-KS test: $p \geq 0.05$ means train and test residuals follow the same distribution (no overfitting).}
+\smallskip
+\noindent\textit{$\star$ = recommended model.\enspace
+Q90 target: $<10\%$ relative error.\enspace
+KS: $p\geq 0.05$ = no overfitting.}
 
-% ── 4. Metrics per Output ─────────────────────────────────────────────────────
-\section*{4.\enspace Metrics per Output (Q90 target $< 10\%$)}
+% ── 2. Full Metrics per Output ────────────────────────────────────────────────
+\section{Full Metrics per Output}
+\label{sec:metrics}
 
-\renewcommand{\arraystretch}{1.25}
-\begin{tabular}{lrrrr}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lrrrrrr}
   \toprule
-  \textbf{Output} & \multicolumn{2}{c}{\textbf{MLP}} & \multicolumn{2}{c}{\textbf{GradientBoosting}} \\
-  & R\textsuperscript{2} & Q90 & R\textsuperscript{2} & Q90 \\
+  \textbf{Output} & \multicolumn{3}{c}{\textbf{MLP}} & \multicolumn{3}{c}{\textbf{GradientBoosting}} \\
+  & R\textsuperscript{2} & Q90 & Gap & R\textsuperscript{2} & Q90 & Gap \\
   \midrule
-        1g & \textcolor{orange}{\textbf{0.9160}} & \cellcolor{passgreen}0.047 & \textcolor{darkgreen}{\textbf{0.9797}} & \cellcolor{passgreen}0.026 \\
-        Vertical maneuver & \textcolor{orange}{\textbf{0.9116}} & \cellcolor{passgreen}0.055 & \textcolor{darkgreen}{\textbf{0.9723}} & \cellcolor{passgreen}0.032 \\
-        Vertical gust & \textcolor{orange}{\textbf{0.9377}} & \cellcolor{passgreen}0.092 & \textcolor{darkgreen}{\textbf{0.9914}} & \cellcolor{passgreen}0.026 \\
-        Turn & \textcolor{red}{\textbf{0.7544}} & \cellcolor{passgreen}0.078 & \textcolor{orange}{\textbf{0.9286}} & \cellcolor{passgreen}0.035 \\
-        Frontal gust & \textcolor{darkgreen}{\textbf{0.9794}} & \cellcolor{failred}11.330 & \textcolor{darkgreen}{\textbf{0.9964}} & \cellcolor{failred}0.280 \\
-        n0 & \textcolor{red}{\textbf{-0.7292}} & \cellcolor{passgreen}0.072 & \textcolor{orange}{\textbf{0.9317}} & \cellcolor{passgreen}0.015 \\
-        Giro & \textcolor{red}{\textbf{-0.1042}} & \cellcolor{failred}0.901 & \textcolor{orange}{\textbf{0.9499}} & \cellcolor{failred}0.222 \\
+  1g & \cellcolor{r2amber}0.9160 & \cellcolor{passgreen}0.0473 & \cellcolor{passgreen}-0.0527 & \cellcolor{r2green}0.9797 & \cellcolor{passgreen}0.0257 & \cellcolor{passgreen}-0.0743 \\
+  Vertical maneuver & \cellcolor{r2amber}0.9116 & \cellcolor{passgreen}0.0554 & \cellcolor{passgreen}-0.0446 & \cellcolor{r2green}0.9723 & \cellcolor{passgreen}0.0318 & \cellcolor{passgreen}-0.0682 \\
+  Vertical gust & \cellcolor{r2amber}0.9377 & \cellcolor{passgreen}0.0918 & \cellcolor{passgreen}-0.0082 & \cellcolor{r2green}0.9914 & \cellcolor{passgreen}0.0262 & \cellcolor{passgreen}-0.0738 \\
+  Turn & \cellcolor{failred}0.7544 & \cellcolor{passgreen}0.0783 & \cellcolor{passgreen}-0.0217 & \cellcolor{r2amber}0.9286 & \cellcolor{passgreen}0.0351 & \cellcolor{passgreen}-0.0649 \\
+  Frontal gust & \cellcolor{r2green}0.9794 & \cellcolor{failred}11.3300 & \cellcolor{failred}+11.2300 & \cellcolor{r2green}0.9964 & \cellcolor{failred}0.2795 & \cellcolor{failred}+0.1795 \\
+  n0 & \cellcolor{failred}-0.7292 & \cellcolor{passgreen}0.0723 & \cellcolor{passgreen}-0.0277 & \cellcolor{r2amber}0.9317 & \cellcolor{passgreen}0.0149 & \cellcolor{passgreen}-0.0851 \\
+  Giro & \cellcolor{failred}-0.1042 & \cellcolor{failred}0.9005 & \cellcolor{failred}+0.8005 & \cellcolor{r2amber}0.9499 & \cellcolor{failred}0.2215 & \cellcolor{failred}+0.1215 \\
   \bottomrule
 \end{tabular}
 
-\medskip
-\noindent\colorbox{passgreen}{pass}\enspace Q90 $< 10\%$\quad
-\colorbox{failred}{fail}\enspace Q90 $\geq 10\%$\quad
-\textcolor{darkgreen}{\textbf{R\textsuperscript{2} $\geq 0.95$}}\enspace
-\textcolor{orange}{\textbf{$0.80 \leq$ R\textsuperscript{2} $< 0.95$}}\enspace
-\textcolor{red}{\textbf{R\textsuperscript{2} $< 0.80$}}
+\smallskip
+\noindent
+\colorbox{passgreen}{pass}\enspace Q90 $<10\%$\quad
+\colorbox{failred}{fail / low R\textsuperscript{2}}\quad
+\colorbox{r2amber}{R\textsuperscript{2} $\in [0.80,\,0.95)$}\quad
+Gap $= $ Q90 $-$ target (negative $\Rightarrow$ margin).
 
-% ── 5. Overfitting Check ──────────────────────────────────────────────────────
-\section*{5.\enspace Overfitting Check (KS Test p-values)}
+% ── 3. Predicted vs True ─────────────────────────────────────────────────────
+\section{Predicted vs True (Scatter Plots, Test Set)}
+\label{sec:scatter}
 
-\noindent$H_0$: train and test residuals follow the same distribution.
-Rejection ($p < 0.05$) indicates overfitting.
+\noindent Each plot shows a sample of up to 5\,000 test points.
+The dashed line represents perfect prediction ($\hat{y}=y$).
 
-\renewcommand{\arraystretch}{1.25}
+\subsection*{MLP}
+\begin{center}
+  \includegraphics[width=0.78\textwidth]{../scatter_MLP.png}
+\end{center}
+
+\subsection*{GradientBoosting}
+\begin{center}
+  \includegraphics[width=0.78\textwidth]{../scatter_GradientBoosting.png}
+\end{center}
+
+
+
+% ── 4. Overfitting Check — KS Test ───────────────────────────────────────────
+\section{Overfitting Check --- KS Test p-values}
+\label{sec:ks}
+
+\noindent$H_0$: residuals on train and test sets follow the same distribution.
+\textbf{Rejection ($p<0.05$) indicates overfitting.}
+
+\renewcommand{\arraystretch}{1.15}
 \begin{tabular}{lrr}
   \toprule
   \textbf{Output} & \textbf{MLP} & \textbf{GradientBoosting} \\
   \midrule
-        1g & \cellcolor{passgreen}0.473 & \cellcolor{failred}0.004 \\
-        Vertical maneuver & \cellcolor{passgreen}0.180 & \cellcolor{passgreen}0.161 \\
-        Vertical gust & \cellcolor{passgreen}0.635 & \cellcolor{failred}0.042 \\
-        Turn & \cellcolor{passgreen}0.078 & \cellcolor{failred}0.044 \\
-        Frontal gust & \cellcolor{passgreen}0.736 & \cellcolor{passgreen}0.974 \\
-        n0 & \cellcolor{passgreen}0.378 & \cellcolor{failred}0.032 \\
-        Giro & \cellcolor{passgreen}0.781 & \cellcolor{failred}0.017 \\
+  1g & \cellcolor{passgreen}0.473 & \cellcolor{failred}0.004 \\
+  Vertical maneuver & \cellcolor{passgreen}0.180 & \cellcolor{passgreen}0.161 \\
+  Vertical gust & \cellcolor{passgreen}0.635 & \cellcolor{failred}0.042 \\
+  Turn & \cellcolor{passgreen}0.078 & \cellcolor{failred}0.044 \\
+  Frontal gust & \cellcolor{passgreen}0.736 & \cellcolor{passgreen}0.974 \\
+  n0 & \cellcolor{passgreen}0.378 & \cellcolor{failred}0.032 \\
+  Giro & \cellcolor{passgreen}0.781 & \cellcolor{failred}0.017 \\
   \bottomrule
 \end{tabular}
 
-% ── 6. Split Quality ──────────────────────────────────────────────────────────
-\section*{6.\enspace Train/Test Split Quality}
+% ── 5. Train/Test Split Quality ───────────────────────────────────────────────
+\section{Train / Test Split Quality}
+\label{sec:split}
 
-\begin{tabular}{ll}
-  \textbf{Residual voxel proportion}  & 0.000\enspace $\times$ \\
-  \textbf{Valid test proportion}      & 0.931 \\
-  \textbf{Phacking test proportion}   & 0.006 \\
-  \textbf{Isolated test proportion}   & 0.063 \\
-  \textbf{Chi\textsuperscript{2} p-value}
-    & 0.7969\enspace $\checkmark$ ($\geq 0.05$) \\
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{llc}
+  \toprule
+  \textbf{Metric} & \textbf{Value} & \textbf{Pass} \\
+  \midrule
+  Residual voxel proportion  & 0.000 & \cellcolor{passgreen}\checkmark \\
+  Valid test proportion      & 0.931 & \\
+  Phacking test proportion   & 0.006 & \\
+  Isolated test proportion   & 0.063 & \\
+  Chi\textsuperscript{2} p-value & 0.7969 & \cellcolor{passgreen}\checkmark \\
+  \bottomrule
 \end{tabular}
 
-% ── 7. Recommendation ─────────────────────────────────────────────────────────
-\section*{7.\enspace Recommendation}
-
-\begin{itemize}
-  \item \textbf{Recommended model:} \textbf{GradientBoosting}
-    (highest average R\textsuperscript{2} = 0.9643,
-     Q90 pass rate 5/7,
-     KS pass rate 2/7).
-  \item Split quality is excellent: no residual voxels, no phacking artefacts.
-  \item Deploy \texttt{pipeline\_UCFATIGUE\_1\_GradientBoosting.pkl} for inference.
-\end{itemize}
+\smallskip
+\noindent\textit{Residual voxel proportion $\leq 0.05$ ensures test points cover
+the training space. Chi\textsuperscript{2} $p \geq 0.05$ confirms the split is
+statistically unbiased.}
 
 \end{document}
