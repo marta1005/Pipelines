@@ -9,6 +9,8 @@ UCLoads/pipeline/data/
 !UCFatigue/pipeline/data/artifacts/validation_reports/*.html
 !UCFatigue/pipeline/data/artifacts/validation_reports/*.pdf
 !UCFatigue/pipeline/data/artifacts/validation_reports/*.tex
+!UCFatigue/pipeline/data/artifacts/validation_reports/analysis_plots/
+!UCFatigue/pipeline/data/artifacts/validation_reports/analysis_plots/*.png
 !UCFatigue/pipeline/data/artifacts/*.png
 !UCLoads/pipeline/data/
 !UCLoads/pipeline/data/artifacts/

@@ -1,0 +1,122 @@
+Error executing the notebook: An error occurred while executing the following cell:
+------------------
+# Global uncertainty model
+uncert_model_global = validationlib.tests.interval.BinnedUncertaintyModel(
+    percentile_range=percentile_range,
+    model_type="eqspaced_bins",
+    ci_type=ci_type,
+    method_kwargs={"bins":1, "nsim":100, "min_elems": min_elems, "conf": 0.95},
+    matched_analysis=True
+)
+uncert_model_global.train(
+    yh_valtest_df,
+    abserr_metric(yt_valtest_df, yh_valtest_df),
+    val_mask, # We can give a mask of the validation data to train the model
+    x_variables=yt_test_df.columns,
+    y_variables=yt_test_df.columns
+)
+
+# If we have a split of data, different than the one used to train the uncertainty model, we can create a ModelCoverage object to compute the coverage of the model.
+cov_model = validationlib.tests.interval.ModelCoverage(matched_analysis=True, conf=0.95)
+coverage_df, coverageci_df = cov_model.compute_coverage(
+    yh_valtest_df,
+    abserr_metric(yt_valtest_df, yh_valtest_df),
+    test_mask, # The coverage is computed for the test data (as this split has not been used yet)
+    uncert_model_global, # Uncertainty model
+    x_variables=yt_test_df.columns,
+    y_variables=yt_test_df.columns,
+)
+
+# We can complete the scatterplot with another split of data (e.g. the test data), and the coverage model
+uncert_model_global.coverage_plot(
+    yh_valtest_df,
+    abserr_metric(yt_valtest_df, yh_valtest_df),
+    val_mask,
+    test_mask,
+    cov_model,
+    y_label=abserr_metric.name,
+    plot_type="histogram",
+    hist_data="test",
+    bins=500,
+    logscale=True
+)
+plt.show()
+------------------
+
+----- stderr -----
+/Users/martaarnabatmartin/Desktop/Pipelines/validationlib/tests/interval.py:470: RuntimeWarning: All-NaN slice encountered
+  y_lim_max = np.nanmax(y_ci[y_ci != np.inf])
+------------------
+
+[31m---------------------------------------------------------------------------[39m
+[31mValueError[39m                                Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[58][39m[32m, line 29[39m
+[32m     19[39m coverage_df, coverageci_df = cov_model.compute_coverage(
+[32m     20[39m     yh_valtest_df,
+[32m     21[39m     abserr_metric(yt_valtest_df, yh_valtest_df),
+[32m   (...)[39m[32m     25[39m     y_variables=yt_test_df.columns,
+[32m     26[39m )
+[32m     28[39m [38;5;66;03m# We can complete the scatterplot with another split of data (e.g. the test data), and the coverage model[39;00m
+[32m---> [39m[32m29[39m [43muncert_model_global[49m[43m.[49m[43mcoverage_plot[49m[43m([49m
+[32m     30[39m [43m    [49m[43myh_valtest_df[49m[43m,[49m
+[32m     31[39m [43m    [49m[43mabserr_metric[49m[43m([49m[43myt_valtest_df[49m[43m,[49m[43m [49m[43myh_valtest_df[49m[43m)[49m[43m,[49m
+[32m     32[39m [43m    [49m[43mval_mask[49m[43m,[49m
+[32m     33[39m [43m    [49m[43mtest_mask[49m[43m,[49m
+[32m     34[39m [43m    [49m[43mcov_model[49m[43m,[49m
+[32m     35[39m [43m    [49m[43my_label[49m[43m=[49m[43mabserr_metric[49m[43m.[49m[43mname[49m[43m,[49m
+[32m     36[39m [43m    [49m[43mplot_type[49m[43m=[49m[33;43m"[39;49m[33;43mhistogram[39;49m[33;43m"[39;49m[43m,[49m
+[32m     37[39m [43m    [49m[43mhist_data[49m[43m=[49m[33;43m"[39;49m[33;43mtest[39;49m[33;43m"[39;49m[43m,[49m
+[32m     38[39m [43m    [49m[43mbins[49m[43m=[49m[32;43m500[39;49m[43m,[49m
+[32m     39[39m [43m    [49m[43mlogscale[49m[43m=[49m[38;5;28;43;01mTrue[39;49;00m
+[32m     40[39m [43m)[49m
+[32m     41[39m plt.show()
+
+[36mFile [39m[32m~/Desktop/Pipelines/validationlib/tests/interval.py:546[39m, in [36mBinnedUncertaintyModel.coverage_plot[39m[34m(self, x, y, calset_mask, testset_mask, model_coverage, margin, focus_on_ci, x_variables, y_variables, x_label, y_label, label_significant_figures, alpha, plot_type, hist_data, bins, logscale, cov_kwargs)[39m
+[32m    543[39m nPlots = [38;5;28mlen[39m(x_variables)
+[32m    545[39m [38;5;28;01mif[39;00m [38;5;28mself[39m.matched_analysis:
+[32m--> [39m[32m546[39m     fig = [43mmultiplePlots[49m[43m([49m
+[32m    547[39m [43m        [49m[43mnPlots[49m[43m,[49m
+[32m    548[39m [43m        [49m[43mfunc[49m[43m,[49m
+[32m    549[39m [43m        [49m[43mtight_layout[49m[43m=[49m[38;5;28;43;01mTrue[39;49;00m[43m,[49m
+[32m    550[39m [43m        [49m[43mylabel[49m[43m=[49m[43my_label[49m[43m [49m[38;5;28;43;01mif[39;49;00m[43m [49m[38;5;28;43misinstance[39;49m[43m([49m[43my_label[49m[43m,[49m[43m [49m[38;5;28;43mstr[39;49m[43m)[49m[43m [49m[38;5;28;43;01melse[39;49;00m[43m [49m[38;5;28;43;01mNone[39;49;00m
+[32m    551[39m [43m    [49m[43m)[49m
+[32m    553[39m     [38;5;28;01mreturn[39;00m [fig]
+[32m    555[39m [38;5;28;01melse[39;00m:
+
+[36mFile [39m[32m~/Desktop/Pipelines/validationlib/plots/common.py:150[39m, in [36mmultiplePlots[39m[34m(nplots, func, nWorkers, figHsize, figAspectRatio, xlabel, ylabel, clabel, figTitle, oneColorbar, colorbarKwargs, tight_layout, xticks_rotation, func_kwargs)[39m
+[32m    147[39m     [38;5;28;01mcontinue[39;00m
+[32m    149[39m [38;5;66;03m# Compute[39;00m
+[32m--> [39m[32m150[39m axes, colorbarData = [43mfunc[49m[43m([49m[43mi[49m[43m,[49m[43m [49m[43maxes[49m[43m,[49m[43m [49m[43m*[49m[43m*[49m[43mfunc_kwargs[49m[43m)[49m
+[32m    152[39m [38;5;28;01mif[39;00m [38;5;28misinstance[39m(xlabel, [38;5;28mstr[39m):
+[32m    153[39m     [38;5;28;01mif[39;00m i >= nplots - cols: axes.set_xlabel(xlabel)
+
+[36mFile [39m[32m~/Desktop/Pipelines/validationlib/tests/interval.py:479[39m, in [36mBinnedUncertaintyModel.coverage_plot.<locals>.func[39m[34m(i, axes, j)[39m
+[32m    477[39m y_lim_max_plot = y_lim_max + y_lim_range * margin
+[32m    478[39m axes.margins(x=margin / [32m2[39m)
+[32m--> [39m[32m479[39m [43maxes[49m[43m.[49m[43mset_ylim[49m[43m([49m[43m[[49m[43my_lim_min_plot[49m[43m,[49m[43m [49m[43my_lim_max_plot[49m[43m][49m[43m)[49m
+[32m    481[39m [38;5;28;01mif[39;00m [38;5;28mself[39m.model_type == [33m"[39m[33mcategorical[39m[33m"[39m:
+[32m    482[39m     categorical_plot(axes, xbins_plot, y_ci, y_mean)
+
+[36mFile [39m[32m~/Desktop/Pipelines/.venv/lib/python3.11/site-packages/matplotlib/axes/_base.py:4219[39m, in [36m_AxesBase.set_ylim[39m[34m(self, bottom, top, emit, auto, ymin, ymax)[39m
+[32m   4217[39m         [38;5;28;01mraise[39;00m [38;5;167;01mTypeError[39;00m([33m"[39m[33mCannot pass both [39m[33m'[39m[33mtop[39m[33m'[39m[33m and [39m[33m'[39m[33mymax[39m[33m'[39m[33m"[39m)
+[32m   4218[39m     top = ymax
+[32m-> [39m[32m4219[39m [38;5;28;01mreturn[39;00m [38;5;28;43mself[39;49m[43m.[49m[43myaxis[49m[43m.[49m[43m_set_lim[49m[43m([49m[43mbottom[49m[43m,[49m[43m [49m[43mtop[49m[43m,[49m[43m [49m[43memit[49m[43m=[49m[43memit[49m[43m,[49m[43m [49m[43mauto[49m[43m=[49m[43mauto[49m[43m)[49m
+
+[36mFile [39m[32m~/Desktop/Pipelines/.venv/lib/python3.11/site-packages/matplotlib/axis.py:1263[39m, in [36mAxis._set_lim[39m[34m(self, v0, v1, emit, auto)[39m
+[32m   1260[39m name = [38;5;28mself[39m._get_axis_name()
+[32m   1262[39m [38;5;28mself[39m.axes._process_unit_info([(name, (v0, v1))], convert=[38;5;28;01mFalse[39;00m)
+[32m-> [39m[32m1263[39m v0 = [38;5;28;43mself[39;49m[43m.[49m[43maxes[49m[43m.[49m[43m_validate_converted_limits[49m[43m([49m[43mv0[49m[43m,[49m[43m [49m[38;5;28;43mself[39;49m[43m.[49m[43mconvert_units[49m[43m)[49m
+[32m   1264[39m v1 = [38;5;28mself[39m.axes._validate_converted_limits(v1, [38;5;28mself[39m.convert_units)
+[32m   1266[39m [38;5;28;01mif[39;00m v0 [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mor[39;00m v1 [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m:
+[32m   1267[39m     [38;5;66;03m# Axes init calls set_xlim(0, 1) before get_xlim() can be called,[39;00m
+[32m   1268[39m     [38;5;66;03m# so only grab the limits if we really need them.[39;00m
+
+[36mFile [39m[32m~/Desktop/Pipelines/.venv/lib/python3.11/site-packages/matplotlib/axes/_base.py:3891[39m, in [36m_AxesBase._validate_converted_limits[39m[34m(self, limit, convert)[39m
+[32m   3888[39m     converted_limit = converted_limit.squeeze()
+[32m   3889[39m [38;5;28;01mif[39;00m ([38;5;28misinstance[39m(converted_limit, Real)
+[32m   3890[39m         [38;5;129;01mand[39;00m [38;5;129;01mnot[39;00m np.isfinite(converted_limit)):
+[32m-> [39m[32m3891[39m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([33m"[39m[33mAxis limits cannot be NaN or Inf[39m[33m"[39m)
+[32m   3892[39m [38;5;28;01mreturn[39;00m converted_limit
+
+[31mValueError[39m: Axis limits cannot be NaN or Inf
+
