@@ -235,17 +235,16 @@ def _banner(d, best, rows):
         rf'  {{\normalsize\bfseries {verdict}}}\\[4pt]' + '\n'
         rf'  {{\small\bfseries Recommended model:}} {{\small {best_esc}}}\\[5pt]' + '\n'
         + _row(r2c, rf'Avg R\textsuperscript{{2}}: {r2_str}', r2l, [], []) + r'\\[2pt]' + '\n'
-        + _row(q90c, 'Q90 Accuracy', q90l, q90_p, q90_f) + r'\\[2pt]' + '\n'
-        + _row(ksc, 'Overfitting check (KS)', ksl, ks_p, ks_f) + '\n'
+        + _row(q90c, 'Q90 Accuracy', q90l, q90_p, q90_f) + '\n'
         r'  \vspace{5pt}' + '\n'
         r'\end{minipage}}' + '\n'
         r'\end{center}'
     )
 
 
-# ── Part 1 ─────────────────────────────────────────────────────────────────────
+# ── Executive Summary ──────────────────────────────────────────────────────────
 
-def _part1(d, best, rows, scatter_paths):
+def _part1(d, best, rows, scatter_paths, paths, out_dir):
     uc          = _esc(d['use_case'])
     n_out       = len(d['outputs'])
     n_models    = len(d['models'])
@@ -255,111 +254,30 @@ def _part1(d, best, rows, scatter_paths):
     target_pct  = _pct(d['q90_target'])
     ptr, pvl, pts = _pct(d.get('pct_train')), _pct(d.get('pct_val')), _pct(d.get('pct_test'))
     best_esc    = _esc(best)
+    models      = d['models']
+    outputs     = d['outputs']
+    scores      = d['scores']
+    dist        = d['dist']
+    vres        = d['vres']
+    split       = d['split']
+    vres_map    = {vr['output']: vr for vr in vres}
+    _star       = {m: (r'\ $\star$' if m == best else '') for m in models}
 
-    scatter_tex = ''
+    def _fig_es(name):
+        p = paths.get(name, '')
+        if not p: return ''
+        rp = os.path.relpath(p, str(out_dir))
+        return (r'\begin{center}\includegraphics[width=\linewidth]{' + rp + r'}\end{center}' + '\n')
+
+    # ── Winner scatter ─────────────────────────────────────────────────────────
+    winner_scatter_tex = ''
     p = scatter_paths.get(best, '')
     if p:
-        scatter_tex = (
-            rf'\exhead{{Predicted vs True --- {best_esc} (test set, up to 5\,000 points)}}' + '\n'
-            r'\begin{center}\includegraphics[width=0.82\linewidth]{' + p + r'}\end{center}'
+        winner_scatter_tex = (
+            r'\begin{center}\includegraphics[width=\linewidth]{' + p + r'}\end{center}' + '\n'
         )
 
-    perf_rows = []
-    for r in rows:
-        s = r'\cellcolor{passgreen}\textbf{PASS}' if r['passed'] else r'\cellcolor{failred}\textbf{FAIL}'
-        perf_rows.append(
-            _esc(r['output']) + ' & ' + _r2cell(r['r2']) + ' & ' + _q90cell(r['q90'], r['passed'])
-            + ' & ' + target_pct + ' & ' + _gapcell(r['gap']) + ' & ' + s + r' \\ \hline'
-        )
-    perf_tex = '\n  '.join(perf_rows)
-
-    perf_table = (
-        r'\renewcommand{\arraystretch}{1.2}' + '\n'
-        r'\begin{tabular}{|l|r|r|r|r|c|}' + '\n'
-        r'  \hline' + '\n'
-        r'  \textbf{Output} & \textbf{R\textsuperscript{2}} & \textbf{Q90}'
-        r' & \textbf{Target} & \textbf{Gap} & \textbf{Status} \\ \hline' + '\n'
-        f'  {perf_tex}\n'
-        r'\end{tabular}'
-    )
-
-    ks_cells = []
-    for o in d['outputs']:
-        pval = d['dist'].get(best, {}).get(o)
-        ks_cells.append(_esc(o) + ' & ' + _kscell(pval) + r' \\ \hline')
-    ks_tex = '\n  '.join(ks_cells)
-
-    rec_items = '\n  '.join(r'\item ' + b for b in _recs(d, best, rows))
-
-    return (
-        '% ════ PART 1 — EXECUTIVE SUMMARY ════\n'
-        r'\thispagestyle{fancy}' + '\n\n'
-        r'\begin{center}' + '\n'
-        rf'  {{\large\bfseries\color{{primary}} Executive Summary --- Surrogate Model Validation Report}}\\[2pt]' + '\n'
-        rf'  {{\small\color{{sepgray}} Use case: \textbf{{{uc}}} \quad|\quad {date_str} \quad|\quad {n_models} model(s)}}' + '\n'
-        r'\end{center}' + '\n'
-        r'\vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{3pt}' + '\n\n'
-        + _banner(d, best, rows) + '\n\n'
-        r'\vspace{4pt}' + '\n\n'
-        r'\exhead{Project Overview}' + '\n'
-        r'\renewcommand{\arraystretch}{1.2}' + '\n'
-        r'\begin{tabular}{|l|p{0.60\linewidth}|}' + '\n'
-        r'  \hline' + '\n'
-        rf'  \textbf{{Use case}}           & {uc} \\ \hline' + '\n'
-        rf'  \textbf{{Inputs}}             & {inputs_str} \\ \hline' + '\n'
-        rf'  \textbf{{Outputs}}            & {n_out}: {outputs_str} \\ \hline' + '\n'
-        rf'  \textbf{{Train / Val / Test}} & {ptr} / {pvl} / {pts} \\ \hline' + '\n'
-        rf'  \textbf{{Accuracy target}}    & Q90 $<$ {target_pct} relative error per output \\ \hline' + '\n'
-        r'\end{tabular}' + '\n\n'
-        r'\vspace{4pt}' + '\n\n'
-        + scatter_tex + '\n\n'
-        r'\vspace{4pt}' + '\n\n'
-        rf'\exhead{{Model Performance --- \textbf{{{best_esc}}} (test set)}}' + '\n'
-        + _tbl_with_legend(perf_table, _LEGEND) + '\n\n'
-        r'\vspace{4pt}' + '\n\n'
-        r'\exhead{Analysis \& Recommendations}' + '\n'
-        r'\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]' + '\n'
-        f'  {rec_items}\n'
-        r'\end{itemize}' + '\n\n'
-        r'\vspace{4pt}' + '\n\n'
-        rf'\exhead{{Overfitting Check (KS Test) --- {best_esc}}}' + '\n'
-        + _tbl_with_legend(
-            r'\renewcommand{\arraystretch}{1.15}' + '\n'
-            r'\begin{tabular}{|l|r|}' + '\n'
-            r'  \hline\textbf{Output} & \textbf{KS p-value} \\ \hline' + '\n'
-            f'  {ks_tex}\n'
-            r'\end{tabular}',
-            _KS_LEGEND
-        ) + '\n\n'
-        r'\vspace{6pt}' + '\n'
-        r'\noindent\textcolor{sepgray}{\small\textit{Full technical details in the '
-        r'\hyperref[sec:techreview]{Technical Review} and '
-        r'\hyperref[sec:deepanalysis]{Deep Analysis}.}}' + '\n'
-    )
-
-
-# ── Part 2 ─────────────────────────────────────────────────────────────────────
-
-def _part2(d, scatter_paths, ratio_paths):
-    models     = d['models']
-    outputs    = d['outputs']
-    scores     = d['scores']
-    dist       = d['dist']
-    vres       = d['vres']
-    split      = d['split']
-    best       = d['best_model']
-    n_out      = len(outputs)
-    target_pct = _pct(d['q90_target'])
-    vres_map   = {vr['output']: vr for vr in vres}
-    uc_esc     = _esc(d['use_case'])
-    best_esc   = _esc(best)
-    best_r2    = d['avg_r2'].get(best, 0)
-    best_q90p  = d['q90_pass'].get(best, 0)
-    best_ksp   = d['ks_pass'].get(best, 0)
-
-    _star = {m: (r'\ $\star$' if m == best else '') for m in models}
-
-    # Model comparison table
+    # ── Model comparison table (both models) ──────────────────────────────────
     comp_rows = []
     for m in models:
         b = r'\bfseries' if m == best else ''
@@ -369,7 +287,6 @@ def _part2(d, scatter_paths, ratio_paths):
             rf' & {{{b} {d["ks_pass"].get(m,0)}/{n_out}}} \\ \hline'
         )
     comp_tex = '\n'.join(comp_rows)
-
     comp_tbl = (
         r'\renewcommand{\arraystretch}{1.2}' + '\n'
         r'\begin{tabular}{|l|r|r|r|}' + '\n'
@@ -383,7 +300,7 @@ def _part2(d, scatter_paths, ratio_paths):
         rf'Q90 target: $<{target_pct}$.\enspace KS: $p\geq 0.05$ = no overfitting.}}'
     )
 
-    # Per-output metrics table (all models)
+    # ── Per-output metrics table (all models) ──────────────────────────────────
     col_spec  = 'l' + '|rrr' * len(models)
     mdl_span  = ' & '.join(
         rf'\multicolumn{{3}}{{c|}}{{\textbf{{{_esc(m)}}}{_star[m]}}}' for m in models)
@@ -400,7 +317,6 @@ def _part2(d, scatter_paths, ratio_paths):
             cells += [_r2cell(r2), _q90cell(q90, ok), _gapcell(gap)]
         mrows.append(' & '.join(cells) + r' \\ \hline')
     metrics_tex = '\n  '.join(mrows)
-
     metrics_tbl = (
         r'\renewcommand{\arraystretch}{1.2}' + '\n'
         rf'\begin{{tabular}}{{{col_spec}|}}' + '\n'
@@ -411,78 +327,21 @@ def _part2(d, scatter_paths, ratio_paths):
         r'\end{tabular}'
     )
 
-    # KS table
-    ks_col  = '|l' + '|r' * len(models) + '|'
-    ks_hdrs = ' & '.join(r'\textbf{' + _esc(m) + '}' for m in models)
-    ks_rows = []
+    # ── KS table (winner model) ────────────────────────────────────────────────
+    ks_cells = []
     for o in outputs:
-        cells = [_esc(o)]
-        for m in models:
-            cells.append(_kscell(dist.get(m, {}).get(o)))
-        ks_rows.append(' & '.join(cells) + r' \\ \hline')
-    ks_tex = '\n  '.join(ks_rows)
-
+        pval = dist.get(best, {}).get(o)
+        ks_cells.append(_esc(o) + ' & ' + _kscell(pval) + r' \\ \hline')
+    ks_tex = '\n  '.join(ks_cells)
     ks_tbl = (
-        r'\renewcommand{\arraystretch}{1.2}' + '\n'
-        rf'\begin{{tabular}}{{{ks_col}}}' + '\n'
-        r'  \hline' + '\n'
-        rf'  \textbf{{Output}} & {ks_hdrs} \\ \hline' + '\n'
+        r'\renewcommand{\arraystretch}{1.15}' + '\n'
+        r'\begin{tabular}{|l|r|}' + '\n'
+        r'  \hline\textbf{Output} & \textbf{KS p-value} \\ \hline' + '\n'
         f'  {ks_tex}\n'
         r'\end{tabular}'
     )
 
-    # Scatter/ratio plots
-    scatter_tex = ''
-    for m in models:
-        p = scatter_paths.get(m, '')
-        if p:
-            lbl = _esc(m) + (r' $\star$' if m == best else '')
-            scatter_tex += (
-                rf'\subsection*{{\normalsize {lbl}}}' + '\n'
-                r'\begin{center}\includegraphics[width=0.85\linewidth]{' + p + r'}\end{center}' + '\n\n'
-            )
-    ratio_tex = ''
-    for m in models:
-        p = ratio_paths.get(m, '')
-        if p:
-            lbl = _esc(m) + (r' $\star$' if m == best else '')
-            ratio_tex += (
-                rf'\subsection*{{\normalsize {lbl}}}' + '\n'
-                r'\begin{center}\includegraphics[width=0.85\linewidth]{' + p + r'}\end{center}' + '\n\n'
-            )
-
-    # Prose
-    runners = [m for m in models if m != best]
-    if runners:
-        ru = ', '.join(
-            rf'{_esc(m)} (R\textsuperscript{{2}}={d["avg_r2"].get(m,0):.4f})' for m in runners)
-        sel_prose = (rf'\textbf{{{best_esc}}} achieved the highest average '
-                     rf'R\textsuperscript{{2}} ({best_r2:.4f}), outperforming {ru}.')
-    else:
-        sel_prose = rf'\textbf{{{best_esc}}} is the sole evaluated model.'
-
-    fail_names = [r['output'] for r in _per_output(d, best) if not r['passed']]
-    pass_names = [r['output'] for r in _per_output(d, best) if r['passed']]
-    if best_q90p == n_out:
-        acc_prose = rf'\textbf{{{best_esc}}} satisfies Q90 on all {n_out} outputs.'
-    else:
-        fn_tex = r'\textcolor{red}{\textit{' + ', '.join(_esc(o) for o in fail_names) + r'}}'
-        pn_tex = ', '.join(_esc(o) for o in pass_names)
-        acc_prose = (rf'\textbf{{{best_esc}}} satisfies Q90 on {best_q90p}/{n_out} outputs. '
-                     f'Passing: {pn_tex}. Failing: {fn_tex}.')
-
-    ks_fail = [o for o in outputs if (dist.get(best, {}).get(o) or 1.0) < 0.05]
-    ks_fail_tex = r'\textcolor{red}{\textit{' + ', '.join(_esc(o) for o in ks_fail) + r'}}'
-    ks_prose = (rf'No overfitting detected for \textbf{{{best_esc}}}. KS passes for all outputs.'
-                if best_ksp == n_out else
-                f'Overfitting detected on: {ks_fail_tex}. Increase regularisation before deployment.')
-
-    rvp = split.get('residual_voxel_proportion', 1)
-    chi = split.get('chi_squared_pvalue') or 0
-    split_prose = (r'VTP confirms unbiased split. No isolated test points; chi-squared passes.'
-                   if rvp <= 0.05 and chi >= 0.05 else
-                   r'One or more split quality metrics are outside bounds. Review data collection in sparse regions.')
-
+    # ── Data Split Quality table ───────────────────────────────────────────────
     def _sv(key, fmt='.3f'):
         v = split.get(key)
         return f'{v:{fmt}}' if v is not None else r'\textemdash'
@@ -493,53 +352,7 @@ def _part2(d, scatter_paths, ratio_paths):
         ok = (v <= th) if op == '<=' else (v >= th)
         return r'\cellcolor{passgreen}$\checkmark$' if ok else r'\cellcolor{failred}$\times$'
 
-    detail_items = '\n  '.join(r'\item ' + b for b in _recs(d, best, _per_output(d, best), detailed=True))
-
-    return (
-        '% ════ PART 2 — TECHNICAL REVIEW ════\n'
-        + _separator_inner(uc_esc, 'Technical Review', 'All Models --- Full Metrics \& Plots')
-        + r'\label{sec:techreview}' + '\n'
-        r'\begin{center}' + '\n'
-        rf'  {{\normalsize\bfseries\color{{primary}} Technical Review --- {uc_esc}}}' + '\n'
-        r'\end{center}' + '\n'
-        r'\tableofcontents' + '\n'
-        r'\clearpage' + '\n\n'
-
-        r'\section{Model Selection}' + '\n'
-        r'\label{sec:selection}' + '\n\n'
-        + sel_prose + '\n\n'
-        r'\vspace{4pt}' + '\n'
-        + _tbl_with_legend(comp_tbl, comp_legend) + '\n\n'
-
-        r'\section{Accuracy Assessment (Q90 \& R\textsuperscript{2})}' + '\n'
-        r'\label{sec:accuracy}' + '\n\n'
-        + acc_prose + '\n\n'
-        r'\vspace{4pt}' + '\n'
-        + _tbl_with_legend(metrics_tbl, _LEGEND) + '\n\n'
-
-        r'\section{Predicted vs True (Scatter, Test Set)}' + '\n'
-        r'\label{sec:scatter}' + '\n\n'
-        r'Each plot shows up to 5\,000 test points. '
-        r'Dashed diagonal = perfect prediction.' + '\n\n'
-        + scatter_tex
-
-        + (r'\section{Relative Error Analysis (Ratio Plots)}' + '\n'
-           r'\label{sec:ratio}' + '\n\n'
-           r'Ratio $\hat{y}/y$ as a function of the true value. '
-           r'A ratio of 1.0 (dashed) = perfect prediction.' + '\n\n'
-           + ratio_tex if ratio_tex else '')
-
-        + r'\section{Overfitting Assessment (KS Test)}' + '\n'
-        r'\label{sec:ks}' + '\n\n'
-        r'KS test compares residual distributions on train vs.\ test.' + '\n\n'
-        + ks_prose + '\n\n'
-        r'\vspace{4pt}' + '\n'
-        + _tbl_with_legend(ks_tbl, _KS_LEGEND) + '\n\n'
-
-        + r'\section{Data Split Quality (VTP Analysis)}' + '\n'
-        r'\label{sec:split}' + '\n\n'
-        + split_prose + '\n\n'
-        r'\vspace{4pt}' + '\n'
+    split_tbl = (
         r'\begin{minipage}{\linewidth}' + '\n'
         r'\renewcommand{\arraystretch}{1.2}' + '\n'
         r'\begin{tabular}{|l|r|c|}' + '\n'
@@ -550,14 +363,56 @@ def _part2(d, scatter_paths, ratio_paths):
         rf'  Isolated test proportion & {_sv("isolated_test_proportion")} & \\ \hline' + '\n'
         rf'  Chi\textsuperscript{{2}} p-value ($\geq\!0.05$) & {_sv("chi_squared_pvalue",".4f")} & {_si("chi_squared_pvalue",">=",0.05)} \\ \hline' + '\n'
         r'\end{tabular}' + '\n'
-        r'\end{minipage}' + '\n\n'
+        r'\end{minipage}'
+    )
 
-        + r'\section{Improvement Roadmap}' + '\n'
-        r'\label{sec:roadmap}' + '\n\n'
-        r'Prioritised actions based on the failure analysis.' + '\n\n'
-        r'\begin{itemize}[leftmargin=1.4em,itemsep=3pt,topsep=3pt]' + '\n'
-        f'  {detail_items}\n'
-        r'\end{itemize}' + '\n'
+    return (
+        '% ════ EXECUTIVE SUMMARY ════\n'
+        r'\thispagestyle{fancy}' + '\n\n'
+        r'\begin{center}' + '\n'
+        rf'  {{\large\bfseries\color{{primary}} Executive Summary --- Surrogate Model Validation Report}}\\[2pt]' + '\n'
+        rf'  {{\small\color{{sepgray}} Use case: \textbf{{{uc}}} \quad|\quad {date_str} \quad|\quad {n_models} model(s)}}' + '\n'
+        r'\end{center}' + '\n'
+        r'\vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{3pt}' + '\n\n'
+
+        # 1. Requirements
+        + _banner(d, best, rows) + '\n\n'
+
+        # 2. Project Overview
+        r'\section{Project Overview}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        r'\begin{tabular}{|l|p{0.60\linewidth}|}' + '\n'
+        r'  \hline' + '\n'
+        rf'  \textbf{{Use case}}           & {uc} \\ \hline' + '\n'
+        rf'  \textbf{{Inputs}}             & {inputs_str} \\ \hline' + '\n'
+        rf'  \textbf{{Outputs}}            & {n_out}: {outputs_str} \\ \hline' + '\n'
+        rf'  \textbf{{Train / Val / Test}} & {ptr} / {pvl} / {pts} \\ \hline' + '\n'
+        rf'  \textbf{{Accuracy target}}    & Q90 $<$ {target_pct} relative error per output \\ \hline' + '\n'
+        r'\end{tabular}' + '\n\n'
+
+        # 3. Variable correlation scatter
+        r'\section{Variable Correlation --- Input vs Output}' + '\n'
+        + _fig_es('data_scatter_vars')
+
+        # 4. Model Selection
+        + r'\section{Model Selection}' + '\n'
+        + _tbl_with_legend(comp_tbl, comp_legend) + '\n\n'
+
+        # 5. Accuracy Assessment
+        r'\section{Accuracy Assessment (Q90 \& R\textsuperscript{2})}' + '\n'
+        + _tbl_with_legend(metrics_tbl, _LEGEND) + '\n\n'
+
+        # 6. Predicted vs True — winner model
+        rf'\section{{Predicted vs True --- {best_esc}}}' + '\n'
+        + winner_scatter_tex + '\n\n'
+
+        # 7. Data Split Quality
+        r'\section{Data Split Quality}' + '\n'
+        + split_tbl + '\n\n'
+
+        # 8. Overfitting Check
+        rf'\section{{Overfitting Check (KS Test) --- {best_esc}}}' + '\n'
+        + _tbl_with_legend(ks_tbl, _KS_LEGEND) + '\n'
     )
 
 
@@ -770,6 +625,31 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
     fig.suptitle(f'Output CDFs — {best}', fontsize=11)
     plt.tight_layout()
     _save(fig, 'data_output_cdf.png')
+
+    # 5b. Variable correlation scatter — grid of scatter plots (input vs output)
+    fig, axes = plt.subplots(n_inp, n_out,
+                              figsize=(2.8 * n_out, 2.2 * n_inp), squeeze=False)
+    for j, inp in enumerate(inputs):
+        for k, o in enumerate(outputs):
+            ax = axes[j][k]
+            xi = x_all[inp].values
+            yo = yt_all[o].values
+            valid = np.isfinite(xi) & np.isfinite(yo)
+            if valid.sum() > 5:
+                ax.scatter(xi[valid], yo[valid], s=1, alpha=0.15,
+                           color='steelblue', rasterized=True)
+                r, pv = sc.pearsonr(xi[valid], yo[valid])
+                col = 'red' if abs(r) >= 0.5 else ('darkorange' if abs(r) >= 0.25 else 'gray')
+                ax.set_title(f'r={r:.2f}', fontsize=6, color=col, pad=2)
+            if j == n_inp - 1:
+                ax.set_xlabel(o[:14], fontsize=6)
+            if k == 0:
+                ax.set_ylabel(inp[:14], fontsize=6)
+            ax.tick_params(labelsize=5)
+    fig.suptitle('Variable Correlation — Input vs Output (all data)\n'
+                 'Red |r|≥0.5   Orange |r|≥0.25   Gray |r|<0.25', fontsize=10)
+    plt.tight_layout()
+    _save(fig, 'data_scatter_vars.png')
 
     # ── TRAIN-TEST SPLIT ──────────────────────────────────────────────────────
 
@@ -1290,7 +1170,7 @@ def _part3(d, best, paths, stats, out_dir):
         if not p: return ''
         return os.path.relpath(p, str(out_dir))
 
-    def _fig(name, width='0.90'):
+    def _fig(name, width='1.0'):
         rp = _rp(name)
         if not rp: return ''
         return (r'\begin{center}\includegraphics[width=' + width +
@@ -1625,7 +1505,7 @@ nav a{color:#004680}"""
 
 # ── Build ──────────────────────────────────────────────────────────────────────
 
-def build_latex(d, scatter_paths, ratio_paths, paths, stats, out_dir):
+def build_latex(d, scatter_paths, paths, stats, out_dir):
     best = d['best_model']
     rows = _per_output(d, best)
     uc   = d['use_case']
@@ -1633,8 +1513,7 @@ def build_latex(d, scatter_paths, ratio_paths, paths, stats, out_dir):
     return (
         preamble
         + r'\begin{document}' + '\n'
-        + _part1(d, best, rows, scatter_paths)
-        + _part2(d, scatter_paths, ratio_paths)
+        + _part1(d, best, rows, scatter_paths, paths, out_dir)
         + _separator(uc)
         + _part3(d, best, paths, stats, out_dir)
         + '\n' + r'\end{document}' + '\n'
@@ -1658,12 +1537,11 @@ def main():
     best = d['best_model']
     artifacts_dir = meta_path.parent.resolve()
 
-    scatter_paths, ratio_paths = {}, {}
+    scatter_paths = {}
     for m in d['models']:
-        for kind, store in [('scatter', scatter_paths), ('ratio', ratio_paths)]:
-            png = artifacts_dir / f'{kind}_{m}.png'
-            if png.exists():
-                store[m] = os.path.relpath(str(png), str(out_dir))
+        png = artifacts_dir / f'scatter_{m}.png'
+        if png.exists():
+            scatter_paths[m] = os.path.relpath(str(png), str(out_dir))
 
     csv_dir   = artifacts_dir / f'validation_{best}'
     plots_dir = out_dir / 'analysis_plots'
@@ -1674,7 +1552,7 @@ def main():
     tex_file = out_dir / f'executive_summary_{use_case}.tex'
     pdf_file = out_dir / f'executive_summary_{use_case}.pdf'
 
-    tex = build_latex(d, scatter_paths, ratio_paths, paths, stats, out_dir)
+    tex = build_latex(d, scatter_paths, paths, stats, out_dir)
     tex_file.write_text(tex, encoding='utf-8')
     print(f'LaTeX source     → {tex_file}')
 

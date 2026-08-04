@@ -29,12 +29,12 @@
 \rfoot{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}\renewcommand{\footrulewidth}{0.4pt}
 \begin{document}
-% ════ PART 1 — EXECUTIVE SUMMARY ════
+% ════ EXECUTIVE SUMMARY ════
 \thispagestyle{fancy}
 
 \begin{center}
   {\large\bfseries\color{primary} Executive Summary --- Surrogate Model Validation Report}\\[2pt]
-  {\small\color{sepgray} Use case: \textbf{UCFATIGUE\_1} \quad|\quad 29 July 2026 \quad|\quad 2 model(s)}
+  {\small\color{sepgray} Use case: \textbf{UCFATIGUE\_1} \quad|\quad 04 August 2026 \quad|\quad 2 model(s)}
 \end{center}
 \vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{3pt}
 
@@ -44,15 +44,12 @@
   {\normalsize\bfseries REQUIREMENTS PARTIALLY MET}\\[4pt]
   {\small\bfseries Recommended model:} {\small GradientBoosting}\\[5pt]
 \colorbox{r2green}{\begin{minipage}{0.97\linewidth}\vspace{2pt}\centering {\small\bfseries Avg R\textsuperscript{2}: 0.9643} \enspace---\enspace {\small Excellent}\vspace{2pt}\end{minipage}}\\[2pt]
-\colorbox{warnamber}{\begin{minipage}{0.97\linewidth}\vspace{2pt}\centering {\small\bfseries Q90 Accuracy} \enspace---\enspace {\small Partially met}\\[1pt]{\footnotesize Pass: 1g, Vertical maneuver, Vertical gust, Turn, n0}\\[1pt]{\footnotesize\color{red} Fail: Frontal gust, Giro}\vspace{2pt}\end{minipage}}\\[2pt]
-\colorbox{failred}{\begin{minipage}{0.97\linewidth}\vspace{2pt}\centering {\small\bfseries Overfitting check (KS)} \enspace---\enspace {\small Overfitting present}\\[1pt]{\footnotesize Pass: Vertical maneuver, Frontal gust}\\[1pt]{\footnotesize\color{red} Fail: 1g, Vertical gust, Turn, n0, Giro}\vspace{2pt}\end{minipage}}
+\colorbox{warnamber}{\begin{minipage}{0.97\linewidth}\vspace{2pt}\centering {\small\bfseries Q90 Accuracy} \enspace---\enspace {\small Partially met}\\[1pt]{\footnotesize Pass: 1g, Vertical maneuver, Vertical gust, Turn, n0}\\[1pt]{\footnotesize\color{red} Fail: Frontal gust, Giro}\vspace{2pt}\end{minipage}}
   \vspace{5pt}
 \end{minipage}}
 \end{center}
 
-\vspace{4pt}
-
-\exhead{Project Overview}
+\section{Project Overview}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|p{0.60\linewidth}|}
   \hline
@@ -63,86 +60,9 @@
   \textbf{Accuracy target}    & Q90 $<$ 10\% relative error per output \\ \hline
 \end{tabular}
 
-\vspace{4pt}
-
-\exhead{Predicted vs True --- GradientBoosting (test set, up to 5\,000 points)}
-\begin{center}\includegraphics[width=0.82\linewidth]{../scatter_GradientBoosting.png}\end{center}
-
-\vspace{4pt}
-
-\exhead{Model Performance --- \textbf{GradientBoosting} (test set)}
-\begin{minipage}{\linewidth}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|l|r|r|r|r|c|}
-  \hline
-  \textbf{Output} & \textbf{R\textsuperscript{2}} & \textbf{Q90} & \textbf{Target} & \textbf{Gap} & \textbf{Status} \\ \hline
-  1g & \cellcolor{r2green}0.9797 & \cellcolor{passgreen}0.0257 & 10\% & \cellcolor{passgreen}-0.0743 & \cellcolor{passgreen}\textbf{PASS} \\ \hline
-  Vertical maneuver & \cellcolor{r2green}0.9723 & \cellcolor{passgreen}0.0318 & 10\% & \cellcolor{passgreen}-0.0682 & \cellcolor{passgreen}\textbf{PASS} \\ \hline
-  Vertical gust & \cellcolor{r2green}0.9914 & \cellcolor{passgreen}0.0262 & 10\% & \cellcolor{passgreen}-0.0738 & \cellcolor{passgreen}\textbf{PASS} \\ \hline
-  Turn & \cellcolor{r2amber}0.9286 & \cellcolor{passgreen}0.0351 & 10\% & \cellcolor{passgreen}-0.0649 & \cellcolor{passgreen}\textbf{PASS} \\ \hline
-  Frontal gust & \cellcolor{r2green}0.9964 & \cellcolor{failred}0.2795 & 10\% & \cellcolor{failred}+0.1795 & \cellcolor{failred}\textbf{FAIL} \\ \hline
-  n0 & \cellcolor{r2amber}0.9317 & \cellcolor{passgreen}0.0149 & 10\% & \cellcolor{passgreen}-0.0851 & \cellcolor{passgreen}\textbf{PASS} \\ \hline
-  Giro & \cellcolor{r2amber}0.9499 & \cellcolor{failred}0.2215 & 10\% & \cellcolor{failred}+0.1215 & \cellcolor{failred}\textbf{FAIL} \\ \hline
-\end{tabular}
-\par\vspace{4pt}
-{\footnotesize \colorbox{r2green}{\ } R\textsuperscript{2}$\!\geq\!0.95$\enspace \colorbox{r2amber}{\ } R\textsuperscript{2}$\!\in[0.80,0.95)$\enspace \colorbox{failred}{\ } R\textsuperscript{2}$\!<\!0.80$ or Q90 fail\enspace \colorbox{passgreen}{\ } pass\enspace Gap$=$Q90$-$target ($<\!0\Rightarrow$ margin)}
-\end{minipage}
-
-\vspace{4pt}
-
-\exhead{Analysis \& Recommendations}
-\begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=1pt]
-  \item \textbf{Significant failures} (\textit{Frontal gust, Giro}): Q90 exceeds target by $\geq$5\%. Investigate inputs and model capacity.
-  \item \textbf{Overfitting} (\textit{1g, Vertical gust, Turn, n0, Giro}): KS test rejects equal residual distributions.
-\end{itemize}
-
-\vspace{4pt}
-
-\exhead{Overfitting Check (KS Test) --- GradientBoosting}
-\begin{minipage}{\linewidth}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{|l|r|}
-  \hline\textbf{Output} & \textbf{KS p-value} \\ \hline
-  1g & \cellcolor{failred}0.004 \\ \hline
-  Vertical maneuver & \cellcolor{passgreen}0.161 \\ \hline
-  Vertical gust & \cellcolor{failred}0.042 \\ \hline
-  Turn & \cellcolor{failred}0.044 \\ \hline
-  Frontal gust & \cellcolor{passgreen}0.974 \\ \hline
-  n0 & \cellcolor{failred}0.032 \\ \hline
-  Giro & \cellcolor{failred}0.017 \\ \hline
-\end{tabular}
-\par\vspace{4pt}
-{\footnotesize \colorbox{passgreen}{\ } $p\geq 0.05$ --- no overfitting\enspace \colorbox{failred}{\ } $p<0.05$ --- overfitting detected}
-\end{minipage}
-
-\vspace{6pt}
-\noindent\textcolor{sepgray}{\small\textit{Full technical details in the \hyperref[sec:techreview]{Technical Review} and \hyperref[sec:deepanalysis]{Deep Analysis}.}}
-% ════ PART 2 — TECHNICAL REVIEW ════
-\clearpage
-\thispagestyle{empty}
-\vspace*{\fill}
-\begin{center}
-  \textcolor{sepgray}{\rule{0.40\linewidth}{1pt}}\\[20pt]
-  {\Huge\bfseries\color{primary} Technical Review}\\[10pt]
-  {\large\color{sepgray} UCFATIGUE\_1}\\[6pt]
-  {\normalsize\color{sepgray} All Models --- Full Metrics \& Plots}\\[20pt]
-  \textcolor{sepgray}{\rule{0.40\linewidth}{1pt}}
-\end{center}
-\vspace*{\fill}
-\clearpage
-\label{sec:techreview}
-\begin{center}
-  {\normalsize\bfseries\color{primary} Technical Review --- UCFATIGUE\_1}
-\end{center}
-\tableofcontents
-\clearpage
-
+\section{Variable Correlation --- Input vs Output}
+\begin{center}\includegraphics[width=\linewidth]{analysis_plots/data_scatter_vars.png}\end{center}
 \section{Model Selection}
-\label{sec:selection}
-
-\textbf{GradientBoosting} achieved the highest average R\textsuperscript{2} (0.9643), outperforming MLP (R\textsuperscript{2}=0.5237).
-
-\vspace{4pt}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|r|r|r|}
@@ -156,11 +76,6 @@
 \end{minipage}
 
 \section{Accuracy Assessment (Q90 \& R\textsuperscript{2})}
-\label{sec:accuracy}
-
-\textbf{GradientBoosting} satisfies Q90 on 5/7 outputs. Passing: 1g, Vertical maneuver, Vertical gust, Turn, n0. Failing: \textcolor{red}{\textit{Frontal gust, Giro}}.
-
-\vspace{4pt}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{l|rrr|rrr|}
@@ -179,59 +94,11 @@
 {\footnotesize \colorbox{r2green}{\ } R\textsuperscript{2}$\!\geq\!0.95$\enspace \colorbox{r2amber}{\ } R\textsuperscript{2}$\!\in[0.80,0.95)$\enspace \colorbox{failred}{\ } R\textsuperscript{2}$\!<\!0.80$ or Q90 fail\enspace \colorbox{passgreen}{\ } pass\enspace Gap$=$Q90$-$target ($<\!0\Rightarrow$ margin)}
 \end{minipage}
 
-\section{Predicted vs True (Scatter, Test Set)}
-\label{sec:scatter}
+\section{Predicted vs True --- GradientBoosting}
+\begin{center}\includegraphics[width=\linewidth]{../scatter_GradientBoosting.png}\end{center}
 
-Each plot shows up to 5\,000 test points. Dashed diagonal = perfect prediction.
 
-\subsection*{\normalsize MLP}
-\begin{center}\includegraphics[width=0.85\linewidth]{../scatter_MLP.png}\end{center}
-
-\subsection*{\normalsize GradientBoosting $\star$}
-\begin{center}\includegraphics[width=0.85\linewidth]{../scatter_GradientBoosting.png}\end{center}
-
-\section{Relative Error Analysis (Ratio Plots)}
-\label{sec:ratio}
-
-Ratio $\hat{y}/y$ as a function of the true value. A ratio of 1.0 (dashed) = perfect prediction.
-
-\subsection*{\normalsize MLP}
-\begin{center}\includegraphics[width=0.85\linewidth]{../ratio_MLP.png}\end{center}
-
-\subsection*{\normalsize GradientBoosting $\star$}
-\begin{center}\includegraphics[width=0.85\linewidth]{../ratio_GradientBoosting.png}\end{center}
-
-\section{Overfitting Assessment (KS Test)}
-\label{sec:ks}
-
-KS test compares residual distributions on train vs.\ test.
-
-Overfitting detected on: \textcolor{red}{\textit{1g, Vertical gust, Turn, n0, Giro}}. Increase regularisation before deployment.
-
-\vspace{4pt}
-\begin{minipage}{\linewidth}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|l|r|r|}
-  \hline
-  \textbf{Output} & \textbf{MLP} & \textbf{GradientBoosting} \\ \hline
-  1g & \cellcolor{passgreen}0.473 & \cellcolor{failred}0.004 \\ \hline
-  Vertical maneuver & \cellcolor{passgreen}0.180 & \cellcolor{passgreen}0.161 \\ \hline
-  Vertical gust & \cellcolor{passgreen}0.635 & \cellcolor{failred}0.042 \\ \hline
-  Turn & \cellcolor{passgreen}0.078 & \cellcolor{failred}0.044 \\ \hline
-  Frontal gust & \cellcolor{passgreen}0.736 & \cellcolor{passgreen}0.974 \\ \hline
-  n0 & \cellcolor{passgreen}0.378 & \cellcolor{failred}0.032 \\ \hline
-  Giro & \cellcolor{passgreen}0.781 & \cellcolor{failred}0.017 \\ \hline
-\end{tabular}
-\par\vspace{4pt}
-{\footnotesize \colorbox{passgreen}{\ } $p\geq 0.05$ --- no overfitting\enspace \colorbox{failred}{\ } $p<0.05$ --- overfitting detected}
-\end{minipage}
-
-\section{Data Split Quality (VTP Analysis)}
-\label{sec:split}
-
-VTP confirms unbiased split. No isolated test points; chi-squared passes.
-
-\vspace{4pt}
+\section{Data Split Quality}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|r|c|}
@@ -244,15 +111,22 @@ VTP confirms unbiased split. No isolated test points; chi-squared passes.
 \end{tabular}
 \end{minipage}
 
-\section{Improvement Roadmap}
-\label{sec:roadmap}
-
-Prioritised actions based on the failure analysis.
-
-\begin{itemize}[leftmargin=1.4em,itemsep=3pt,topsep=3pt]
-  \item \textbf{Significant failures} (\textit{Frontal gust, Giro}): Q90 exceeds target by $\geq$5\%. Investigate inputs and model capacity. Review input features and consider a more expressive architecture.
-  \item \textbf{Overfitting} (\textit{1g, Vertical gust, Turn, n0, Giro}): KS test rejects equal residual distributions. Increase regularisation or reduce model capacity.
-\end{itemize}
+\section{Overfitting Check (KS Test) --- GradientBoosting}
+\begin{minipage}{\linewidth}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|}
+  \hline\textbf{Output} & \textbf{KS p-value} \\ \hline
+  1g & \cellcolor{failred}0.004 \\ \hline
+  Vertical maneuver & \cellcolor{passgreen}0.161 \\ \hline
+  Vertical gust & \cellcolor{failred}0.042 \\ \hline
+  Turn & \cellcolor{failred}0.044 \\ \hline
+  Frontal gust & \cellcolor{passgreen}0.974 \\ \hline
+  n0 & \cellcolor{failred}0.032 \\ \hline
+  Giro & \cellcolor{failred}0.017 \\ \hline
+\end{tabular}
+\par\vspace{4pt}
+{\footnotesize \colorbox{passgreen}{\ } $p\geq 0.05$ --- no overfitting\enspace \colorbox{failred}{\ } $p<0.05$ --- overfitting detected}
+\end{minipage}
 \clearpage
 \thispagestyle{empty}
 \vspace*{\fill}
@@ -288,16 +162,16 @@ Prioritised actions based on the failure analysis.
 Statistical summary of inputs and outputs for \textbf{GradientBoosting} (all data: train + val + test combined). IQR = interquartile range; Skew and Kurt are the Fisher skewness and excess kurtosis. P10/P50/P90 are the 10th, 50th, and 90th percentiles.
 
 \exhead{Input Statistics}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/data_input_stats.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_input_stats.png}\end{center}
 \exhead{Input Histograms}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/data_input_hist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_input_hist.png}\end{center}
 \exhead{Output Statistics}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/data_output_stats.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_output_stats.png}\end{center}
 \exhead{Output Histograms}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/data_output_hist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_output_hist.png}\end{center}
 \exhead{Output Cumulative Distributions}
 Vertical markers show P10, P50, and P90.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/data_output_cdf.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_output_cdf.png}\end{center}
 \clearpage
 \section{Train-Test Split Analysis}
 \label{sec:d2}
@@ -305,11 +179,11 @@ Vertical markers show P10, P50, and P90.
 A well-designed split produces training and test distributions that are similar but not identical. The Kolmogorov-Smirnov (KS) test and the Anderson-Darling (AD) test are used to assess distributional similarity. $H_0$: both sets come from the same distribution. $p<0.05$ rejects $H_0$ (undesirable if too low; undesirable if the split was done by stratification and $p$ is too high).
 
 \exhead{Output Distributions: Train vs Test}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/split_output_dists.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/split_output_dists.png}\end{center}
 \exhead{Input Distributions: Train vs Test}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/split_input_dists.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/split_input_dists.png}\end{center}
 \exhead{KS and AD Test Results}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/split_ks_ad_table.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/split_ks_ad_table.png}\end{center}
 \clearpage
 \section{Error Quantification --- P(E)}
 \label{sec:d3}
@@ -322,17 +196,17 @@ Two error metrics are studied:
 
 \exhead{Residue Statistics Table}
 Mean highlighted: green $|\mu|/\sigma<0.10$, yellow $<0.30$, red $\geq 0.30$.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/err_residue_stats.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_residue_stats.png}\end{center}
 \exhead{Residue Histograms with Gaussian Fit}
 Red curve = fitted normal distribution. Deviation from the normal indicates heavy tails or skew.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/err_residue_hist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_residue_hist.png}\end{center}
 \exhead{Residue CDF}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/err_residue_cdf.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_residue_cdf.png}\end{center}
 \exhead{Absolute Error Histograms}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/err_abserr_hist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_abserr_hist.png}\end{center}
 \exhead{Relative Absolute Error CDF --- Q90 Accuracy Requirement}
 Orange dotted = observed Q90; red dashed = target threshold. Green title = PASS; red title = FAIL.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/err_relerr_cdf.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_relerr_cdf.png}\end{center}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|r|r|c|}
@@ -351,7 +225,7 @@ Orange dotted = observed Q90; red dashed = target threshold. Green title = PASS;
 
 \exhead{True vs Predicted Distribution Comparison}
 KS test comparing the distribution of true vs.\ predicted values on the test set. A significant difference indicates the model is not reproducing the output distribution faithfully.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/err_true_vs_pred_dist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_true_vs_pred_dist.png}\end{center}
 \clearpage
 \section{P(E|X) --- Error Conditional on Inputs}
 \label{sec:d4}
@@ -362,41 +236,41 @@ Significant input-conditional bias ($p<0.05$) detected for: \textcolor{red}{\tex
 
 \exhead{Bias Detection Heatmap (KW p-values)}
 Rows = inputs, columns = outputs. Green ($p\geq 0.05$) = residue uniform across input bins; red ($p<0.05$) = significant bias.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_bias_heatmap.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_bias_heatmap.png}\end{center}
 \clearpage
 \exhead{Residue Violin Plots per Output (binned by input)}
 Each panel shows the residue distribution for each input bin. A flat median line (dashed at 0) and symmetric violins indicate absence of bias.
 
 \subsection*{\normalsize Residue --- 1g}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_res_1g.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_1g.png}\end{center}
 \subsection*{\normalsize Residue --- Vertical maneuver}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_res_Vertical_maneuver.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Vertical_maneuver.png}\end{center}
 \subsection*{\normalsize Residue --- Vertical gust}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_res_Vertical_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Vertical_gust.png}\end{center}
 \subsection*{\normalsize Residue --- Turn}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_res_Turn.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Turn.png}\end{center}
 \subsection*{\normalsize Residue --- Frontal gust}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_res_Frontal_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Frontal_gust.png}\end{center}
 \subsection*{\normalsize Residue --- n0}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_res_n0.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_n0.png}\end{center}
 \subsection*{\normalsize Residue --- Giro}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_res_Giro.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Giro.png}\end{center}
 \clearpage
 \exhead{Absolute Error Violin Plots per Output (binned by input)}
 \subsection*{\normalsize Absolute Error --- 1g}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_abs_1g.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_1g.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Vertical maneuver}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_abs_Vertical_maneuver.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Vertical_maneuver.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Vertical gust}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_abs_Vertical_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Vertical_gust.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Turn}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_abs_Turn.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Turn.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Frontal gust}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_abs_Frontal_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Frontal_gust.png}\end{center}
 \subsection*{\normalsize Absolute Error --- n0}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_abs_n0.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_n0.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Giro}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pex_violin_abs_Giro.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Giro.png}\end{center}
 \clearpage
 \section{P(E|Y) --- Error Conditional on Outputs}
 \label{sec:d5}
@@ -405,15 +279,15 @@ We study whether the error depends on the output magnitude. A significant trend 
 
 \exhead{Residue vs True Output --- Scatter}
 Pearson r and p-value shown in title. Red title = significant linear trend.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pey_residue_scatter.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_residue_scatter.png}\end{center}
 \exhead{Residue Violin vs True Output Bins}
 Bins determined by Sturges rule. Median line dashed at 0.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pey_residue_violin.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_residue_violin.png}\end{center}
 \exhead{Absolute Error vs True Output --- Scatter}
 Spearman r shown. Red title = significant monotonic trend.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pey_abserr_scatter.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_abserr_scatter.png}\end{center}
 \exhead{Absolute Error Violin vs True Output Bins}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/pey_abserr_violin.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_abserr_violin.png}\end{center}
 \clearpage
 \section{Uncertainty Analysis}
 \label{sec:d6}
@@ -421,9 +295,9 @@ Spearman r shown. Red title = significant monotonic trend.
 A global Gaussian uncertainty model is estimated from the residue standard deviation on the test set. Coverage is the empirical proportion of test points within $\pm k\sigma$ bounds. For a perfectly Gaussian error, $\pm 1\sigma$ should cover 68.3\%, $\pm 2\sigma$ 95.4\%, $\pm 3\sigma$ 99.7\%. Green = within 3\% of Gaussian expectation, yellow = within 10\%, red = significant deviation.
 
 \exhead{Sigma Coverage Table}
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/uncertainty_coverage.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/uncertainty_coverage.png}\end{center}
 \exhead{Uncertainty Bounds $\pm 2\sigma$ on Predicted vs True}
 Orange ribbon = $\pm 2\sigma$ around the prediction. Points outside the ribbon are larger errors than expected under the Gaussian model.
-\begin{center}\includegraphics[width=0.90\linewidth]{analysis_plots/uncertainty_bounds.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/uncertainty_bounds.png}\end{center}
 
 \end{document}
