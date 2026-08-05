@@ -1,146 +1,152 @@
-# Surrogate-Based Aerodynamic Pipeline for Airfoil Design of Experiments (DoE)
+# UCAirfoils — Aerodynamic Surrogate for Airfoil Design Space Exploration
 
-This use case demonstrates the implementation of an **automated aerodynamic Design of Experiments (DoE)** pipeline developed using **Surrogate Factory (SF)** within the **Flight Physics Department** at Airbus Defence and Space (ADS).  
-The pipeline generates and analyses aerodynamic coefficients (`Cl`, `Cd`, `Cm`) for parametrized **airfoil geometries** defined by **Kulfan coefficients (CST)**, combining data-driven modeling and high-fidelity aerodynamic analysis tools such as **XFOIL** and **NeuralFoil**.
+## Overview
+
+UCAirfoils trains a surrogate model that maps 18 Kulfan CST airfoil shape coefficients plus aerodynamic flow conditions to lift, drag, and pitching moment coefficients. Training data is generated with **NeuralFoil** (a fast panel-method surrogate for XFOIL), enabling dense sampling of the design space without running expensive CFD or experimental campaigns.
 
 ---
 
 ## Objective
 
-The goal of this pipeline is to **create and evaluate a design space** for airfoil configurations based on **18 Kulfan parameters**, coupled with aerodynamic conditions (`α`, `Re`, `Mach`).  
-By leveraging **Surrogate Factory**, the workflow enables:
-- Automatic creation of the **DoE**,
-- Scaling and filtering of input parameters,
-- Aerodynamic data generation through **XFOIL** or **NeuralFoil**, and
-- Post-processing and reporting of key aerodynamic metrics.
+Build an MLP surrogate that approximates:
+
+```
+f(α, Re, Kulfan_1…18) → (Cl, Cd, Cm)
+```
+
+Achieving Q90 relative error < 10 % on all three outputs, enabling rapid aerodynamic screening of arbitrary airfoil shapes within the design space.
 
 ---
 
-## Design of Experiments (DoE)
+## Dataset
 
-The **Design of Experiments** is constructed using **20 bounded independent variables**, each defining the aerodynamic and geometric space of the study.
+| Property | Value |
+|---|---|
+| Source | NeuralFoil (XFOIL panel-method surrogate) |
+| File | `data/airfoils_data.csv` |
+| Rows | 7 987 (filtered: `analysis_confidence ≥ 0.3`) |
+| Split | 70 % train / 10 % val / 20 % test (`random_state=42`) |
+| Baseline geometry | NACA 0012 (upper_weights ≈ [0.17]×8, lower_weights ≈ [−0.17]×8) |
 
-| Type | Variable | Description | Units | Range / Bounds |
-|:--|:--|:--|:--|:--|
-| **Flow Conditions** | `α` | Angle of attack | deg | -11.5 ≤ α ≤ +11.5 |
-| | `Re` | Reynolds number | – | [1e6, 20e6] |
-| **Geometry Parameters** | `Kulfan_1` … `Kulfan_18` | CST shape coefficients | – | [-0.2, +0.2] |
-| **Constants** | `Mach` | Mach number | – | 0.3 |
-| | `α_rad` | Angle of attack (radians) | rad | Derived from α |
+### Inputs (20 features)
 
-Each configuration in the DoE represents a unique combination of these variables, forming the basis for aerodynamic analysis and model training.
+| Variable | Type | Range | Description |
+|---|---|---|---|
+| `alpha` | Continuous | −11.5° to +11.5° | Angle of attack |
+| `Re` | Continuous | 1 × 10⁶ to 20 × 10⁶ | Reynolds number |
+| `Kulfan_1`…`Kulfan_8` | Continuous | [−0.2, +0.2] | Upper surface CST weights |
+| `Kulfan_9`…`Kulfan_16` | Continuous | [−0.2, +0.2] | Lower surface CST weights |
+| `Kulfan_17` | Continuous | [−0.2, +0.2] | Leading edge weight |
+| `Kulfan_18` | Continuous | [0, 0.02] | Trailing edge thickness |
 
-<p align="center">
-  <img src="images/dispersion_matrix.png" alt="Report" width="50%%">
-  <img src="images/launch.png" alt="Launch" width="30%%">
-</p>
+### Outputs (3 targets)
 
----
-
-## Data Processing and Filtering
-
-1. **Scaling**  
-   All input variables are normalized according to their respective bounds to ensure consistent magnitude during model training and evaluation.
-
-2. **Filtering**  
-   Data points are constrained to physically meaningful limits:  
-   \[
-   α ∈ [-11.5°, +11.5°]
-   \]  
-   ensuring the aerodynamic regime remains within the valid operating range.
-
-3. **Generation Mode**  
-   Aerodynamic coefficients are computed using either:  
-   - **XFOIL:** low-fidelity, physics-based solver.  
-   - **NeuralFoil:** surrogate-based solver replicating XFOIL predictions with improved computational speed.
-
----
-<img src="images/overview.png" alt="Cl-Cd-Cm Aerodynamic Surface" align='right' width="20%"> 
-
-## Aerodynamic Outputs
-
-The DoE produces aerodynamic coefficients for each configuration:
-
-| Output | Description | Units |
-|:--|:--|:--|
-| `Cl` | Lift coefficient | – |
-| `Cd` | Drag coefficient | – |
-| `Cm` | Pitching moment coefficient | – |
-
-These outputs form the ground truth dataset for later surrogate modeling or optimization steps.
+| Variable | Description |
+|---|---|
+| `Cl` | Lift coefficient |
+| `Cd` | Drag coefficient |
+| `Cm` | Pitching moment coefficient |
 
 ---
 
 ## Pipeline Architecture
 
-The workflow implemented in **Surrogate Factory** consists of the following stages:
-
-| Stage | Description |
-|:--|:--|
-| **1. DoE Generation** | Creation of the parameter space from 20 bounded variables (α, Re, 18 Kulfan coefficients, Mach, α_rad). |
-| **2. Data Scaling & Filtering** | Normalization of inputs and filtering by α limits. |
-| **3. Data Generation** | Calculation of `Cl`, `Cd`, and `Cm` via XFOIL or NeuralFoil. |
-| **4. Model Definition** | Construction of a surrogate model (optional MLP, KRR, or NeuralFoil architecture). |
-| **5. Model Training & Validation** | Training using GPU acceleration and validation through statistical and visual methods. |
-| **6. Storage & Reporting** | Consolidation of results, model parameters, and validation metrics into a structured final report. |
-
-<p align="center">
-  <img src="images/diagram.png" alt="Design of Experiments Pipeline Diagram" width="55%">
-</p>
+| Stage | Notebook | Description |
+|---|---|---|
+| SF_1 | `SF_1_Requirements.ipynb` | Define accuracy targets (Q90 < 0.10 per output) |
+| SF_2 | `SF_2_Data_Acquisition.ipynb` | Load `airfoils_data.csv`; log dataset statistics |
+| SF_3 | `SF_3_Data_Cleaning.ipynb` | Drop rows with missing values |
+| SF_4 | `SF_4_Data_Partitioning.ipynb` | 70 / 10 / 20 % train / val / test split |
+| SF_5 | `SF_5_Feature_Selection.ipynb` | Fit `normalizer_transformer` (MinMax) on training set |
+| SF_6 | `SF_6_Model_Selection.ipynb` | Define MLP architecture and hyperparameters |
+| SF_7 | `SF_7_Model_Training.ipynb` | Train MLP; log loss curve to MLflow |
+| SF_8 | `SF_8_Model_Deployment.ipynb` | Package scaler + model into sklearn Pipeline (.pkl) |
+| SF_9 | `SF_9_Model_Validation.ipynb` | Metrics, distribution tests, scatter/ratio plots, HTML report |
 
 ---
 
-## Validation and Surrogate Integration
+## Model
 
-The generated dataset can be used directly to train surrogate models within **Surrogate Factory**.  
-Each model can map subsets of the DoE as:
+### Recommended: MLP Regressor
 
-\[
-f: (\alpha, Re, Kulfan_1, ..., Kulfan_{18}) \longrightarrow (C_l, C_d, C_m)
-\]
+All 20 inputs are continuous and the aerodynamic outputs vary smoothly over the design space — ideal conditions for a deep MLP. GradientBoosting is not recommended here: no discrete inputs and a smooth manifold favour neural networks.
 
-Validation is performed via:
-- **Statistical metrics:** Mean, Std, IQR, Skewness, Kurtosis.  
-- **Error distributions:** residuals and absolute error histograms.  
-- **Visualization:** cumulative and parity plots.
-
-The following plots illustrate sample distributions of aerodynamic coefficients generated from the DoE:
-
-<p align="center">
-  <img src="images/results.png" alt="Results" width="60%%">
-</p>
-
-These results demonstrate consistent aerodynamic trends and validate the correctness of the DoE filtering and generation strategy.
+| Hyperparameter | Value |
+|---|---|
+| Architecture | 20 → 128 → 64 → 32 → 3 |
+| Activation | ReLU |
+| Solver | Adam |
+| L2 regularisation (α) | 0.001 |
+| Batch size | 256 |
+| Learning rate | Adaptive (init 0.001) |
+| Max iterations | 500 |
+| Early stopping | Yes — patience 20 epochs, tol 1 × 10⁻⁶ |
 
 ---
 
-## Storage and Report Generation
+## How to Run
 
-Once validated, all results are consolidated within the **Storage & Integration Management (IM)** module, which automatically:
-- Stores the generated datasets and trained models (`.pkl`, `.onnx`),
-- Collects metadata, model parameters, and validation metrics,
-- Produces a comprehensive **final report** summarizing aerodynamic trends and surrogate performance.
+**Option A — Elyra visual editor (recommended):**
+```bash
+~/Desktop/Pipelines/start_jupyter.sh
+# Open UCAirfoils.pipeline → Run Pipeline (local)
+# Kernel: UCAirfoils (Pipeline)
+```
 
-<p align="center">
-  <img src="images/report.png" alt="Report" width="40%%">
-</p>
+**Option B — standalone script:**
+```bash
+cd ~/Desktop/Pipelines
+source .venv/bin/activate
+MLFLOW_ALLOW_FILE_STORE=true python UCAirfoils/pipeline/run_pipeline.py
+```
 
----
-
-## Conclusions
-
-This pipeline demonstrates a **fully automated aerodynamic DoE generation and analysis framework** using **Surrogate Factory**.  
-It successfully integrates **parametric airfoil geometry (Kulfan coefficients)** with aerodynamic solvers (XFOIL / NeuralFoil) to:
-- Create a scalable, bounded design space,  
-- Automate dataset creation and validation, and  
-- Enable future surrogate modeling and optimization studies within Flight Physics.
-
-The methodology can be directly extended to **3D aerodynamic surfaces** and **MDOA workflows**, serving as a foundation for next-generation surrogate-based aerodynamic design.
+**Option C — notebook by notebook:**
+Open each `SF_N_*.ipynb` in order using the `UCAirfoils (Pipeline)` kernel.
 
 ---
 
-## Author
+## Results
 
-**Marta A. Martín**  
-Flight Physics – Technology Integration  
-Airbus Defence and Space (Getafe, Spain)
+> Results on the full 7 987-row dataset generated with NeuralFoil.
+
+| Output | Requirement | Status |
+|---|---|---|
+| Cl | Q90 < 0.10 | Run SF_9 to evaluate |
+| Cd | Q90 < 0.10 | Run SF_9 to evaluate |
+| Cm | Q90 < 0.10 | Run SF_9 to evaluate |
+
+The surrogate is validated through the full SF_9 pipeline: split quality (VTP method), R², MAE, Q90 per output, KS distribution tests, scatter/ratio plots, and an HTML report generated via `validationlib`.
+
+---
+
+## Repository Structure
+
+```
+UCAirfoils/
+├── README.md
+├── data/
+│   └── airfoils_data.csv               ← 7 987 rows generated with NeuralFoil
+├── images/
+│   └── *.png                           ← dispersion matrix, Cl/Cd/Cm surfaces
+└── pipeline/
+    ├── pipeline_config.yaml
+    ├── UCAirfoils.pipeline             ← Elyra visual pipeline graph
+    ├── run_pipeline.py                 ← standalone runner
+    ├── SF_1_Requirements.ipynb
+    ├── SF_2_Data_Acquisition.ipynb
+    ├── SF_3_Data_Cleaning.ipynb
+    ├── SF_4_Data_Partitioning.ipynb
+    ├── SF_5_Feature_Selection.ipynb
+    ├── SF_6_Model_Selection.ipynb
+    ├── SF_7_Model_Training.ipynb
+    ├── SF_8_Model_Deployment.ipynb
+    ├── SF_9_Model_Validation.ipynb
+    ├── metadata/                       ← SF_1…SF_9 YAML configuration files
+    └── python_nodes_library/           ← @sf.node functions
+        ├── data_acquisition/
+        ├── data_cleansing/
+        ├── feature_selection/
+        ├── model_training/
+        ├── model_deployment/
+        └── model_validation/
+```
