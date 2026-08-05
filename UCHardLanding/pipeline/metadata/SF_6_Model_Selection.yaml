@@ -1,0 +1,54 @@
+Model_Selection:
+  inputs:
+    - I1
+    - I2
+    - I3
+    - I4
+    - I5
+    - I6
+    - I7
+  outputs:
+    - O1
+    - O2
+  algorithms:
+    # ── RECOMMENDED: GradientBoosting ─────────────────────────────────────────
+    # 6 of 7 inputs are discrete (I1: 8 levels, I2: 14, I3: 11, I4: 4, I5: 3, I6: 2).
+    # Decision trees split directly at each level boundary — natural fit.
+    # I7 (continuous) dominates both outputs: r=0.85 (O1), r=0.92 (O2).
+    # With 89k rows, GB converges reliably and does not need careful tuning.
+    - name: MultiOutputGradientBoosting
+      label: GradientBoosting
+      settings:
+        # One GradientBoostingRegressor per output.
+        # max_depth=5 allows up to 5 splits per tree — enough to cross all discrete levels.
+        # min_samples_leaf=10 prevents overfitting on the 89k dataset.
+        n_estimators: 300
+        max_depth: 5
+        learning_rate: 0.05
+        subsample: 0.8
+        min_samples_leaf: 10
+        random_state: 42
+        verbose: 0
+
+    # ── COMPARISON: MLP ───────────────────────────────────────────────────────
+    # Kept for comparison. MLP treats all inputs as continuous, so it must
+    # learn step-function behaviour from gradient descent — less efficient
+    # than tree splits for discrete inputs.
+    - name: MLPRegressor
+      label: MLP
+      settings:
+        # 7 inputs → 64 → 32 → 2 outputs
+        hidden_layer_sizes: [64, 32]
+        activation: relu
+        solver: adam
+        alpha: 0.01
+        batch_size: 128
+        learning_rate: adaptive
+        learning_rate_init: 0.001
+        max_iter: 500
+        early_stopping: true
+        validation_fraction: 0.10
+        n_iter_no_change: 20
+        tol: 0.00001
+        random_state: 42
+        verbose: true

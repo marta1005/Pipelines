@@ -1,0 +1,27 @@
+Feature_Selection:
+  Add_Remove_Features:
+    inputs:
+      - I1
+      - I2
+      - I3
+      - I4
+      - I5
+      - I6
+      - I7
+    outputs:
+      - O1
+      - O2
+  Preprocess:
+    inputs:
+      - I1
+      - I2
+      - I3
+      - I4
+      - I5
+      - I6
+      - I7
+    method: normalizer_transformer
+    # I1-I6 are discrete (8/14/11/4/3/2 unique levels); I7 is continuous.
+    # I5 ranges [-0.667, +0.667], not [0,1] — MinMax rescales it correctly.
+    # Treated as numerical so ordinal ordering is preserved for gradient descent.
+    numerical_features: "[I1, I2, I3, I4, I5, I6, I7]"

@@ -1,0 +1,3 @@
+Model_Deployment:
+  # method: sklearn  → saves a .pkl sklearn Pipeline (preprocessor + model).
+  method: sklearn

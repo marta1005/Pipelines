@@ -1,0 +1,7 @@
+Data_Cleansing:
+  Managing_Missing_Values:
+    # datos.csv is already clean — no missing values expected
+    output: []
+  Managing_Outliers:
+    # All values are pre-normalized to [0, 1] — no outlier filtering required
+    input: []

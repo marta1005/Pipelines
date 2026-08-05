@@ -1,0 +1,8 @@
+Requirements:
+  accuracy:
+    - output: "O1"
+      metric: quantile90
+      value: 0.1
+    - output: "O2"
+      metric: quantile90
+      value: 0.1
