@@ -1,0 +1,9 @@
+Data_Acquisition_Generation:
+  Data_Acquisition:
+    Extract:
+      method: pandas.read_csv
+      # CFD dataset: ~8.2M points (x, y, z coordinates + flight conditions + Cp)
+      # Provide this file at: UCCpHTP/data/cphtp_data.csv
+      # Expected columns: x, y, z, alpha, mach, Cp
+      path: /Users/martaarnabatmartin/Desktop/Pipelines/UCCpHTP/data/cphtp_data.csv
+      sep: ","

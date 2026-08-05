@@ -1,0 +1,11 @@
+Requirements:
+  accuracy:
+    - output: "Cl"
+      metric: quantile90
+      value: 0.1
+    - output: "Cd"
+      metric: quantile90
+      value: 0.1
+    - output: "Cm"
+      metric: quantile90
+      value: 0.1

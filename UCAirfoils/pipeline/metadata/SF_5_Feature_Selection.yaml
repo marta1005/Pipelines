@@ -1,0 +1,52 @@
+Feature_Selection:
+  Add_Remove_Features:
+    inputs:
+      - alpha
+      - Re
+      - Kulfan_1
+      - Kulfan_2
+      - Kulfan_3
+      - Kulfan_4
+      - Kulfan_5
+      - Kulfan_6
+      - Kulfan_7
+      - Kulfan_8
+      - Kulfan_9
+      - Kulfan_10
+      - Kulfan_11
+      - Kulfan_12
+      - Kulfan_13
+      - Kulfan_14
+      - Kulfan_15
+      - Kulfan_16
+      - Kulfan_17
+      - Kulfan_18
+    outputs:
+      - Cl
+      - Cd
+      - Cm
+  Preprocess:
+    inputs:
+      - alpha
+      - Re
+      - Kulfan_1
+      - Kulfan_2
+      - Kulfan_3
+      - Kulfan_4
+      - Kulfan_5
+      - Kulfan_6
+      - Kulfan_7
+      - Kulfan_8
+      - Kulfan_9
+      - Kulfan_10
+      - Kulfan_11
+      - Kulfan_12
+      - Kulfan_13
+      - Kulfan_14
+      - Kulfan_15
+      - Kulfan_16
+      - Kulfan_17
+      - Kulfan_18
+    method: normalizer_transformer
+    # All 20 inputs are continuous — MinMax scaling applied uniformly
+    numerical_features: "[alpha, Re, Kulfan_1, Kulfan_2, Kulfan_3, Kulfan_4, Kulfan_5, Kulfan_6, Kulfan_7, Kulfan_8, Kulfan_9, Kulfan_10, Kulfan_11, Kulfan_12, Kulfan_13, Kulfan_14, Kulfan_15, Kulfan_16, Kulfan_17, Kulfan_18]"

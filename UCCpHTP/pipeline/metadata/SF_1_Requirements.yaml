@@ -1,0 +1,5 @@
+Requirements:
+  accuracy:
+    - output: "Cp"
+      metric: quantile90
+      value: 0.1

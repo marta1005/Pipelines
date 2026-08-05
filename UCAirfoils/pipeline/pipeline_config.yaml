@@ -1,0 +1,19 @@
+Surrogate Factory: '2.2'
+job_name: UCAIRFOILS_1
+data.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCAirfoils/pipeline/data
+artifacts.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCAirfoils/pipeline/data/artifacts
+metadata.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCAirfoils/pipeline/metadata
+python_libs.folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCAirfoils/pipeline/python_nodes_library
+input_data: /Users/martaarnabatmartin/Desktop/Pipelines/UCAirfoils/data/airfoils_data.csv
+tracker:
+  tool: mlflow
+  options:
+    tracking_uri: file:///Users/martaarnabatmartin/Desktop/Pipelines/UCAirfoils/pipeline/mlruns
+catalog:
+  models:
+    MLPRegressor: sklearn.neural_network.MLPRegressor
+  normalization:
+    normalizer_transformer: surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer
+  metrics:
+    compute_metrics: surrogate_factory.catalog.model_validation.metrics.compute_metrics
+    compute_confusion_matrix: surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix

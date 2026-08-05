@@ -1,0 +1,7 @@
+Data_Cleansing:
+  Managing_Missing_Values:
+    # NeuralFoil output is already clean — rows with low analysis_confidence filtered at generation
+    output: []
+  Managing_Outliers:
+    # All inputs are continuous with well-defined physical ranges — no outlier filtering required
+    input: []

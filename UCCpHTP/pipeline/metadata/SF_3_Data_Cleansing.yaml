@@ -1,0 +1,7 @@
+Data_Cleansing:
+  Managing_Missing_Values:
+    # CFD data does not contain missing values — every mesh point has a Cp value
+    output: []
+  Managing_Outliers:
+    # Cp is computed from CFD — no outlier filtering required (all values are physically valid)
+    input: []

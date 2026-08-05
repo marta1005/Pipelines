@@ -1,0 +1,50 @@
+Model_Selection:
+  inputs:
+    - alpha
+    - Re
+    - Kulfan_1
+    - Kulfan_2
+    - Kulfan_3
+    - Kulfan_4
+    - Kulfan_5
+    - Kulfan_6
+    - Kulfan_7
+    - Kulfan_8
+    - Kulfan_9
+    - Kulfan_10
+    - Kulfan_11
+    - Kulfan_12
+    - Kulfan_13
+    - Kulfan_14
+    - Kulfan_15
+    - Kulfan_16
+    - Kulfan_17
+    - Kulfan_18
+  outputs:
+    - Cl
+    - Cd
+    - Cm
+  algorithms:
+    # ── RECOMMENDED: MLP ─────────────────────────────────────────────────────
+    # All 20 inputs are continuous (alpha, Re, 18 Kulfan CST coefficients).
+    # Cl/Cd/Cm vary smoothly with all inputs — ideal for a deep MLP.
+    # GradientBoosting is not recommended here: no discrete inputs, 3-output
+    # regression on a smooth aerodynamic manifold favours neural networks.
+    - name: MLPRegressor
+      label: MLP
+      settings:
+        # 20 inputs → 128 → 64 → 32 → 3 outputs
+        hidden_layer_sizes: [128, 64, 32]
+        activation: relu
+        solver: adam
+        alpha: 0.001
+        batch_size: 256
+        learning_rate: adaptive
+        learning_rate_init: 0.001
+        max_iter: 500
+        early_stopping: true
+        validation_fraction: 0.10
+        n_iter_no_change: 20
+        tol: 0.000001
+        random_state: 42
+        verbose: true

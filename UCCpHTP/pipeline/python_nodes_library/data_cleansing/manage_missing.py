@@ -1,0 +1,24 @@
+import pandas as pd
+import surrogate_factory as sf
+
+
+@sf.node
+def replace_missing_values(workflow, input_table: pd.DataFrame) -> pd.DataFrame:
+    """Fill NaN values as configured in metadata."""
+    outputs = workflow.metadata.get_step_data().get('output', None)
+    if not outputs:
+        print("No missing-value config found, skipping.")
+        return input_table
+
+    df = input_table.copy()
+    for v in outputs:
+        col = v['name']
+        fill = v['filling_value']
+        if col not in df.columns:
+            continue
+        if str(fill) == 'median':
+            df[col] = df[col].fillna(df[col].median())
+        else:
+            df[col] = df[col].fillna(float(fill))
+
+    return df

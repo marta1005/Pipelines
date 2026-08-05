@@ -1,0 +1,2 @@
+Model_Training:
+  note: "MLP trained on 20 continuous inputs (alpha, Re, 18 Kulfan CST coefficients) — 3 aerodynamic outputs (Cl, Cd, Cm)."

@@ -1,0 +1,4 @@
+Model_Validation:
+  method: score
+  criteria:
+    - value: 0

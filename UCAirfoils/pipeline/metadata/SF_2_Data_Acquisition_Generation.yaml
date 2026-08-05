@@ -1,0 +1,6 @@
+Data_Acquisition_Generation:
+  Data_Acquisition:
+    Extract:
+      method: pandas.read_csv
+      path: /Users/martaarnabatmartin/Desktop/Pipelines/UCAirfoils/data/airfoils_data.csv
+      sep: ","

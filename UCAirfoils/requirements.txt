@@ -1,0 +1,27 @@
+pandas
+openpyxl
+surrogate_factory
+
+#jinja2
+matplotlib
+scipy
+cytoolz
+#nbclassic==0.3.7
+elyra[all]==3.14.1
+#mlflow
+mlflow==1.14.1
+onnx==1.12.0
+skl2onnx==1.14.0
+tf2onnx==1.13.0
+tensorflow
+#onnx
+#skl2onnx
+#tf2onnx
+sympy
+orjson
+#mlflow-artifactory @ git+https://github.airbus.corp/Airbus/sf_mlflow_artifactory_plugin.git#egg=mlflow-artifactory
+
+#ml_deploy[build_models] @ git+https://github.airbus.corp/Airbus/NextGenDataAnalytics.git#subdirectory=ml_deploy
+#ml_deploy[build_models] @ git+https://github.airbus.corp/Airbus/NextGenDataAnalytics.git@v1.8#subdirectory=ml_deploy
+
+#egg=ml_deploy[build_models]&subdirectory=ml_deploy

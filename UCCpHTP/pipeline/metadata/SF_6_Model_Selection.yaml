@@ -1,0 +1,34 @@
+Model_Selection:
+  inputs:
+    - x
+    - y
+    - z
+    - alpha
+    - mach
+  outputs:
+    - Cp
+  algorithms:
+    # ── RECOMMENDED: MLP ─────────────────────────────────────────────────────
+    # Inputs: 3D spatial coordinates (x, y, z) + 2 flight conditions (alpha, mach).
+    # Output: pressure coefficient Cp — a smooth continuous field over the HTP surface.
+    # ~8.2M CFD points make GradientBoosting impractical (memory and compute).
+    # Original UCCpHTP pipeline used a PyTorch MLP (4 layers, 252 neurons, dropout=0.2)
+    # — this sklearn MLP replicates that architecture with early stopping.
+    - name: MLPRegressor
+      label: MLP
+      settings:
+        # 5 inputs → 256 → 128 → 64 → 1 output
+        hidden_layer_sizes: [256, 128, 64]
+        activation: relu
+        solver: adam
+        alpha: 0.0001
+        batch_size: 512
+        learning_rate: adaptive
+        learning_rate_init: 0.001
+        max_iter: 500
+        early_stopping: true
+        validation_fraction: 0.10
+        n_iter_no_change: 20
+        tol: 0.000001
+        random_state: 42
+        verbose: true

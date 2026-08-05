@@ -1,0 +1,2 @@
+Model_Training:
+  note: "MLP trained on 5 continuous inputs (x, y, z, alpha, mach) — 1 output (Cp pressure coefficient)."

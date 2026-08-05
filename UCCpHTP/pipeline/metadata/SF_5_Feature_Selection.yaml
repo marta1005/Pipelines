@@ -1,0 +1,20 @@
+Feature_Selection:
+  Add_Remove_Features:
+    inputs:
+      - x
+      - y
+      - z
+      - alpha
+      - mach
+    outputs:
+      - Cp
+  Preprocess:
+    inputs:
+      - x
+      - y
+      - z
+      - alpha
+      - mach
+    method: normalizer_transformer
+    # All 5 inputs are continuous — MinMax scaling applied uniformly
+    numerical_features: "[x, y, z, alpha, mach]"
