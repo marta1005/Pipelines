@@ -1,0 +1,92 @@
+2026-08-05 08:13:01 - INFO - Initializing Workflow...
+2026-08-05 08:13:01 - INFO - Setting up Workflow folders and paths...
+2026-08-05 08:13:01 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-05 08:13:01 - INFO - Loading default metadata schema...
+2026-08-05 08:13:01 - INFO - Tracker requested: 'mlflow'
+2026-08-05 08:14:16 - INFO - Initializing Workflow...
+2026-08-05 08:14:16 - INFO - Setting up Workflow folders and paths...
+2026-08-05 08:14:16 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-05 08:14:16 - INFO - Loading default metadata schema...
+2026-08-05 08:14:16 - INFO - Tracker requested: 'mlflow'
+2026-08-05 08:14:17 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-05 08:14:17 - INFO - Setting up MLflow tracking environment...
+2026-08-05 08:14:17 - INFO - Adding methods to Catalog from configuration.
+2026-08-05 08:14:17 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-05 08:14:18 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-05 08:14:18 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-05 08:14:18 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-05 08:14:18 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-05 08:14:18 - INFO - Workflow initialization completed successfully.
+2026-08-05 08:14:18 - INFO - ▶ Executing Workflow Step: 'batch_extract'
+2026-08-05 08:14:18 - DEBUG - Step 'batch_extract' executed successfully.
+2026-08-05 08:14:18 - INFO - ▶ Executing Workflow Step: 'batch_transform'
+2026-08-05 08:14:18 - DEBUG - Step 'batch_transform' executed successfully.
+2026-08-05 08:14:18 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Raw.csv
+2026-08-05 08:14:18 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Raw.csv' (Format: csv)
+2026-08-05 08:14:18 - INFO - Successfully loaded data shape: (89357, 9)
+2026-08-05 08:14:18 - INFO - ▶ Executing Workflow Step: 'replace_missing_values'
+2026-08-05 08:14:18 - DEBUG - Step 'replace_missing_values' executed successfully.
+2026-08-05 08:14:18 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Cleaned.csv
+2026-08-05 08:14:18 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Cleaned.csv' (Format: csv)
+2026-08-05 08:14:18 - INFO - Successfully loaded data shape: (89357, 9)
+2026-08-05 08:14:19 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv
+2026-08-05 08:14:19 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv
+2026-08-05 08:14:19 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv
+2026-08-05 08:14:19 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-05 08:14:19 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-05 08:14:19 - INFO - ▶ Executing Workflow Step: 'preprocessor'
+2026-08-05 08:14:19 - DEBUG - Step 'preprocessor' executed successfully.
+2026-08-05 08:14:19 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-05 08:14:19 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-05 08:14:19 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' (Format: csv)
+2026-08-05 08:14:19 - INFO - Successfully loaded data shape: (8936, 9)
+2026-08-05 08:14:19 - INFO - ▶ Executing Workflow Step: 'train'
+2026-08-05 08:14:19 - ERROR - Error during execution of step 'train': The filesystem tracking backend (e.g., './mlruns') is in maintenance mode and will not receive further updates. Please migrate to a database backend (e.g., 'sqlite:///mlflow.db') to access the latest MLflow features. The `mlflow migrate-filestore` tool migrates your existing data losslessly. See https://mlflow.org/docs/latest/self-hosting/migrate-from-file-store for migration guidance. If the filesystem backend is required for your workflow, set `MLFLOW_ALLOW_FILE_STORE=true` to opt out of this exception.
+2026-08-05 08:14:28 - INFO - Initializing Workflow...
+2026-08-05 08:14:28 - INFO - Setting up Workflow folders and paths...
+2026-08-05 08:14:28 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-05 08:14:28 - INFO - Loading default metadata schema...
+2026-08-05 08:14:28 - INFO - Tracker requested: 'mlflow'
+2026-08-05 08:14:29 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-05 08:14:29 - INFO - Setting up MLflow tracking environment...
+2026-08-05 08:14:29 - INFO - Adding methods to Catalog from configuration.
+2026-08-05 08:14:29 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-05 08:14:30 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-05 08:14:30 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-05 08:14:30 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-05 08:14:30 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-05 08:14:30 - INFO - Workflow initialization completed successfully.
+2026-08-05 08:14:30 - INFO - ▶ Executing Workflow Step: 'batch_extract'
+2026-08-05 08:14:30 - DEBUG - Step 'batch_extract' executed successfully.
+2026-08-05 08:14:30 - INFO - ▶ Executing Workflow Step: 'batch_transform'
+2026-08-05 08:14:30 - DEBUG - Step 'batch_transform' executed successfully.
+2026-08-05 08:14:30 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Raw.csv
+2026-08-05 08:14:30 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Raw.csv' (Format: csv)
+2026-08-05 08:14:30 - INFO - Successfully loaded data shape: (89357, 9)
+2026-08-05 08:14:30 - INFO - ▶ Executing Workflow Step: 'replace_missing_values'
+2026-08-05 08:14:30 - DEBUG - Step 'replace_missing_values' executed successfully.
+2026-08-05 08:14:30 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Cleaned.csv
+2026-08-05 08:14:30 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Cleaned.csv' (Format: csv)
+2026-08-05 08:14:30 - INFO - Successfully loaded data shape: (89357, 9)
+2026-08-05 08:14:30 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv
+2026-08-05 08:14:30 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv
+2026-08-05 08:14:30 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv
+2026-08-05 08:14:30 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-05 08:14:30 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-05 08:14:30 - INFO - ▶ Executing Workflow Step: 'preprocessor'
+2026-08-05 08:14:30 - DEBUG - Step 'preprocessor' executed successfully.
+2026-08-05 08:14:30 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-05 08:14:31 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-05 08:14:31 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' (Format: csv)
+2026-08-05 08:14:31 - INFO - Successfully loaded data shape: (8936, 9)
+2026-08-05 08:14:31 - INFO - ▶ Executing Workflow Step: 'train'
+2026-08-05 08:15:06 - DEBUG - Step 'train' executed successfully.
+2026-08-05 08:15:06 - INFO - ▶ Executing Workflow Step: 'model_deployment'
+2026-08-05 08:15:06 - DEBUG - Step 'model_deployment' executed successfully.
+2026-08-05 08:15:06 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-05 08:15:06 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-05 08:15:06 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' (Format: csv)
+2026-08-05 08:15:06 - INFO - Successfully loaded data shape: (8936, 9)
+2026-08-05 08:15:06 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv' (Format: csv)
+2026-08-05 08:15:06 - INFO - Successfully loaded data shape: (17872, 9)
+2026-08-05 08:15:06 - INFO - ▶ Executing Workflow Step: 'split_validation'

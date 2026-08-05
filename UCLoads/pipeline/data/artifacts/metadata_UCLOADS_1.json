@@ -1,0 +1,1406 @@
+{
+    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/data_cleansing/clean.py",
+    "metadata": {
+        "Model_Validation": {
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/model_validation/visualize.py",
+            "validation_results": [
+                {
+                    "output": "Fz_WINGROOT",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.2473924861510531,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.27055239870518955,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.2554606838299594,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.5830094622421828,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.24754049150373295,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "Mx_WINGROOT",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.250122434359575,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.27334667743638463,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.2596250924379034,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.5863008775200274,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.24944508440987584,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "My_WINGROOT",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.20518861933844462,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.20957347967289724,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.2130791117035936,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.20745907995504903,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.20423745785755965,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "Fy_FUS",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.2364007763284672,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.2344224507791836,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.217991831407013,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.4799514378649482,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.21328598123312772,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "Fz_FUS",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.12623167455685827,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.16759878737814088,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.13141469307236026,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.5559862367046987,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.12501072707151584,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "Mx_FUS",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.12735398573333692,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.16945099422905674,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.13185409668225861,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.5595579187176432,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.1258453596390756,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "My_FUS",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.10381226695248562,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.11223582994137858,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.11210087664676625,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.10749351685181958,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.10226350310166354,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "Mz_FUS",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.2595213404376863,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.2565892641655347,
+                            "passed": false
+                        },
+                        "RandomForest": {
+                            "score": 0.2485147574425549,
+                            "passed": false
+                        },
+                        "XGBoost": {
+                            "score": 0.45270625179860613,
+                            "passed": false
+                        },
+                        "PyTorchNN": {
+                            "score": 0.2422995350462389,
+                            "passed": false
+                        }
+                    }
+                }
+            ],
+            "distribution_tests": {
+                "MLP": {
+                    "Fz_WINGROOT": 0.7685049862642713,
+                    "Mx_WINGROOT": 0.300302527692503,
+                    "My_WINGROOT": 0.3600828745063709,
+                    "Fy_FUS": 0.9586407808239719,
+                    "Fz_FUS": 0.8304608783076188,
+                    "Mx_FUS": 0.4093405089838589,
+                    "My_FUS": 0.4880815924303433,
+                    "Mz_FUS": 0.27748070425602456
+                },
+                "GradientBoosting": {
+                    "Fz_WINGROOT": 0.0769571458960755,
+                    "Mx_WINGROOT": 0.12546638648079966,
+                    "My_WINGROOT": 0.27844633277214026,
+                    "Fy_FUS": 0.05896032915043126,
+                    "Fz_FUS": 0.029534406448689432,
+                    "Mx_FUS": 0.10421636069216378,
+                    "My_FUS": 0.3222620983583233,
+                    "Mz_FUS": 0.5805501471876632
+                },
+                "RandomForest": {
+                    "Fz_WINGROOT": 6.547657470571427e-174,
+                    "Mx_WINGROOT": 7.555513645776769e-287,
+                    "My_WINGROOT": 7.0236965779463315e-87,
+                    "Fy_FUS": 8.022835183040105e-62,
+                    "Fz_FUS": 9.872881174849126e-100,
+                    "Mx_FUS": 3.9792275232416864e-117,
+                    "My_FUS": 6.043024040358775e-78,
+                    "Mz_FUS": 1.1229919823408147e-56
+                },
+                "XGBoost": {
+                    "Fz_WINGROOT": 0.32982021743478096,
+                    "Mx_WINGROOT": 0.524330419291714,
+                    "My_WINGROOT": 0.13457262445836382,
+                    "Fy_FUS": 0.009242963022502161,
+                    "Fz_FUS": 0.40560490031247465,
+                    "Mx_FUS": 0.25959057903064175,
+                    "My_FUS": 0.07941510258161755,
+                    "Mz_FUS": 0.103770428300762
+                },
+                "PyTorchNN": {
+                    "Fz_WINGROOT": 0.8914021250107911,
+                    "Mx_WINGROOT": 0.17241266626926977,
+                    "My_WINGROOT": 0.6634819182210283,
+                    "Fy_FUS": 0.5864137349452635,
+                    "Fz_FUS": 0.5005000662808854,
+                    "Mx_FUS": 0.5229158810545469,
+                    "My_FUS": 0.7907168393703816,
+                    "Mz_FUS": 0.47852386200302355
+                }
+            },
+            "scores": {
+                "MLP": {
+                    "Fz_WINGROOT": {
+                        "quantile90": 0.2473924861510531,
+                        "quantile95": 0.29513373554459904,
+                        "quantile99": 0.38735464308206413,
+                        "lstsq": 0.9931754797971841,
+                        "explained_variance": 0.9900366045425328,
+                        "max_error": 162157.93501301878,
+                        "mean_absolute_error": 26507.843961365237,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 22437.937268175905,
+                        "R2": 0.9900356855728479,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 9.160259165053205
+                    },
+                    "Mx_WINGROOT": {
+                        "quantile90": 0.250122434359575,
+                        "quantile95": 0.29737779934430003,
+                        "quantile99": 0.39364855163662915,
+                        "lstsq": 0.993157065909677,
+                        "explained_variance": 0.990005123927835,
+                        "max_error": 181528.33065747534,
+                        "mean_absolute_error": 34939.929711330886,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 29562.031501067984,
+                        "R2": 0.9900047390613202,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.4711393449625272
+                    },
+                    "My_WINGROOT": {
+                        "quantile90": 0.20518861933844462,
+                        "quantile95": 0.24356876074747907,
+                        "quantile99": 0.32048065505469775,
+                        "lstsq": 0.9891858550789026,
+                        "explained_variance": 0.9899872007639506,
+                        "max_error": 71377.35639049312,
+                        "mean_absolute_error": 11958.49860396102,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 10092.739619014363,
+                        "R2": 0.9899869644016345,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.7926947244615083
+                    },
+                    "Fy_FUS": {
+                        "quantile90": 0.2364007763284672,
+                        "quantile95": 0.2830493653078268,
+                        "quantile99": 0.3849244437529631,
+                        "lstsq": 0.9875051444992785,
+                        "explained_variance": 0.987630887497222,
+                        "max_error": 9952.449375154989,
+                        "mean_absolute_error": 1651.37683645161,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 1385.543527742013,
+                        "R2": 0.9876263628505167,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.717125647857721
+                    },
+                    "Fz_FUS": {
+                        "quantile90": 0.12623167455685827,
+                        "quantile95": 0.1507723801083178,
+                        "quantile99": 0.1970200591164225,
+                        "lstsq": 0.9982816920699109,
+                        "explained_variance": 0.9974693151999267,
+                        "max_error": 79690.80276098917,
+                        "mean_absolute_error": 13359.875631343888,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 11267.455039938199,
+                        "R2": 0.9974692746397721,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.8044576201824944
+                    },
+                    "Mx_FUS": {
+                        "quantile90": 0.12735398573333692,
+                        "quantile95": 0.15198388128114393,
+                        "quantile99": 0.19958274556443872,
+                        "lstsq": 0.9985251895711952,
+                        "explained_variance": 0.997475916096508,
+                        "max_error": 102610.41569888126,
+                        "mean_absolute_error": 17519.161873821176,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 14760.006365377965,
+                        "R2": 0.9974755692353163,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.9175705121205616
+                    },
+                    "My_FUS": {
+                        "quantile90": 0.10381226695248562,
+                        "quantile95": 0.12385203256477668,
+                        "quantile99": 0.1629511498876955,
+                        "lstsq": 0.9963485283846277,
+                        "explained_variance": 0.9974138336981225,
+                        "max_error": 35784.39812988759,
+                        "mean_absolute_error": 6081.334645376902,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 5152.5108796524655,
+                        "R2": 0.9974138256360647,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.3755435505904603
+                    },
+                    "Mz_FUS": {
+                        "quantile90": 0.2595213404376863,
+                        "quantile95": 0.31030747289976346,
+                        "quantile99": 0.41141609462372675,
+                        "lstsq": 0.9883055116045247,
+                        "explained_variance": 0.9836082911227342,
+                        "max_error": 19063.9083926498,
+                        "mean_absolute_error": 2854.497894623286,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 2403.7398870969228,
+                        "R2": 0.9836054693450869,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.8744645741005123
+                    }
+                },
+                "GradientBoosting": {
+                    "Fz_WINGROOT": {
+                        "quantile90": 0.27055239870518955,
+                        "quantile95": 0.32442326190365717,
+                        "quantile99": 0.42954258266178225,
+                        "lstsq": 0.9883979655605777,
+                        "explained_variance": 0.9880110088442361,
+                        "max_error": 189116.44301876833,
+                        "mean_absolute_error": 28981.826909172723,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 24539.039106742122,
+                        "R2": 0.9880109340123373,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 9.33781525894157
+                    },
+                    "Mx_WINGROOT": {
+                        "quantile90": 0.27334667743638463,
+                        "quantile95": 0.32614344092806685,
+                        "quantile99": 0.4315910212486513,
+                        "lstsq": 0.9877662634157953,
+                        "explained_variance": 0.9880687064609011,
+                        "max_error": 221897.5824746854,
+                        "mean_absolute_error": 38065.06704011948,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 32081.419944528083,
+                        "R2": 0.9880685498864176,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.6121716261002075
+                    },
+                    "My_WINGROOT": {
+                        "quantile90": 0.20957347967289724,
+                        "quantile95": 0.2493934179302662,
+                        "quantile99": 0.32789267254848753,
+                        "lstsq": 0.9898078235877079,
+                        "explained_variance": 0.9895638197457883,
+                        "max_error": 71934.20050516148,
+                        "mean_absolute_error": 12199.346456333476,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 10255.098317838623,
+                        "R2": 0.9895638197080907,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.9835091388300776
+                    },
+                    "Fy_FUS": {
+                        "quantile90": 0.2344224507791836,
+                        "quantile95": 0.2806947087497727,
+                        "quantile99": 0.37520957153325735,
+                        "lstsq": 0.9892245574689718,
+                        "explained_variance": 0.9878527628160014,
+                        "max_error": 10132.497639317648,
+                        "mean_absolute_error": 1640.7984274891971,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 1382.571203243295,
+                        "R2": 0.9878524975622726,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.4497833310725166
+                    },
+                    "Fz_FUS": {
+                        "quantile90": 0.16759878737814088,
+                        "quantile95": 0.20598713546431385,
+                        "quantile99": 0.28614544383918133,
+                        "lstsq": 0.9935058579541208,
+                        "explained_variance": 0.9953867847060667,
+                        "max_error": 134273.20605144487,
+                        "mean_absolute_error": 17675.652067035415,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 14609.973739773252,
+                        "R2": 0.9953865259567106,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 2.287641337672643
+                    },
+                    "Mx_FUS": {
+                        "quantile90": 0.16945099422905674,
+                        "quantile95": 0.20785467720221287,
+                        "quantile99": 0.2876122096812664,
+                        "lstsq": 0.9936906947131245,
+                        "explained_variance": 0.9954385378097382,
+                        "max_error": 162944.6445253489,
+                        "mean_absolute_error": 23088.13597684464,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 18983.95113700323,
+                        "R2": 0.995438342060508,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.9942790141821102
+                    },
+                    "My_FUS": {
+                        "quantile90": 0.11223582994137858,
+                        "quantile95": 0.1334604477166391,
+                        "quantile99": 0.17688939002640322,
+                        "lstsq": 0.9963716557261155,
+                        "explained_variance": 0.9970052444219021,
+                        "max_error": 37097.968622330634,
+                        "mean_absolute_error": 6526.430809531476,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 5512.698533893803,
+                        "R2": 0.9970052359211581,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.43160633482158417
+                    },
+                    "Mz_FUS": {
+                        "quantile90": 0.2565892641655347,
+                        "quantile95": 0.30861022446018516,
+                        "quantile99": 0.40667125654261543,
+                        "lstsq": 0.9879810111090926,
+                        "explained_variance": 0.9839673139949587,
+                        "max_error": 15959.36545268196,
+                        "mean_absolute_error": 2830.148917928851,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 2387.132180673425,
+                        "R2": 0.9839671788715187,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.8306772443330082
+                    }
+                },
+                "RandomForest": {
+                    "Fz_WINGROOT": {
+                        "quantile90": 0.2554606838299594,
+                        "quantile95": 0.303428802536869,
+                        "quantile99": 0.40081726135944884,
+                        "lstsq": 0.9904519954975011,
+                        "explained_variance": 0.989422495594777,
+                        "max_error": 175822.08021529915,
+                        "mean_absolute_error": 27305.855678716125,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 23151.89496326737,
+                        "R2": 0.9894223666062749,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 8.786792323472362
+                    },
+                    "Mx_WINGROOT": {
+                        "quantile90": 0.2596250924379034,
+                        "quantile95": 0.3097134018287261,
+                        "quantile99": 0.40706416293265374,
+                        "lstsq": 0.9904119643336938,
+                        "explained_variance": 0.9892375349482441,
+                        "max_error": 186710.61362174113,
+                        "mean_absolute_error": 36273.676380413985,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 30784.036992655845,
+                        "R2": 0.9892374393338884,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.5428802597353934
+                    },
+                    "My_WINGROOT": {
+                        "quantile90": 0.2130791117035936,
+                        "quantile95": 0.2528441264425951,
+                        "quantile99": 0.3354304389926834,
+                        "lstsq": 0.9861303697743331,
+                        "explained_variance": 0.989197658097525,
+                        "max_error": 93113.26839526452,
+                        "mean_absolute_error": 12385.570434160743,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 10445.70829072572,
+                        "R2": 0.9891973397718077,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.6079997346561419
+                    },
+                    "Fy_FUS": {
+                        "quantile90": 0.217991831407013,
+                        "quantile95": 0.2591978597205418,
+                        "quantile99": 0.34484855184168317,
+                        "lstsq": 0.990661346779813,
+                        "explained_variance": 0.9895814788382468,
+                        "max_error": 8571.096475446047,
+                        "mean_absolute_error": 1524.9334586045147,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 1283.615198040876,
+                        "R2": 0.9895807227648293,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.5322764744891133
+                    },
+                    "Fz_FUS": {
+                        "quantile90": 0.13141469307236026,
+                        "quantile95": 0.15676764582601332,
+                        "quantile99": 0.20821172475981814,
+                        "lstsq": 0.9958301862749662,
+                        "explained_variance": 0.9972471921026916,
+                        "max_error": 89868.32571586291,
+                        "mean_absolute_error": 13888.401110923223,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 11697.66335451715,
+                        "R2": 0.9972467973230841,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.600637077311746
+                    },
+                    "Mx_FUS": {
+                        "quantile90": 0.13185409668225861,
+                        "quantile95": 0.15850382375963598,
+                        "quantile99": 0.21016940857373836,
+                        "lstsq": 0.9962603319038031,
+                        "explained_variance": 0.9972574464701308,
+                        "max_error": 113593.5750381255,
+                        "mean_absolute_error": 18184.155711797655,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 15263.68016093302,
+                        "R2": 0.9972572898411037,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.9538802795560208
+                    },
+                    "My_FUS": {
+                        "quantile90": 0.11210087664676625,
+                        "quantile95": 0.13522415646222818,
+                        "quantile99": 0.1895768634216524,
+                        "lstsq": 0.9924898574505607,
+                        "explained_variance": 0.9968537717622904,
+                        "max_error": 71616.84763666277,
+                        "mean_absolute_error": 6562.182015510552,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 5442.1609436538565,
+                        "R2": 0.9968532168215921,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.4687797287767388
+                    },
+                    "Mz_FUS": {
+                        "quantile90": 0.2485147574425549,
+                        "quantile95": 0.2962483863864915,
+                        "quantile99": 0.3843789070899112,
+                        "lstsq": 0.9886951429323391,
+                        "explained_variance": 0.9851154997234666,
+                        "max_error": 17575.318449662358,
+                        "mean_absolute_error": 2728.430715973901,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 2308.7937110056464,
+                        "R2": 0.9851151177796087,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.8620751879495718
+                    }
+                },
+                "XGBoost": {
+                    "Fz_WINGROOT": {
+                        "quantile90": 0.5830094622421828,
+                        "quantile95": 0.7430732625124487,
+                        "quantile99": 1.1072378053864391,
+                        "lstsq": 0.9505125794138484,
+                        "explained_variance": 0.9452144865403612,
+                        "max_error": 488301.111328125,
+                        "mean_absolute_error": 57160.79531448102,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 41652.109375,
+                        "R2": 0.9452144195995359,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 19.5832218407402
+                    },
+                    "Mx_WINGROOT": {
+                        "quantile90": 0.5863008775200274,
+                        "quantile95": 0.7517499564284723,
+                        "quantile99": 1.1250091406532556,
+                        "lstsq": 0.9500616039601159,
+                        "explained_variance": 0.9452407636962619,
+                        "max_error": 587893.75,
+                        "mean_absolute_error": 75133.09362043103,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 54985.2265625,
+                        "R2": 0.9452406862165104,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 2.813217422495232
+                    },
+                    "My_WINGROOT": {
+                        "quantile90": 0.20745907995504903,
+                        "quantile95": 0.24640751795497942,
+                        "quantile99": 0.3240528805702239,
+                        "lstsq": 0.9886876259612973,
+                        "explained_variance": 0.9897840936987038,
+                        "max_error": 71348.3984375,
+                        "mean_absolute_error": 12076.349489709955,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 10258.796875,
+                        "R2": 0.9897840697570478,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.8987090776646585
+                    },
+                    "Fy_FUS": {
+                        "quantile90": 0.4799514378649482,
+                        "quantile95": 0.6349924053557154,
+                        "quantile99": 1.0151117117948019,
+                        "lstsq": 0.9588281752019507,
+                        "explained_variance": 0.9461996587207607,
+                        "max_error": 31642.2578125,
+                        "mean_absolute_error": 3090.9983003591387,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 2198.6005859375,
+                        "R2": 0.9461996445523492,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 3.7983607522455833
+                    },
+                    "Fz_FUS": {
+                        "quantile90": 0.5559862367046987,
+                        "quantile95": 0.712921840431967,
+                        "quantile99": 1.1050722869963647,
+                        "lstsq": 0.9560830834879067,
+                        "explained_variance": 0.9523299712690042,
+                        "max_error": 438009.5546875,
+                        "mean_absolute_error": 50907.887823640864,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 33311.57391357422,
+                        "R2": 0.9523299294971679,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 5.8437876569179545
+                    },
+                    "Mx_FUS": {
+                        "quantile90": 0.5595579187176432,
+                        "quantile95": 0.7218519809104068,
+                        "quantile99": 1.1092235825768888,
+                        "lstsq": 0.9559502208100822,
+                        "explained_variance": 0.9522528207243657,
+                        "max_error": 618316.2890625,
+                        "mean_absolute_error": 67013.17565727465,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 43983.03045654297,
+                        "R2": 0.952252730757768,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 2.8642960066113314
+                    },
+                    "My_FUS": {
+                        "quantile90": 0.10749351685181958,
+                        "quantile95": 0.12785224049040403,
+                        "quantile99": 0.16958989293383578,
+                        "lstsq": 0.995252299433217,
+                        "explained_variance": 0.9972216782319114,
+                        "max_error": 41644.875,
+                        "mean_absolute_error": 6292.596097031205,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 5327.34765625,
+                        "R2": 0.9972216722781478,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.4007975138589764
+                    },
+                    "Mz_FUS": {
+                        "quantile90": 0.45270625179860613,
+                        "quantile95": 0.5948410802876611,
+                        "quantile99": 0.9794767854962394,
+                        "lstsq": 0.9608574118892336,
+                        "explained_variance": 0.9436800744146238,
+                        "max_error": 55336.390625,
+                        "mean_absolute_error": 4824.901846746525,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 3612.7149658203125,
+                        "R2": 0.9436793119046265,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.121550378137052
+                    }
+                },
+                "PyTorchNN": {
+                    "Fz_WINGROOT": {
+                        "quantile90": 0.24754049150373295,
+                        "quantile95": 0.29407899810227683,
+                        "quantile99": 0.38689873446389506,
+                        "lstsq": 0.9923688022624647,
+                        "explained_variance": 0.9900942564800176,
+                        "max_error": 153537.0,
+                        "mean_absolute_error": 26443.77431666495,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 22376.640625,
+                        "R2": 0.9900939792999196,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 8.762647171007117
+                    },
+                    "Mx_WINGROOT": {
+                        "quantile90": 0.24944508440987584,
+                        "quantile95": 0.29656763171660705,
+                        "quantile99": 0.3918067661565195,
+                        "lstsq": 0.9922370494901293,
+                        "explained_variance": 0.9900683450942427,
+                        "max_error": 176311.21875,
+                        "mean_absolute_error": 34832.226896334825,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 29495.9033203125,
+                        "R2": 0.9900681770064297,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.4650905403630865
+                    },
+                    "My_WINGROOT": {
+                        "quantile90": 0.20423745785755965,
+                        "quantile95": 0.24314869400763472,
+                        "quantile99": 0.31893426676130243,
+                        "lstsq": 0.9903102660264186,
+                        "explained_variance": 0.9900661377780775,
+                        "max_error": 73222.259765625,
+                        "mean_absolute_error": 11906.475411123543,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 10044.2890625,
+                        "R2": 0.9900661353549108,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.7256964600879088
+                    },
+                    "Fy_FUS": {
+                        "quantile90": 0.21328598123312772,
+                        "quantile95": 0.25285484981373973,
+                        "quantile99": 0.33358726235328523,
+                        "lstsq": 0.9929721902398452,
+                        "explained_variance": 0.9901059040038397,
+                        "max_error": 8541.8818359375,
+                        "mean_absolute_error": 1487.7842039062284,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 1258.853271484375,
+                        "R2": 0.9901059024039102,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.4768770365563686
+                    },
+                    "Fz_FUS": {
+                        "quantile90": 0.12501072707151584,
+                        "quantile95": 0.14881030155141653,
+                        "quantile99": 0.1954435487923549,
+                        "lstsq": 0.9979623322690473,
+                        "explained_variance": 0.9975267947030425,
+                        "max_error": 85157.0,
+                        "mean_absolute_error": 13200.853602507257,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 11138.9140625,
+                        "R2": 0.9975267944594686,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 1.6970364155934514
+                    },
+                    "Mx_FUS": {
+                        "quantile90": 0.1258453596390756,
+                        "quantile95": 0.14995959234007658,
+                        "quantile99": 0.1962149924568571,
+                        "lstsq": 0.9981912882347903,
+                        "explained_variance": 0.9975343134963492,
+                        "max_error": 132480.0,
+                        "mean_absolute_error": 17319.10299952396,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 14626.71875,
+                        "R2": 0.9975342966476467,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.913329033294487
+                    },
+                    "My_FUS": {
+                        "quantile90": 0.10226350310166354,
+                        "quantile95": 0.12110944520143746,
+                        "quantile99": 0.1611827111840794,
+                        "lstsq": 0.9970794762075891,
+                        "explained_variance": 0.9974920652583648,
+                        "max_error": 40802.9375,
+                        "mean_absolute_error": 5982.301578905458,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 5060.6328125,
+                        "R2": 0.9974920249634363,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.408760563137348
+                    },
+                    "Mz_FUS": {
+                        "quantile90": 0.2422995350462389,
+                        "quantile95": 0.2883158527897399,
+                        "quantile99": 0.3749649259203686,
+                        "lstsq": 0.9912081365855879,
+                        "explained_variance": 0.9858744855232248,
+                        "max_error": 16529.625,
+                        "mean_absolute_error": 2663.412685973261,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 2246.53369140625,
+                        "R2": 0.9858742557246264,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.8546171375997245
+                    }
+                }
+            },
+            "split_validation": {
+                "residual_voxel_proportion": 0.0,
+                "valid_test_proportion": 0.9655,
+                "phacking_test_proportion": 0.0055,
+                "isolated_test_proportion": 0.029,
+                "isolated_train_proportion": 0.0,
+                "chi_squared_pvalue": null
+            },
+            "method": "validationlib"
+        },
+        "Model_Deployment": {
+            "pipelines": [
+                {
+                    "label": "MLP",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/pipeline_UCLOADS_1_MLP.pkl",
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ]
+                },
+                {
+                    "label": "GradientBoosting",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/pipeline_UCLOADS_1_GradientBoosting.pkl",
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ]
+                },
+                {
+                    "label": "RandomForest",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/pipeline_UCLOADS_1_RandomForest.pkl",
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ]
+                },
+                {
+                    "label": "XGBoost",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/pipeline_UCLOADS_1_XGBoost.pkl",
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ]
+                },
+                {
+                    "label": "PyTorchNN",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/pipeline_UCLOADS_1_PyTorchNN.pkl",
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ]
+                }
+            ],
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/model_deployment/model.py"
+        },
+        "Model_Training": {
+            "Models": [
+                {
+                    "label": "MLP",
+                    "name": "MLPRegressor",
+                    "inputs": [
+                        "Mach",
+                        "Altitude_ft",
+                        "ALPHA_deg"
+                    ],
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/model_UCLOADS_1_MLP.modl"
+                },
+                {
+                    "label": "GradientBoosting",
+                    "name": "MultiOutputGradientBoosting",
+                    "inputs": [
+                        "Mach",
+                        "Altitude_ft",
+                        "ALPHA_deg"
+                    ],
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/model_UCLOADS_1_GradientBoosting.modl"
+                },
+                {
+                    "label": "RandomForest",
+                    "name": "RandomForest",
+                    "inputs": [
+                        "Mach",
+                        "Altitude_ft",
+                        "ALPHA_deg"
+                    ],
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/model_UCLOADS_1_RandomForest.modl"
+                },
+                {
+                    "label": "XGBoost",
+                    "name": "MultiOutputXGBoost",
+                    "inputs": [
+                        "Mach",
+                        "Altitude_ft",
+                        "ALPHA_deg"
+                    ],
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/model_UCLOADS_1_XGBoost.modl"
+                },
+                {
+                    "label": "PyTorchNN",
+                    "name": "PyTorchNN",
+                    "inputs": [
+                        "Mach",
+                        "Altitude_ft",
+                        "ALPHA_deg"
+                    ],
+                    "outputs": [
+                        "Fz_WINGROOT",
+                        "Mx_WINGROOT",
+                        "My_WINGROOT",
+                        "Fy_FUS",
+                        "Fz_FUS",
+                        "Mx_FUS",
+                        "My_FUS",
+                        "Mz_FUS"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/model_UCLOADS_1_PyTorchNN.modl"
+                }
+            ],
+            "Tracking": {
+                "eval": {
+                    "PyTorchNN": {
+                        "run_id": "54168bb628354412a94935f061a34b1b"
+                    }
+                }
+            },
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/model_training/learn.py"
+        },
+        "Model_Selection": {
+            "inputs": [
+                "Mach",
+                "Altitude_ft",
+                "ALPHA_deg"
+            ],
+            "outputs": [
+                "Fz_WINGROOT",
+                "Mx_WINGROOT",
+                "My_WINGROOT",
+                "Fy_FUS",
+                "Fz_FUS",
+                "Mx_FUS",
+                "My_FUS",
+                "Mz_FUS"
+            ],
+            "algorithms": [
+                {
+                    "name": "MLPRegressor",
+                    "label": "MLP",
+                    "settings": {
+                        "hidden_layer_sizes": [
+                            64,
+                            32
+                        ],
+                        "activation": "relu",
+                        "solver": "adam",
+                        "alpha": 0.01,
+                        "batch_size": 32,
+                        "learning_rate": "adaptive",
+                        "learning_rate_init": 0.001,
+                        "max_iter": 500,
+                        "early_stopping": true,
+                        "validation_fraction": 0.15,
+                        "n_iter_no_change": 20,
+                        "tol": 1e-05,
+                        "random_state": 42,
+                        "verbose": false
+                    }
+                },
+                {
+                    "name": "MultiOutputGradientBoosting",
+                    "label": "GradientBoosting",
+                    "settings": {
+                        "n_estimators": 100,
+                        "max_depth": 4,
+                        "learning_rate": 0.1,
+                        "subsample": 0.8,
+                        "min_samples_leaf": 5,
+                        "random_state": 42,
+                        "verbose": 0
+                    }
+                },
+                {
+                    "name": "RandomForest",
+                    "label": "RandomForest",
+                    "settings": {
+                        "n_estimators": 200,
+                        "max_depth": null,
+                        "min_samples_leaf": 4,
+                        "max_features": 1.0,
+                        "n_jobs": 1,
+                        "random_state": 42,
+                        "verbose": 0
+                    }
+                },
+                {
+                    "name": "MultiOutputXGBoost",
+                    "label": "XGBoost",
+                    "settings": {
+                        "n_estimators": 300,
+                        "max_depth": 5,
+                        "learning_rate": 0.05,
+                        "subsample": 0.8,
+                        "colsample_bytree": 0.8,
+                        "min_child_weight": 5,
+                        "reg_alpha": 0.1,
+                        "reg_lambda": 1.0,
+                        "random_state": 42,
+                        "verbosity": 0,
+                        "nthread": 1
+                    }
+                },
+                {
+                    "name": "PyTorchNN",
+                    "label": "PyTorchNN",
+                    "settings": {
+                        "n_hidden": 128,
+                        "n_layers": 4,
+                        "lr": 0.001,
+                        "epochs": 500,
+                        "batch_size": 64,
+                        "patience": 30,
+                        "weight_decay": 0.0001,
+                        "loss": "mse",
+                        "random_state": 42,
+                        "verbose": true
+                    }
+                }
+            ]
+        },
+        "Feature_Selection": {
+            "Add_Remove_Features": {
+                "inputs": [
+                    "Mach",
+                    "Altitude_ft",
+                    "ALPHA_deg"
+                ],
+                "outputs": [
+                    "Fz_WINGROOT",
+                    "Mx_WINGROOT",
+                    "My_WINGROOT",
+                    "Fy_FUS",
+                    "Fz_FUS",
+                    "Mx_FUS",
+                    "My_FUS",
+                    "Mz_FUS"
+                ]
+            },
+            "Preprocess": {
+                "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/preprocess_UCLOADS_1.pkl",
+                "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/feature_selection/preprocess.py",
+                "inputs": [
+                    "Mach",
+                    "Altitude_ft",
+                    "ALPHA_deg"
+                ],
+                "method": "normalizer_transformer"
+            }
+        },
+        "Data_Partition": {
+            "size": {
+                "train": 257040,
+                "test": 64260,
+                "validation": 35700
+            },
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/data_partition/partition.py",
+            "data_split": {
+                "algorithm": "sklearn.model_selection.train_test_split",
+                "percentages": {
+                    "train": 0.7,
+                    "test": 0.2,
+                    "validation": 0.1
+                }
+            }
+        },
+        "Data_Cleansing": {
+            "Missing_Values": {
+                "strategy": "dropna"
+            },
+            "Outliers": {
+                "method": "none"
+            }
+        },
+        "Data_Acquisition_Generation": {
+            "Data_Acquisition": {
+                "Extract": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/data_acquisition/load_mon.py",
+                    "method": "load_mon",
+                    "data_folder": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/datasets/TrainData",
+                    "monitor_stations": [
+                        {
+                            "file": "MS_WINGROOT_RHS.mon",
+                            "outputs": [
+                                "Fz",
+                                "Mx",
+                                "My"
+                            ],
+                            "suffix": "_WINGROOT"
+                        },
+                        {
+                            "file": "MS_FUS_FTJ.mon",
+                            "outputs": [
+                                "Fy",
+                                "Fz",
+                                "Mx",
+                                "My",
+                                "Mz"
+                            ],
+                            "suffix": "_FUS"
+                        }
+                    ],
+                    "inputs": [
+                        "Mach",
+                        "Altitude_ft",
+                        "ALPHA_deg"
+                    ]
+                },
+                "Transform": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/data_acquisition/load_mon.py"
+                },
+                "Load": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/python_nodes_library/data_acquisition/load_mon.py"
+                }
+            }
+        },
+        "Requirements": {
+            "accuracy": [
+                {
+                    "output": "Fz_WINGROOT",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Mx_WINGROOT",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "My_WINGROOT",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Fy_FUS",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Fz_FUS",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Mx_FUS",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "My_FUS",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Mz_FUS",
+                    "metric": "quantile90",
+                    "value": 0.1
+                }
+            ]
+        }
+    }
+}

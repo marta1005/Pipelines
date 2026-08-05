@@ -1,0 +1,679 @@
+{
+    "metadata": {
+        "Model_Validation": {
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library/model_validation/visualize.py",
+            "validation_results": [
+                {
+                    "output": "1g",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.04729816644414661,
+                            "passed": true
+                        },
+                        "GradientBoosting": {
+                            "score": 0.025703270638155907,
+                            "passed": true
+                        }
+                    }
+                },
+                {
+                    "output": "Vertical maneuver",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.055400114802353746,
+                            "passed": true
+                        },
+                        "GradientBoosting": {
+                            "score": 0.03178847520571176,
+                            "passed": true
+                        }
+                    }
+                },
+                {
+                    "output": "Vertical gust",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.0918357152703496,
+                            "passed": true
+                        },
+                        "GradientBoosting": {
+                            "score": 0.026173393312863932,
+                            "passed": true
+                        }
+                    }
+                },
+                {
+                    "output": "Turn",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.07829160849518718,
+                            "passed": true
+                        },
+                        "GradientBoosting": {
+                            "score": 0.03506796908582871,
+                            "passed": true
+                        }
+                    }
+                },
+                {
+                    "output": "Frontal gust",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 11.330048730248368,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.27951222000525217,
+                            "passed": false
+                        }
+                    }
+                },
+                {
+                    "output": "n0",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.07232464629454398,
+                            "passed": true
+                        },
+                        "GradientBoosting": {
+                            "score": 0.014930942459609306,
+                            "passed": true
+                        }
+                    }
+                },
+                {
+                    "output": "Giro",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "MLP": {
+                            "score": 0.9005176493068658,
+                            "passed": false
+                        },
+                        "GradientBoosting": {
+                            "score": 0.2215139134819334,
+                            "passed": false
+                        }
+                    }
+                }
+            ],
+            "distribution_tests": {
+                "MLP": {
+                    "1g": 0.47295214574017996,
+                    "Vertical maneuver": 0.18027367557459364,
+                    "Vertical gust": 0.6353259464364754,
+                    "Turn": 0.07844370225923002,
+                    "Frontal gust": 0.7355359766099894,
+                    "n0": 0.377603687181797,
+                    "Giro": 0.7805285017462724
+                },
+                "GradientBoosting": {
+                    "1g": 0.003997920464668792,
+                    "Vertical maneuver": 0.16135570650930936,
+                    "Vertical gust": 0.04220365997104051,
+                    "Turn": 0.04386273631051325,
+                    "Frontal gust": 0.9735449190642598,
+                    "n0": 0.03175107829415603,
+                    "Giro": 0.01708324901758959
+                }
+            },
+            "scores": {
+                "MLP": {
+                    "1g": {
+                        "quantile90": 0.04729816644414661,
+                        "quantile95": 0.05733871444061985,
+                        "quantile99": 0.1360107518206183,
+                        "lstsq": 1.0084760182144035,
+                        "explained_variance": 0.919151665281721,
+                        "max_error": 25.41947181224993,
+                        "mean_absolute_error": 1.01686452250409,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.0014742881323989766,
+                        "median_absolute_error": 0.4960106438644658,
+                        "R2": 0.9160382180488424,
+                        "mean_poisson_deviance": 0.08767532601076382,
+                        "mean_gamma_deviance": 0.001428214111332886,
+                        "mean_absolute_percentage_error": 0.01947004019955939
+                    },
+                    "Vertical maneuver": {
+                        "quantile90": 0.055400114802353746,
+                        "quantile95": 0.08984079237733887,
+                        "quantile99": 0.13560734864626195,
+                        "lstsq": 1.0069209555206042,
+                        "explained_variance": 0.9153154273234589,
+                        "max_error": 4.8161975488996,
+                        "mean_absolute_error": 0.4498655490094783,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.001582026308059695,
+                        "median_absolute_error": 0.24904003201497638,
+                        "R2": 0.9116123946717202,
+                        "mean_poisson_deviance": 0.03057548083908716,
+                        "mean_gamma_deviance": 0.0016931887181806438,
+                        "mean_absolute_percentage_error": 0.024766678035818075
+                    },
+                    "Vertical gust": {
+                        "quantile90": 0.0918357152703496,
+                        "quantile95": 0.16910247634849274,
+                        "quantile99": 0.29453646284208357,
+                        "lstsq": 0.9950088844355686,
+                        "explained_variance": 0.937862550788568,
+                        "max_error": 0.1625345992152898,
+                        "mean_absolute_error": 0.03044202289215448,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.0007255131729046923,
+                        "median_absolute_error": 0.019667366142319898,
+                        "R2": 0.9377311495619173,
+                        "mean_poisson_deviance": 0.0031797188015137696,
+                        "mean_gamma_deviance": 0.005908759240805867,
+                        "mean_absolute_percentage_error": 0.05185382035562014
+                    },
+                    "Turn": {
+                        "quantile90": 0.07829160849518718,
+                        "quantile95": 0.09352055421169707,
+                        "quantile99": 0.20819063152791856,
+                        "lstsq": 1.011911123234237,
+                        "explained_variance": 0.7701973500096297,
+                        "max_error": 2.6259201082945296,
+                        "mean_absolute_error": 0.20722639236173884,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.0020683264875771623,
+                        "median_absolute_error": 0.15249006531509712,
+                        "R2": 0.7543787529149446,
+                        "mean_poisson_deviance": 0.017373613760353714,
+                        "mean_gamma_deviance": 0.0026378334751906837,
+                        "mean_absolute_percentage_error": 0.03374205740531188
+                    },
+                    "Frontal gust": {
+                        "quantile90": 11.330048730248368,
+                        "quantile95": 15.480350743606088,
+                        "quantile99": 33.4329863118963,
+                        "lstsq": 0.961037517924127,
+                        "explained_variance": 0.9801420637369421,
+                        "max_error": 0.9040721255733386,
+                        "mean_absolute_error": 0.08249451475932788,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.008913323640450168,
+                        "median_absolute_error": 0.042564867426512,
+                        "R2": 0.9793801676978953,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 245222227068449.84
+                    },
+                    "n0": {
+                        "quantile90": 0.07232464629454398,
+                        "quantile95": 0.09174117880375185,
+                        "quantile99": 0.10705690114884199,
+                        "lstsq": 0.9982169528774255,
+                        "explained_variance": -0.7283433169557807,
+                        "max_error": 0.7090837915910706,
+                        "mean_absolute_error": 0.06601339283042193,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.001056114261257608,
+                        "median_absolute_error": 0.04929306572714065,
+                        "R2": -0.7292308968190722,
+                        "mean_poisson_deviance": 0.004678348512306361,
+                        "mean_gamma_deviance": 0.0023241138398863684,
+                        "mean_absolute_percentage_error": 0.03415663912258512
+                    },
+                    "Giro": {
+                        "quantile90": 0.9005176493068658,
+                        "quantile95": 1.4573631311603865,
+                        "quantile99": 3.800475402599696,
+                        "lstsq": 0.7993531156740997,
+                        "explained_variance": -0.10416746019988699,
+                        "max_error": 12.73650786916005,
+                        "mean_absolute_error": 0.7268408763434483,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": null,
+                        "median_absolute_error": 0.3152751814030128,
+                        "R2": -0.10417664000082172,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 0.452400327988088
+                    }
+                },
+                "GradientBoosting": {
+                    "1g": {
+                        "quantile90": 0.025703270638155907,
+                        "quantile95": 0.04063217572775133,
+                        "quantile99": 0.11461737481762183,
+                        "lstsq": 1.0029362495370133,
+                        "explained_variance": 0.980383068950489,
+                        "max_error": 9.664429003121317,
+                        "mean_absolute_error": 0.5722054110046602,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.0007703023768260459,
+                        "median_absolute_error": 0.24591226673060618,
+                        "R2": 0.9797406160227988,
+                        "mean_poisson_deviance": 0.03233295463027869,
+                        "mean_gamma_deviance": 0.0007651935607521381,
+                        "mean_absolute_percentage_error": 0.012281169856711443
+                    },
+                    "Vertical maneuver": {
+                        "quantile90": 0.03178847520571176,
+                        "quantile95": 0.0495959413214814,
+                        "quantile99": 0.12517807551287202,
+                        "lstsq": 1.0009572790340544,
+                        "explained_variance": 0.972443074468801,
+                        "max_error": 2.3934401838456782,
+                        "mean_absolute_error": 0.22867578294430096,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.000637261148034097,
+                        "median_absolute_error": 0.11291711285002393,
+                        "R2": 0.9722603511825549,
+                        "mean_poisson_deviance": 0.011109860824890667,
+                        "mean_gamma_deviance": 0.0007077532774700175,
+                        "mean_absolute_percentage_error": 0.013433227283181874
+                    },
+                    "Vertical gust": {
+                        "quantile90": 0.026173393312863932,
+                        "quantile95": 0.05163187156541132,
+                        "quantile99": 0.13807235099420373,
+                        "lstsq": 1.0026207366357411,
+                        "explained_variance": 0.9916151771073636,
+                        "max_error": 0.1266671465217893,
+                        "mean_absolute_error": 0.00882486134089763,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.00010882900468228335,
+                        "median_absolute_error": 0.0055043381945596714,
+                        "R2": 0.9914139134017668,
+                        "mean_poisson_deviance": 0.00048132049470608033,
+                        "mean_gamma_deviance": 0.0009516618294902545,
+                        "mean_absolute_percentage_error": 0.015529264746979295
+                    },
+                    "Turn": {
+                        "quantile90": 0.03506796908582871,
+                        "quantile95": 0.06888906615381991,
+                        "quantile99": 0.15498455461018615,
+                        "lstsq": 1.001181184718468,
+                        "explained_variance": 0.929265053426362,
+                        "max_error": 0.8812939826469677,
+                        "mean_absolute_error": 0.10465805529167478,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.000779408346838103,
+                        "median_absolute_error": 0.05132034144537423,
+                        "R2": 0.9286214200814005,
+                        "mean_poisson_deviance": 0.005985763934374609,
+                        "mean_gamma_deviance": 0.0010675556046392293,
+                        "mean_absolute_percentage_error": 0.017791396763357135
+                    },
+                    "Frontal gust": {
+                        "quantile90": 0.27951222000525217,
+                        "quantile95": 1.0727551547483312,
+                        "quantile99": 12.559078435630125,
+                        "lstsq": 0.9877538402525636,
+                        "explained_variance": 0.9964092259427876,
+                        "max_error": 0.6277591339544688,
+                        "mean_absolute_error": 0.01622618479180815,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.0007998974289468008,
+                        "median_absolute_error": 9.163518160585997e-05,
+                        "R2": 0.9963801272047568,
+                        "mean_poisson_deviance": null,
+                        "mean_gamma_deviance": null,
+                        "mean_absolute_percentage_error": 17971149489696.32
+                    },
+                    "n0": {
+                        "quantile90": 0.014930942459609306,
+                        "quantile95": 0.018177136644981478,
+                        "quantile99": 0.03753235192198382,
+                        "lstsq": 0.9987873113827352,
+                        "explained_variance": 0.9325811986483448,
+                        "max_error": 0.0882655537579109,
+                        "mean_absolute_error": 0.013041457626611845,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 4.312338810932905e-05,
+                        "median_absolute_error": 0.007634257651365828,
+                        "R2": 0.931712659907411,
+                        "mean_poisson_deviance": 0.00019278307250427112,
+                        "mean_gamma_deviance": 9.930836057174079e-05,
+                        "mean_absolute_percentage_error": 0.006693364580684291
+                    },
+                    "Giro": {
+                        "quantile90": 0.2215139134819334,
+                        "quantile95": 0.41636299113305236,
+                        "quantile99": 1.2276971315011553,
+                        "lstsq": 0.981433645916721,
+                        "explained_variance": 0.9504580308271396,
+                        "max_error": 1.5503890392307487,
+                        "mean_absolute_error": 0.15839076737692215,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.01063476056267978,
+                        "median_absolute_error": 0.05688812663515552,
+                        "R2": 0.9498535034744908,
+                        "mean_poisson_deviance": 0.0439779983942689,
+                        "mean_gamma_deviance": 0.026103705564193908,
+                        "mean_absolute_percentage_error": 0.10710289207399878
+                    }
+                }
+            },
+            "split_validation": {
+                "residual_voxel_proportion": 0.0,
+                "valid_test_proportion": 0.9310344827586207,
+                "phacking_test_proportion": 0.005747126436781609,
+                "isolated_test_proportion": 0.06321839080459771,
+                "isolated_train_proportion": 0.0,
+                "chi_squared_pvalue": 0.7969302802624497
+            },
+            "method": "score",
+            "criteria": [
+                {
+                    "value": 0
+                }
+            ]
+        },
+        "Model_Deployment": {
+            "pipelines": [
+                {
+                    "label": "MLP",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/data/artifacts/pipeline_UCFATIGUE_1_MLP.pkl",
+                    "outputs": [
+                        "1g",
+                        "Vertical maneuver",
+                        "Vertical gust",
+                        "Turn",
+                        "Frontal gust",
+                        "n0",
+                        "Giro"
+                    ]
+                },
+                {
+                    "label": "GradientBoosting",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/data/artifacts/pipeline_UCFATIGUE_1_GradientBoosting.pkl",
+                    "outputs": [
+                        "1g",
+                        "Vertical maneuver",
+                        "Vertical gust",
+                        "Turn",
+                        "Frontal gust",
+                        "n0",
+                        "Giro"
+                    ]
+                }
+            ],
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library/model_deployment/model.py",
+            "method": "sklearn"
+        },
+        "Model_Training": {
+            "Models": [
+                {
+                    "label": "MLP",
+                    "name": "MLPRegressor",
+                    "inputs": [
+                        "FLAP",
+                        "Altitude",
+                        "TAS",
+                        "Mass",
+                        "q",
+                        "gamma",
+                        "Type_segment",
+                        "Xcg(%CMA)"
+                    ],
+                    "outputs": [
+                        "1g",
+                        "Vertical maneuver",
+                        "Vertical gust",
+                        "Turn",
+                        "Frontal gust",
+                        "n0",
+                        "Giro"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/data/artifacts/model_UCFATIGUE_1_MLP.modl"
+                },
+                {
+                    "label": "GradientBoosting",
+                    "name": "MultiOutputGradientBoosting",
+                    "inputs": [
+                        "FLAP",
+                        "Altitude",
+                        "TAS",
+                        "Mass",
+                        "q",
+                        "gamma",
+                        "Type_segment",
+                        "Xcg(%CMA)"
+                    ],
+                    "outputs": [
+                        "1g",
+                        "Vertical maneuver",
+                        "Vertical gust",
+                        "Turn",
+                        "Frontal gust",
+                        "n0",
+                        "Giro"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/data/artifacts/model_UCFATIGUE_1_GradientBoosting.modl"
+                }
+            ],
+            "Tracking": {
+                "eval": {
+                    "GradientBoosting": {
+                        "run_id": "c142a67172fa44e5b3e17f312bc878ff"
+                    }
+                }
+            },
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library/model_training/learn.py",
+            "note": "Single multioutput model \u2014 all 7 fatigue loads predicted simultaneously."
+        },
+        "Model_Selection": {
+            "inputs": [
+                "FLAP",
+                "Altitude",
+                "TAS",
+                "Mass",
+                "q",
+                "gamma",
+                "Type_segment",
+                "Xcg(%CMA)"
+            ],
+            "outputs": [
+                "1g",
+                "Vertical maneuver",
+                "Vertical gust",
+                "Turn",
+                "Frontal gust",
+                "n0",
+                "Giro"
+            ],
+            "algorithms": [
+                {
+                    "name": "MLPRegressor",
+                    "label": "MLP",
+                    "settings": {
+                        "hidden_layer_sizes": [
+                            64,
+                            32
+                        ],
+                        "activation": "relu",
+                        "solver": "adam",
+                        "alpha": 0.01,
+                        "batch_size": 32,
+                        "learning_rate": "adaptive",
+                        "learning_rate_init": 0.001,
+                        "max_iter": 500,
+                        "early_stopping": true,
+                        "validation_fraction": 0.15,
+                        "n_iter_no_change": 20,
+                        "tol": 1e-05,
+                        "random_state": 42,
+                        "verbose": true
+                    }
+                },
+                {
+                    "name": "MultiOutputGradientBoosting",
+                    "label": "GradientBoosting",
+                    "settings": {
+                        "n_estimators": 100,
+                        "max_depth": 4,
+                        "learning_rate": 0.1,
+                        "subsample": 0.8,
+                        "min_samples_leaf": 5,
+                        "random_state": 42,
+                        "verbose": 0
+                    }
+                }
+            ]
+        },
+        "Feature_Selection": {
+            "Add_Remove_Features": {
+                "inputs": [
+                    "FLAP",
+                    "Altitude",
+                    "TAS",
+                    "Mass",
+                    "q",
+                    "gamma",
+                    "Type_segment",
+                    "Xcg(%CMA)"
+                ],
+                "outputs": [
+                    "1g",
+                    "Vertical maneuver",
+                    "Vertical gust",
+                    "Turn",
+                    "Frontal gust",
+                    "n0",
+                    "Giro"
+                ]
+            },
+            "Preprocess": {
+                "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/data/artifacts/preprocess_UCFATIGUE_1.pkl",
+                "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library/feature_selection/preprocess.py",
+                "inputs": [
+                    "FLAP",
+                    "Altitude",
+                    "TAS",
+                    "Mass",
+                    "q",
+                    "gamma",
+                    "Type_segment",
+                    "Xcg(%CMA)"
+                ],
+                "method": "normalizer_transformer",
+                "categorical_features": "[FLAP, Type_segment]",
+                "numerical_features": "[Altitude, TAS, Mass, q, gamma, Xcg(%CMA)]"
+            }
+        },
+        "Data_Partition": {
+            "data_split": {
+                "algorithm": "sklearn.model_selection.train_test_split",
+                "percentages": {
+                    "train": 0.8,
+                    "test": 0.1,
+                    "validation": 0.1
+                }
+            }
+        },
+        "Data_Cleansing": {
+            "Managing_Missing_Values": {
+                "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library/data_cleansing/manage_missing.py",
+                "output": [
+                    {
+                        "name": "Frontal gust",
+                        "filling_value": "0"
+                    },
+                    {
+                        "name": "Xcg(%CMA)",
+                        "filling_value": "median"
+                    }
+                ]
+            },
+            "Managing_Outliers": {
+                "input": [
+                    {
+                        "name": "Type_segment",
+                        "options": [
+                            "FLT-1",
+                            "FLT-2",
+                            "FLT-3",
+                            "FLT-4",
+                            "FLT-7",
+                            "FLT-8",
+                            "FLT-9",
+                            "FLT-10",
+                            "FLT-11"
+                        ]
+                    }
+                ]
+            }
+        },
+        "Data_Acquisition_Generation": {
+            "Data_Acquisition": {
+                "Extract": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library/data_acquisition/outputs_parser.py",
+                    "method": "pandas.read_excel",
+                    "path": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/datasets/Subset_Surrogate_Factory.xlsx",
+                    "sse_filter": 2110017
+                },
+                "Transform": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCFatigue/pipeline/python_nodes_library/data_acquisition/outputs_parser.py"
+                }
+            }
+        },
+        "Requirements": {
+            "accuracy": [
+                {
+                    "output": "1g",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Vertical maneuver",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Vertical gust",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Turn",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Frontal gust",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "n0",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "Giro",
+                    "metric": "quantile90",
+                    "value": 0.1
+                }
+            ]
+        }
+    }
+}

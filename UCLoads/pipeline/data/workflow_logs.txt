@@ -1,0 +1,71 @@
+2026-07-14 11:24:56 - INFO - Initializing Workflow...
+2026-07-14 11:24:56 - INFO - Setting up Workflow folders and paths...
+2026-07-14 11:24:56 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data
+2026-07-14 11:24:56 - INFO - Loading default metadata schema...
+2026-07-14 11:24:56 - INFO - Tracker requested: 'mlflow'
+2026-07-14 11:24:57 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-07-14 11:24:57 - INFO - Setting up MLflow tracking environment...
+2026-07-14 11:24:57 - INFO - Adding methods to Catalog from configuration.
+2026-07-14 11:24:58 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-07-14 11:24:59 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-07-14 11:24:59 - DEBUG - Catalog: loaded 'RandomForest' from 'model_training.estimators.RandomForest'
+2026-07-14 11:24:59 - DEBUG - Catalog: loaded 'MultiOutputXGBoost' from 'model_training.estimators.MultiOutputXGBoost'
+2026-07-14 11:24:59 - DEBUG - Catalog: loaded 'PyTorchNN' from 'model_training.estimators.PyTorchNN'
+2026-07-14 11:24:59 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-07-14 11:24:59 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-07-14 11:24:59 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-07-14 11:24:59 - INFO - Workflow initialization completed successfully.
+2026-07-14 11:24:59 - INFO - ▶ Executing Workflow Step: 'batch_extract'
+2026-07-14 11:25:00 - DEBUG - Step 'batch_extract' executed successfully.
+2026-07-14 11:25:00 - INFO - ▶ Executing Workflow Step: 'batch_transform'
+2026-07-14 11:25:00 - DEBUG - Step 'batch_transform' executed successfully.
+2026-07-14 11:25:00 - INFO - ▶ Executing Workflow Step: 'batch_load'
+2026-07-14 11:25:00 - DEBUG - Step 'batch_load' executed successfully.
+2026-07-14 11:25:01 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_raw_dataset.csv
+2026-07-14 11:25:01 - WARNING - 'drop_missing' is not in the process mapping. It must be one of these: ['define_doe', 'launch_sim', 'batch_extract', 'batch_transform', 'batch_load', 'replace_missing_values', 'filter_outliers', 'data_split', 'explore_data_analysis', 'add_features', 'preprocessor', 'postprocessor', 'define_model', 'train', 'model_deployment', 'predict', 'calculate_metrics', 'validate', 'data_visualization', 'split_validation', 'distribution_tests', 'plot']
+2026-07-14 11:25:01 - INFO - ▶ Executing Workflow Step: 'drop_missing'
+2026-07-14 11:25:01 - DEBUG - Step 'drop_missing' executed successfully.
+2026-07-14 11:25:01 - WARNING - 'report_statistics' is not in the process mapping. It must be one of these: ['define_doe', 'launch_sim', 'batch_extract', 'batch_transform', 'batch_load', 'replace_missing_values', 'filter_outliers', 'data_split', 'explore_data_analysis', 'add_features', 'preprocessor', 'postprocessor', 'define_model', 'train', 'model_deployment', 'predict', 'calculate_metrics', 'validate', 'data_visualization', 'split_validation', 'distribution_tests', 'plot']
+2026-07-14 11:25:01 - INFO - ▶ Executing Workflow Step: 'report_statistics'
+2026-07-14 11:25:01 - DEBUG - Step 'report_statistics' executed successfully.
+2026-07-14 11:25:03 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_clean_dataset.csv
+2026-07-14 11:25:03 - INFO - ▶ Executing Workflow Step: 'data_split'
+2026-07-14 11:25:03 - DEBUG - Step 'data_split' executed successfully.
+2026-07-14 11:25:04 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Train_set.csv
+2026-07-14 11:25:04 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Val_set.csv
+2026-07-14 11:25:04 - INFO - Data saved successfully as CSV to: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Test_set.csv
+2026-07-14 11:25:04 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Train_set.csv' (Format: csv)
+2026-07-14 11:25:04 - INFO - Successfully loaded data shape: (257040, 11)
+2026-07-14 11:25:04 - INFO - ▶ Executing Workflow Step: 'preprocessor'
+2026-07-14 11:25:04 - DEBUG - Step 'preprocessor' executed successfully.
+2026-07-14 11:25:04 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Train_set.csv' (Format: csv)
+2026-07-14 11:25:05 - INFO - Successfully loaded data shape: (257040, 11)
+2026-07-14 11:25:05 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Val_set.csv' (Format: csv)
+2026-07-14 11:25:05 - INFO - Successfully loaded data shape: (35700, 11)
+2026-07-14 11:25:05 - INFO - ▶ Executing Workflow Step: 'train'
+2026-07-14 11:44:51 - DEBUG - Step 'train' executed successfully.
+2026-07-14 11:44:51 - INFO - ▶ Executing Workflow Step: 'model_deployment'
+2026-07-14 11:44:52 - DEBUG - Step 'model_deployment' executed successfully.
+2026-07-14 11:44:53 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Train_set.csv' (Format: csv)
+2026-07-14 11:44:53 - INFO - Successfully loaded data shape: (257040, 11)
+2026-07-14 11:44:53 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Val_set.csv' (Format: csv)
+2026-07-14 11:44:53 - INFO - Successfully loaded data shape: (35700, 11)
+2026-07-14 11:44:53 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/UCLOADS_1_Test_set.csv' (Format: csv)
+2026-07-14 11:44:54 - INFO - Successfully loaded data shape: (64260, 11)
+2026-07-14 11:44:54 - INFO - ▶ Executing Workflow Step: 'split_validation'
+2026-07-14 11:48:07 - DEBUG - Step 'split_validation' executed successfully.
+2026-07-14 11:48:07 - INFO - ▶ Executing Workflow Step: 'predict'
+2026-07-14 11:48:12 - DEBUG - Step 'predict' executed successfully.
+2026-07-14 11:48:12 - INFO - ▶ Executing Workflow Step: 'predict'
+2026-07-14 11:48:27 - DEBUG - Step 'predict' executed successfully.
+2026-07-14 11:48:27 - INFO - ▶ Executing Workflow Step: 'predict'
+2026-07-14 11:48:30 - DEBUG - Step 'predict' executed successfully.
+2026-07-14 11:48:30 - INFO - ▶ Executing Workflow Step: 'calculate_metrics'
+2026-07-14 11:48:31 - DEBUG - Step 'calculate_metrics' executed successfully.
+2026-07-14 11:48:31 - INFO - ▶ Executing Workflow Step: 'distribution_tests'
+2026-07-14 11:48:32 - DEBUG - Step 'distribution_tests' executed successfully.
+2026-07-14 11:48:32 - INFO - ▶ Executing Workflow Step: 'validate'
+2026-07-14 11:48:32 - DEBUG - Step 'validate' executed successfully.
+2026-07-14 11:48:32 - INFO - ▶ Executing Workflow Step: 'plot'
+2026-07-14 11:48:36 - DEBUG - Step 'plot' executed successfully.
+2026-07-22 11:01:36 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/data/artifacts/metadata_UCLOADS_1.json
