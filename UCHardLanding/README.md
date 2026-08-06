@@ -102,7 +102,6 @@ Kept for comparison. MLP treats all inputs as continuous and must learn step-fun
 ```bash
 ~/Desktop/Pipelines/start_jupyter.sh
 # Open UCHardLanding.pipeline → Run Pipeline (local)
-# Kernel: UCHardLanding (Pipeline)
 ```
 
 **Option B — standalone script:**
@@ -113,7 +112,7 @@ MLFLOW_ALLOW_FILE_STORE=true python UCHardLanding/pipeline/run_pipeline.py
 ```
 
 **Option C — notebook by notebook:**
-Open each `SF_N_*.ipynb` in order using the `UCHardLanding (Pipeline)` kernel.
+Open each `SF_N_*.ipynb` in order.
 
 ---
 

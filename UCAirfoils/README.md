@@ -90,7 +90,6 @@ All 20 inputs are continuous and the aerodynamic outputs vary smoothly over the 
 ```bash
 ~/Desktop/Pipelines/start_jupyter.sh
 # Open UCAirfoils.pipeline → Run Pipeline (local)
-# Kernel: UCAirfoils (Pipeline)
 ```
 
 **Option B — standalone script:**
@@ -101,7 +100,7 @@ MLFLOW_ALLOW_FILE_STORE=true python UCAirfoils/pipeline/run_pipeline.py
 ```
 
 **Option C — notebook by notebook:**
-Open each `SF_N_*.ipynb` in order using the `UCAirfoils (Pipeline)` kernel.
+Open each `SF_N_*.ipynb` in order.
 
 ---
 

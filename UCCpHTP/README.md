@@ -94,7 +94,6 @@ UCCpHTP/data/cphtp_data.csv   # columns: x,y,z,alpha,mach,Cp
 ```bash
 ~/Desktop/Pipelines/start_jupyter.sh
 # Open UCCpHTP.pipeline → Run Pipeline (local)
-# Kernel: UCCpHTP (Pipeline)
 ```
 
 **Option B — standalone script:**
@@ -105,7 +104,7 @@ MLFLOW_ALLOW_FILE_STORE=true python UCCpHTP/pipeline/run_pipeline.py
 ```
 
 **Option C — notebook by notebook:**
-Open each `SF_N_*.ipynb` in order using the `UCCpHTP (Pipeline)` kernel.
+Open each `SF_N_*.ipynb` in order.
 
 **Production run (more iterations):**
 ```bash

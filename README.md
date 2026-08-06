@@ -112,16 +112,6 @@ pip install -e .                        # installs surrogate_factory
 pip install jupyterlab elyra openpyxl scipy ipykernel sympy statsmodels xgboost torch neuralfoil
 ```
 
-### Register Jupyter kernels
-
-```bash
-python -m ipykernel install --user --name=ucairfoils    --display-name="UCAirfoils (Pipeline)"
-python -m ipykernel install --user --name=uccphtp       --display-name="UCCpHTP (Pipeline)"
-python -m ipykernel install --user --name=ucfatigue     --display-name="UCFatigue (Pipeline)"
-python -m ipykernel install --user --name=uchardlanding --display-name="UCHardLanding (Pipeline)"
-python -m ipykernel install --user --name=ucloads       --display-name="UCLoads (Pipeline)"
-```
-
 ### Run any pipeline
 
 **Option A — Elyra visual editor:**

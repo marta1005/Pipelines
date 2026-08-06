@@ -105,7 +105,6 @@ One independent `GradientBoostingRegressor` per output, wrapped in `MultiOutputR
 ```bash
 ~/Desktop/Pipelines/start_jupyter.sh
 # Open UCFatigue.pipeline → Run Pipeline (local)
-# Kernel: UCFatigue (Pipeline)
 ```
 
 **Option B — standalone script:**
@@ -116,7 +115,7 @@ python UCFatigue/pipeline/run_pipeline.py
 ```
 
 **Option C — notebook by notebook:**
-Open each `SF_N_*.ipynb` in order using the `UCFatigue (Pipeline)` kernel.
+Open each `SF_N_*.ipynb` in order.
 
 ---
 

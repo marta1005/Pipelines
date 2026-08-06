@@ -101,7 +101,6 @@ Best R² on 7 of 8 outputs; perfect KS test (8/8 outputs — no overfitting). Re
 ```bash
 ~/Desktop/Pipelines/start_jupyter.sh
 # Open UCLoads.pipeline → Run Pipeline (local)
-# Kernel: UCLoads (Pipeline)
 ```
 
 **Option B — standalone script:**
@@ -112,7 +111,7 @@ MLFLOW_ALLOW_FILE_STORE=true python UCLoads/pipeline/run_pipeline.py
 ```
 
 **Option C — notebook by notebook:**
-Open each `SF_N_*.ipynb` in order using the `UCLoads (Pipeline)` kernel.
+Open each `SF_N_*.ipynb` in order.
 
 ---
 
