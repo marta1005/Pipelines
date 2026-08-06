@@ -2,20 +2,24 @@
 UCCpHTP Surrogate Factory — Standalone Pipeline Runner
 =======================================================
 Trains an MLP surrogate for the pressure coefficient Cp on a horizontal
-tail plane (HTP) from CFD data.
+tail plane (HTP) from pre-split CFD data.
 
 Inputs  : x, y, z (3D coordinates), alpha (angle of attack), mach
 Output  : Cp (pressure coefficient)
 
-IMPORTANT: Provide the CFD dataset at UCCpHTP/data/cphtp_data.csv
-           Expected columns (comma-separated): x, y, z, alpha, mach, Cp
+IMPORTANT: Provide the pre-split CSV files in UCCpHTP/data/:
+    x_train.csv   x_val.csv   x_test.csv    — input columns
+    yt_train.csv  yt_val.csv  yt_test.csv   — true output (Cp)
+
+Optional (not used by this pipeline):
+    yh_train.csv  yh_val.csv  yh_test.csv   — external model predictions
 
 Usage:
     MLFLOW_ALLOW_FILE_STORE=true python UCCpHTP/pipeline/run_pipeline.py
 
 For the production run (more iterations):
     1. Edit metadata/SF_6_Model_Selection.yaml: max_iter: 500 → max_iter: 2000
-    2. Delete the data/ folder
+    2. Delete the data/artifacts/ folder
     3. Run this script again
 """
 
@@ -23,6 +27,7 @@ import os
 import sys
 import yaml
 import shutil
+import pandas as pd
 from pathlib import Path
 
 # ── paths ──────────────────────────────────────────────────────────────────────
@@ -49,15 +54,10 @@ def load_stage(workflow, stage_name):
     workflow.metadata.update_step_data(new_data, ["metadata"])
 
 
-def clear_data_folder(data_folder: Path):
-    for pattern in ('*.csv', '*.json', '*.modl', '*.pkl', '*.onnx'):
-        for f in data_folder.glob(pattern):
+def clear_artifacts(artifacts_folder: Path):
+    for pattern in ('*.modl', '*.pkl', '*.onnx', '*.json'):
+        for f in artifacts_folder.glob(pattern):
             f.unlink()
-    artifacts = data_folder / 'artifacts'
-    if artifacts.exists():
-        for pattern in ('*.modl', '*.pkl', '*.onnx', '*.json'):
-            for f in artifacts.glob(pattern):
-                f.unlink()
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
@@ -66,75 +66,81 @@ print("=" * 65)
 print("  UCCpHTP — Surrogate Factory Pipeline")
 print("=" * 65)
 
-# Check data file exists
-input_csv = Path('/Users/martaarnabatmartin/Desktop/Pipelines/UCCpHTP/data/cphtp_data.csv')
-if not input_csv.exists():
-    print(f"\nERROR: Data file not found: {input_csv}")
-    print("Please provide the CFD dataset (columns: x, y, z, alpha, mach, Cp)")
-    sys.exit(1)
-
+# ── Pre-flight: check required split files ─────────────────────────────────
 print("\nInitialising workflow …")
 wf = Workflow('pipeline_config.yaml')
+
+split_dir = Path(wf.config['data_split_folder'])
+required_files = [
+    'x_train.csv', 'x_val.csv', 'x_test.csv',
+    'yt_train.csv', 'yt_val.csv', 'yt_test.csv',
+]
+missing = [f for f in required_files if not (split_dir / f).exists()]
+if missing:
+    print(f"\nERROR: Missing data files in {split_dir}:")
+    for f in missing:
+        print(f"  - {f}")
+    print("\nExpected files:")
+    print("  x_train.csv   x_val.csv   x_test.csv    ← input columns (x, y, z, alpha, mach)")
+    print("  yt_train.csv  yt_val.csv  yt_test.csv   ← true output (Cp)")
+    sys.exit(1)
 
 load_stage(wf, 'SF_1_Requirements')
 
 data_folder = Path(wf.config['data.folder'])
 data_folder.mkdir(parents=True, exist_ok=True)
-(data_folder / 'artifacts').mkdir(parents=True, exist_ok=True)
+artifacts_folder = Path(wf.config['artifacts.folder'])
+artifacts_folder.mkdir(parents=True, exist_ok=True)
 
-clear_data_folder(data_folder)
+clear_artifacts(artifacts_folder)
 job = wf.config['job_name']
 
 # =============================================================================
-# Stage 2 — Data Acquisition
+# Stage 2 — Data Acquisition (load pre-split files)
 # =============================================================================
-print("\n=== Stage 2: Data Acquisition ===")
+print("\n=== Stage 2: Data Acquisition (pre-split) ===")
 load_stage(wf, 'SF_2_Data_Acquisition_Generation')
 
-from data_acquisition.outputs_parser import batch_extract, batch_transform
+x_train = pd.read_csv(split_dir / 'x_train.csv')
+x_val   = pd.read_csv(split_dir / 'x_val.csv')
+x_test  = pd.read_csv(split_dir / 'x_test.csv')
 
-dataset = batch_extract(wf)
-dataset = batch_transform(wf, dataset)
-print(f"Shape after extract+transform: {dataset.shape}")
-wf.save_data(dataset, f"{job}_Raw.csv")
+yt_train = pd.read_csv(split_dir / 'yt_train.csv')
+yt_val   = pd.read_csv(split_dir / 'yt_val.csv')
+yt_test  = pd.read_csv(split_dir / 'yt_test.csv')
 
-# =============================================================================
-# Stage 3 — Data Cleansing
-# =============================================================================
-print("\n=== Stage 3: Data Cleansing ===")
-load_stage(wf, 'SF_3_Data_Cleansing')
+Train_set = pd.concat([x_train.reset_index(drop=True),
+                        yt_train.reset_index(drop=True)], axis=1)
+Val_set   = pd.concat([x_val.reset_index(drop=True),
+                        yt_val.reset_index(drop=True)], axis=1)
+Test_set  = pd.concat([x_test.reset_index(drop=True),
+                        yt_test.reset_index(drop=True)], axis=1)
 
-from data_cleansing.manage_missing import replace_missing_values
-
-dataset = wf.load_data(f"{job}_Raw.csv")
-dataset_clean = replace_missing_values(wf, dataset)
-nulls = dataset_clean.isnull().sum()
-remaining = nulls[nulls > 0]
-if remaining.empty:
-    print("No missing values remaining.")
-else:
-    print(f"Remaining nulls:\n{remaining}")
-wf.save_data(dataset_clean, f"{job}_Cleaned.csv")
-
-# =============================================================================
-# Stage 4 — Data Partitioning
-# =============================================================================
-print("\n=== Stage 4: Data Partitioning ===")
-load_stage(wf, 'SF_4_Data_Partitioning')
-
-from sklearn.model_selection import train_test_split
-
-dataset = wf.load_data(f"{job}_Cleaned.csv")
-Train_set, Test_set = train_test_split(dataset, test_size=0.2, random_state=42)
-Train_set, Val_set  = train_test_split(Train_set, test_size=0.125, random_state=42)
-
-print(f"Train : {Train_set.shape[0]} rows")
-print(f"Val   : {Val_set.shape[0]} rows")
-print(f"Test  : {Test_set.shape[0]} rows")
+print(f"  Train : {Train_set.shape[0]:>8,} rows   columns: {list(Train_set.columns)}")
+print(f"  Val   : {Val_set.shape[0]:>8,} rows")
+print(f"  Test  : {Test_set.shape[0]:>8,} rows")
 
 wf.save_data(Train_set, f"{job}_Train_set.csv")
 wf.save_data(Val_set,   f"{job}_Val_set.csv")
 wf.save_data(Test_set,  f"{job}_Test_set.csv")
+
+# =============================================================================
+# Stage 3 — Data Cleansing (skip — data is already clean)
+# =============================================================================
+print("\n=== Stage 3: Data Cleansing (skipped — pre-split data assumed clean) ===")
+load_stage(wf, 'SF_3_Data_Cleansing')
+nulls = Train_set.isnull().sum()
+remaining = nulls[nulls > 0]
+if not remaining.empty:
+    print(f"WARNING: Nulls found in Train_set:\n{remaining}")
+else:
+    print("  No missing values.")
+
+# =============================================================================
+# Stage 4 — Data Partitioning (skip — already split)
+# =============================================================================
+print("\n=== Stage 4: Data Partitioning (skipped — files are already split) ===")
+load_stage(wf, 'SF_4_Data_Partitioning')
 
 # =============================================================================
 # Stage 5 — Feature Selection & Preprocessing
@@ -226,7 +232,7 @@ print("\n" + "=" * 65)
 print("  Pipeline complete!")
 print("=" * 65)
 print(f"\n  Artifacts : {wf.config['artifacts.folder']}")
-print(f"  Metadata  : {wf.config['artifacts.folder']}/metadata_{job}.json")
+print(f"  Metadata  : {artifacts_folder}/metadata_{job}.json")
 
 # =============================================================================
 # Reporting
@@ -234,8 +240,8 @@ print(f"  Metadata  : {wf.config['artifacts.folder']}/metadata_{job}.json")
 print("\n=== Reporting: Generate Executive Summary ===")
 import subprocess
 
-meta_json = Path(wf.config['artifacts.folder']) / f"metadata_{job}.json"
-report_dir = Path(wf.config['artifacts.folder']) / 'validation_reports'
+meta_json = artifacts_folder / f"metadata_{job}.json"
+report_dir = artifacts_folder / 'validation_reports'
 report_dir.mkdir(parents=True, exist_ok=True)
 
 reporting_script = PIPELINE_DIR / 'python_nodes_library' / 'reporting' / 'generate_executive_summary.py'
@@ -251,6 +257,6 @@ print("""
   For the production run (more iterations):
     1. Edit metadata/SF_6_Model_Selection.yaml
          max_iter: 500  →  max_iter: 2000
-    2. Delete the data/ folder
+    2. Delete the data/artifacts/ folder
     3. MLFLOW_ALLOW_FILE_STORE=true python run_pipeline.py
 """)

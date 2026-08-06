@@ -23,11 +23,17 @@ Achieving Q90 relative error < 10 % on Cp, enabling rapid pressure-field reconst
 | Property | Value |
 |---|---|
 | Source | CFD simulation (PyLOM solver) on HTP surface mesh |
-| File | `data/cphtp_data.csv` ← **must be provided by the user** |
+| Format | Pre-split CSV files in `data/` (see below) |
 | Rows | ~8.2 M CFD surface points |
-| Split | 70 % train / 10 % val / 20 % test (`random_state=42`) |
+| Split | Pre-split — provided directly as train / val / test files |
 
-> **Note:** The CFD dataset is not included in this repository due to its size (~8.2M rows). Provide it at `UCCpHTP/data/cphtp_data.csv` (comma-separated, columns: `x, y, z, alpha, mach, Cp`) before running the pipeline.
+> **Note:** The CFD dataset is provided as pre-split files. Place them in `UCCpHTP/data/` before running:
+>
+> | File | Contents |
+> |---|---|
+> | `x_train.csv`, `x_val.csv`, `x_test.csv` | Input columns: `x, y, z, alpha, mach` |
+> | `yt_train.csv`, `yt_val.csv`, `yt_test.csv` | True output column: `Cp` |
+> | `yh_train.csv`, `yh_val.csv`, `yh_test.csv` | External model predictions (optional, not used in training) |
 
 ### Inputs (5 features)
 
@@ -85,9 +91,11 @@ The output Cp is a smooth, continuous field over the HTP surface. The original U
 ## How to Run
 
 **Data prerequisite:**
-```bash
-# Place the CFD dataset here before running:
-UCCpHTP/data/cphtp_data.csv   # columns: x,y,z,alpha,mach,Cp
+```
+UCCpHTP/data/
+├── x_train.csv   x_val.csv   x_test.csv    ← inputs (x, y, z, alpha, mach)
+├── yt_train.csv  yt_val.csv  yt_test.csv   ← true output (Cp)
+└── yh_train.csv  yh_val.csv  yh_test.csv   ← optional, not used in training
 ```
 
 **Option A — Elyra visual editor (recommended):**

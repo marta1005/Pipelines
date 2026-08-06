@@ -1,9 +1,9 @@
 Data_Acquisition_Generation:
   Data_Acquisition:
     Extract:
-      method: pandas.read_csv
-      # CFD dataset: ~8.2M points (x, y, z coordinates + flight conditions + Cp)
-      # Provide this file at: UCCpHTP/data/cphtp_data.csv
-      # Expected columns: x, y, z, alpha, mach, Cp
-      path: /Users/martaarnabatmartin/Desktop/Pipelines/UCCpHTP/data/cphtp_data.csv
-      sep: ","
+      method: pre_split
+      # Data is provided as pre-split CSV files in data_split_folder:
+      #   x_train.csv  x_val.csv  x_test.csv   — input columns (x, y, z, alpha, mach)
+      #   yt_train.csv yt_val.csv yt_test.csv  — true output column (Cp)
+      # Optional (not used for training):
+      #   yh_train.csv yh_val.csv yh_test.csv  — external model predictions
