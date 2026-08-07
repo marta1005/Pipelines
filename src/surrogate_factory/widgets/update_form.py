@@ -204,16 +204,25 @@ class MetadataForm:
 
         # --- Number / Integer Type ---
         elif prop_type in ["number", "integer"]:
-            num_widget_type = widgets.IntText if prop_type == "integer" else widgets.FloatText
-            default_value = current_data
-            if current_data is None and is_required:
-                default_value = 0 if prop_type == "integer" else 0.0
+            # Guard: schema may say 'number' but actual value is a string (e.g. learning_rate='adaptive').
+            # Fall back to a Text widget to avoid FloatText/IntText trait errors.
+            if isinstance(current_data, str):
+                widget = widgets.Text(
+                    value=current_data, description=label, tooltip=description,
+                    style={'description_width': 'initial'}, layout=widgets.Layout(margin='5px 0')
+                )
+                self.widget_refs[full_path] = {'widget': widget, 'schema': prop_schema, 'type': 'string'}
+            else:
+                num_widget_type = widgets.IntText if prop_type == "integer" else widgets.FloatText
+                default_value = current_data
+                if current_data is None and is_required:
+                    default_value = 0 if prop_type == "integer" else 0.0
 
-            widget = num_widget_type(
-                value=default_value, description=label, step=(1 if prop_type == "integer" else None),
-                tooltip=description, style={'description_width': 'initial'}, layout=widgets.Layout(margin='5px 0')
-            )
-            self.widget_refs[full_path] = {'widget': widget, 'schema': prop_schema, 'type': prop_type}
+                widget = num_widget_type(
+                    value=default_value, description=label, step=(1 if prop_type == "integer" else None),
+                    tooltip=description, style={'description_width': 'initial'}, layout=widgets.Layout(margin='5px 0')
+                )
+                self.widget_refs[full_path] = {'widget': widget, 'schema': prop_schema, 'type': prop_type}
 
         # --- Boolean Type ---
         elif prop_type == "boolean":
