@@ -1,5 +1,8 @@
+import numpy as np
 import pandas as pd
 import surrogate_factory as sf
+
+MAX_SPLIT_VAL_ROWS = 3000  # pairwise distance matrix: n² × 8 bytes → 3000² = ~72 MB
 
 
 @sf.node
@@ -9,10 +12,25 @@ def split_validation(workflow, Train_set, Test_set):
 
     inputs = workflow.metadata.get_step_data(['metadata', 'Model_Selection', 'inputs'])
 
-    # All inputs are continuous — no categorical variables
+    train_vals = Train_set[inputs].values
+    test_vals  = Test_set[inputs].values
+
+    # The method builds an O(n²) pairwise distance matrix. Subsample large datasets
+    # to avoid OOM — the split quality check is statistical, so a representative
+    # sample is sufficient.
+    rng = np.random.default_rng(42)
+    if len(train_vals) > MAX_SPLIT_VAL_ROWS:
+        idx = rng.choice(len(train_vals), MAX_SPLIT_VAL_ROWS, replace=False)
+        train_vals = train_vals[idx]
+        print(f"  [split_val] Subsampled train: {len(idx)}/{Train_set.shape[0]} rows")
+    if len(test_vals) > MAX_SPLIT_VAL_ROWS:
+        idx = rng.choice(len(test_vals), MAX_SPLIT_VAL_ROWS, replace=False)
+        test_vals = test_vals[idx]
+        print(f"  [split_val] Subsampled test : {len(idx)}/{Test_set.shape[0]} rows")
+
     result = voxel_tesselation_proximity_method(
-        Train_set[inputs].values,
-        Test_set[inputs].values,
+        train_vals,
+        test_vals,
         categorical_variables=[],
         verbose=False,
     )
