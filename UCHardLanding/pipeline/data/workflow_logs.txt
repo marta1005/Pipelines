@@ -90,3 +90,340 @@
 2026-08-05 08:15:06 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv' (Format: csv)
 2026-08-05 08:15:06 - INFO - Successfully loaded data shape: (17872, 9)
 2026-08-05 08:15:06 - INFO - ▶ Executing Workflow Step: 'split_validation'
+2026-08-07 10:20:36 - INFO - Initializing Workflow...
+2026-08-07 10:20:36 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:20:36 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:20:36 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:20:36 - INFO - Loading default metadata schema...
+2026-08-07 10:20:36 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:20:36 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:20:36 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:20:36 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:20:37 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:20:37 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:20:37 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:20:37 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:20:37 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:20:37 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:20:37 - INFO - Importing metadata for stage: 'SF_1_Requirements'
+2026-08-07 10:20:37 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_1_Requirements.yaml
+2026-08-07 10:20:37 - INFO - Updating metadata for stage 'Requirements' in memory.
+2026-08-07 10:20:37 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:20:37 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:47 - INFO - Initializing Workflow...
+2026-08-07 10:21:47 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:21:47 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:21:47 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:21:47 - INFO - Loading default metadata schema...
+2026-08-07 10:21:47 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:21:47 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:21:47 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:21:47 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:21:48 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:21:48 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:21:48 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:21:48 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:21:48 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:21:48 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:21:48 - INFO - Importing metadata for stage: 'SF_1_Requirements'
+2026-08-07 10:21:48 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_1_Requirements.yaml
+2026-08-07 10:21:48 - INFO - Updating metadata for stage 'Requirements' in memory.
+2026-08-07 10:21:48 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:21:48 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:49 - INFO - Initializing Workflow...
+2026-08-07 10:21:49 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:21:49 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:21:49 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:21:49 - INFO - Loading default metadata schema...
+2026-08-07 10:21:49 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:21:50 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:21:50 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:21:50 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:21:50 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:21:50 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:21:50 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:21:50 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:21:50 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:21:50 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:21:50 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:21:50 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:50 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:21:50 - INFO - Workflow data loaded successfully.
+2026-08-07 10:21:50 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:21:50 - INFO - Importing metadata for stage: 'SF_2_Data_Acquisition_Generation'
+2026-08-07 10:21:50 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_2_Data_Acquisition_Generation.yaml
+2026-08-07 10:21:50 - INFO - Updating metadata for stage 'Data_Acquisition_Generation' in memory.
+2026-08-07 10:21:50 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:21:50 - INFO - ▶ Executing Workflow Step: 'batch_extract'
+2026-08-07 10:21:50 - DEBUG - Step 'batch_extract' executed successfully.
+2026-08-07 10:21:50 - INFO - ▶ Executing Workflow Step: 'batch_transform'
+2026-08-07 10:21:50 - DEBUG - Step 'batch_transform' executed successfully.
+2026-08-07 10:21:50 - INFO - ▶ Executing Workflow Step: 'batch_load'
+2026-08-07 10:21:50 - DEBUG - Step 'batch_load' executed successfully.
+2026-08-07 10:21:50 - INFO - File '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Raw.csv' already exists — skipping save (delete data/ folder to rerun from scratch)
+2026-08-07 10:21:50 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:52 - INFO - Initializing Workflow...
+2026-08-07 10:21:52 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:21:52 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:21:52 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:21:52 - INFO - Loading default metadata schema...
+2026-08-07 10:21:52 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:21:52 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:21:52 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:21:52 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:21:53 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:21:53 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:21:53 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:21:53 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:21:53 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:21:53 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:21:53 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:21:53 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:53 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:21:53 - INFO - Workflow data loaded successfully.
+2026-08-07 10:21:53 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:21:53 - INFO - Importing metadata for stage: 'SF_3_Data_Cleansing'
+2026-08-07 10:21:53 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_3_Data_Cleansing.yaml
+2026-08-07 10:21:53 - INFO - Updating metadata for stage 'Data_Cleansing' in memory.
+2026-08-07 10:21:53 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:21:53 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Raw.csv' (Format: csv)
+2026-08-07 10:21:53 - INFO - Successfully loaded data shape: (89357, 9)
+2026-08-07 10:21:53 - INFO - ▶ Executing Workflow Step: 'replace_missing_values'
+2026-08-07 10:21:53 - DEBUG - Step 'replace_missing_values' executed successfully.
+2026-08-07 10:21:53 - INFO - File '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Cleaned.csv' already exists — skipping save (delete data/ folder to rerun from scratch)
+2026-08-07 10:21:53 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:54 - INFO - Initializing Workflow...
+2026-08-07 10:21:54 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:21:54 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:21:54 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:21:54 - INFO - Loading default metadata schema...
+2026-08-07 10:21:54 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:21:55 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:21:55 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:21:55 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:21:55 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:21:55 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:21:55 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:21:55 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:21:55 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:21:55 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:21:55 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:21:55 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:55 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:21:55 - INFO - Workflow data loaded successfully.
+2026-08-07 10:21:55 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:21:55 - INFO - Importing metadata for stage: 'SF_4_Data_Partitioning'
+2026-08-07 10:21:55 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_4_Data_Partitioning.yaml
+2026-08-07 10:21:55 - INFO - Updating metadata for stage 'Data_Partitioning' in memory.
+2026-08-07 10:21:55 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:21:55 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Cleaned.csv' (Format: csv)
+2026-08-07 10:21:55 - INFO - Successfully loaded data shape: (89357, 9)
+2026-08-07 10:21:55 - INFO - File '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' already exists — skipping save (delete data/ folder to rerun from scratch)
+2026-08-07 10:21:55 - INFO - File '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' already exists — skipping save (delete data/ folder to rerun from scratch)
+2026-08-07 10:21:55 - INFO - File '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv' already exists — skipping save (delete data/ folder to rerun from scratch)
+2026-08-07 10:21:55 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:57 - INFO - Initializing Workflow...
+2026-08-07 10:21:57 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:21:57 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:21:57 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:21:57 - INFO - Loading default metadata schema...
+2026-08-07 10:21:57 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:21:57 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:21:57 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:21:57 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:21:58 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:21:58 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:21:58 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:21:58 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:21:58 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:21:58 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:21:58 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:21:58 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:21:58 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:21:58 - INFO - Workflow data loaded successfully.
+2026-08-07 10:21:58 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:21:58 - INFO - Importing metadata for stage: 'SF_5_Feature_Selection'
+2026-08-07 10:21:58 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_5_Feature_Selection.yaml
+2026-08-07 10:21:58 - INFO - Updating metadata for stage 'Feature_Selection' in memory.
+2026-08-07 10:21:58 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:21:58 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-07 10:21:58 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-07 10:21:58 - INFO - ▶ Executing Workflow Step: 'preprocessor'
+2026-08-07 10:21:58 - DEBUG - Step 'preprocessor' executed successfully.
+2026-08-07 10:21:58 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:00 - INFO - Initializing Workflow...
+2026-08-07 10:22:00 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:22:00 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:22:00 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:22:00 - INFO - Loading default metadata schema...
+2026-08-07 10:22:00 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:22:00 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:22:00 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:22:00 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:22:00 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:22:01 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:22:01 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:22:01 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:22:01 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:22:01 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:22:01 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:22:01 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:01 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:22:01 - INFO - Workflow data loaded successfully.
+2026-08-07 10:22:01 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:22:01 - INFO - Importing metadata for stage: 'SF_6_Model_Selection'
+2026-08-07 10:22:01 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_6_Model_Selection.yaml
+2026-08-07 10:22:01 - INFO - Updating metadata for stage 'Model_Selection' in memory.
+2026-08-07 10:22:01 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:22:01 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:02 - INFO - Initializing Workflow...
+2026-08-07 10:22:02 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:22:02 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:22:02 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:22:02 - INFO - Loading default metadata schema...
+2026-08-07 10:22:02 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:22:02 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:22:02 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:22:02 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:22:03 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:22:03 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:22:03 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:22:03 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:22:03 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:22:03 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:22:03 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:22:03 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:03 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:22:03 - INFO - Workflow data loaded successfully.
+2026-08-07 10:22:03 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:22:03 - INFO - Importing metadata for stage: 'SF_7_Model_Training'
+2026-08-07 10:22:03 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_7_Model_Training.yaml
+2026-08-07 10:22:03 - INFO - Updating metadata for stage 'Model_Training' in memory.
+2026-08-07 10:22:03 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:22:03 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-07 10:22:03 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-07 10:22:03 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' (Format: csv)
+2026-08-07 10:22:03 - INFO - Successfully loaded data shape: (8936, 9)
+2026-08-07 10:22:03 - INFO - ▶ Executing Workflow Step: 'train'
+2026-08-07 10:22:34 - DEBUG - Step 'train' executed successfully.
+2026-08-07 10:22:34 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:36 - INFO - Initializing Workflow...
+2026-08-07 10:22:36 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:22:36 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:22:36 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:22:36 - INFO - Loading default metadata schema...
+2026-08-07 10:22:36 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:22:36 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:22:36 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:22:36 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:22:36 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:22:37 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:22:37 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:22:37 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:22:37 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:22:37 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:22:37 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:22:37 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:37 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:22:37 - INFO - Workflow data loaded successfully.
+2026-08-07 10:22:37 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:22:37 - INFO - Importing metadata for stage: 'SF_8_Model_Deployment'
+2026-08-07 10:22:37 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_8_Model_Deployment.yaml
+2026-08-07 10:22:37 - INFO - Updating metadata for stage 'Model_Deployment' in memory.
+2026-08-07 10:22:37 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:22:37 - INFO - ▶ Executing Workflow Step: 'model_deployment'
+2026-08-07 10:22:37 - DEBUG - Step 'model_deployment' executed successfully.
+2026-08-07 10:22:37 - INFO - Successfully saved workflow metadata to: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:38 - INFO - Initializing Workflow...
+2026-08-07 10:22:38 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:22:38 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:22:38 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:22:38 - INFO - Loading default metadata schema...
+2026-08-07 10:22:38 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:22:38 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:22:38 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:22:38 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:22:39 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:22:39 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:22:39 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:22:39 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:22:39 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:22:39 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:22:39 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:22:39 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:22:39 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:22:39 - INFO - Workflow data loaded successfully.
+2026-08-07 10:22:39 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:22:39 - INFO - Importing metadata for stage: 'SF_9_Model_Validation'
+2026-08-07 10:22:39 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_9_Model_Validation.yaml
+2026-08-07 10:22:39 - INFO - Updating metadata for stage 'Model_Validation' in memory.
+2026-08-07 10:22:39 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:22:39 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-07 10:22:39 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-07 10:22:39 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' (Format: csv)
+2026-08-07 10:22:39 - INFO - Successfully loaded data shape: (8936, 9)
+2026-08-07 10:22:39 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv' (Format: csv)
+2026-08-07 10:22:39 - INFO - Successfully loaded data shape: (17872, 9)
+2026-08-07 10:22:39 - INFO - ▶ Executing Workflow Step: 'split_validation'
+2026-08-07 10:25:39 - INFO - Initializing Workflow...
+2026-08-07 10:25:39 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:25:39 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:25:39 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:25:39 - INFO - Loading default metadata schema...
+2026-08-07 10:25:39 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:25:39 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:25:39 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:25:39 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:25:40 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:25:40 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:25:40 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:25:40 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:25:40 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:25:40 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:25:40 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:25:40 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:25:40 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:25:40 - INFO - Workflow data loaded successfully.
+2026-08-07 10:25:40 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:25:40 - INFO - Importing metadata for stage: 'SF_9_Model_Validation'
+2026-08-07 10:25:40 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_9_Model_Validation.yaml
+2026-08-07 10:25:40 - INFO - Updating metadata for stage 'Model_Validation' in memory.
+2026-08-07 10:25:40 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:25:40 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-07 10:25:40 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-07 10:25:40 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' (Format: csv)
+2026-08-07 10:25:40 - INFO - Successfully loaded data shape: (8936, 9)
+2026-08-07 10:25:40 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv' (Format: csv)
+2026-08-07 10:25:40 - INFO - Successfully loaded data shape: (17872, 9)
+2026-08-07 10:25:40 - INFO - ▶ Executing Workflow Step: 'split_validation'
+2026-08-07 10:28:32 - INFO - Initializing Workflow...
+2026-08-07 10:28:32 - INFO - Setting up Workflow folders and paths...
+2026-08-07 10:28:32 - DEBUG - Python library path inserted: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library
+2026-08-07 10:28:32 - INFO - Changing working directory to Data folder: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data
+2026-08-07 10:28:32 - INFO - Loading default metadata schema...
+2026-08-07 10:28:32 - INFO - Tracker requested: 'mlflow'
+2026-08-07 10:28:33 - DEBUG - Successfully imported tracker module: surrogate_factory.plugins.trackers.mlflow_tracking
+2026-08-07 10:28:33 - INFO - Setting up MLflow tracking environment...
+2026-08-07 10:28:33 - INFO - Adding methods to Catalog from configuration.
+2026-08-07 10:28:33 - DEBUG - Catalog: loaded 'MLPRegressor' from 'sklearn.neural_network.MLPRegressor'
+2026-08-07 10:28:33 - DEBUG - Catalog: loaded 'MultiOutputGradientBoosting' from 'model_training.estimators.MultiOutputGradientBoosting'
+2026-08-07 10:28:33 - DEBUG - Catalog: loaded 'normalizer_transformer' from 'surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer'
+2026-08-07 10:28:33 - DEBUG - Catalog: loaded 'compute_metrics' from 'surrogate_factory.catalog.model_validation.metrics.compute_metrics'
+2026-08-07 10:28:33 - DEBUG - Catalog: loaded 'compute_confusion_matrix' from 'surrogate_factory.catalog.model_validation.metrics.compute_confusion_matrix'
+2026-08-07 10:28:33 - INFO - Workflow initialization completed successfully.
+2026-08-07 10:28:33 - INFO - Resuming workflow job: 'UCHARDLANDING_1'
+2026-08-07 10:28:33 - DEBUG - Reading metadata from: /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/metadata_UCHARDLANDING_1.json
+2026-08-07 10:28:33 - DEBUG - Loading data without validation as no schema was provided.
+2026-08-07 10:28:33 - INFO - Workflow data loaded successfully.
+2026-08-07 10:28:33 - INFO - Workflow metadata successfully loaded for resume.
+2026-08-07 10:28:37 - INFO - Importing metadata for stage: 'SF_9_Model_Validation'
+2026-08-07 10:28:37 - DEBUG - Found existing YAML metadata file at /Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/metadata/SF_9_Model_Validation.yaml
+2026-08-07 10:28:37 - INFO - Updating metadata for stage 'Model_Validation' in memory.
+2026-08-07 10:28:37 - DEBUG - Building schema dynamically from YAML file.
+2026-08-07 10:28:39 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Train_set.csv' (Format: csv)
+2026-08-07 10:28:39 - INFO - Successfully loaded data shape: (62549, 9)
+2026-08-07 10:28:39 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Val_set.csv' (Format: csv)
+2026-08-07 10:28:39 - INFO - Successfully loaded data shape: (8936, 9)
+2026-08-07 10:28:39 - INFO - Loading data from '/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/UCHARDLANDING_1_Test_set.csv' (Format: csv)
+2026-08-07 10:28:39 - INFO - Successfully loaded data shape: (17872, 9)
+2026-08-07 10:28:41 - INFO - ▶ Executing Workflow Step: 'split_validation'

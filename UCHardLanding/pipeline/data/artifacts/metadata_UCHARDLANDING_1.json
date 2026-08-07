@@ -1,0 +1,209 @@
+{
+    "metadata": {
+        "Model_Deployment": {
+            "pipelines": [
+                {
+                    "label": "GradientBoosting",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/pipeline_UCHARDLANDING_1_GradientBoosting.pkl",
+                    "outputs": [
+                        "O1",
+                        "O2"
+                    ]
+                },
+                {
+                    "label": "MLP",
+                    "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/pipeline_UCHARDLANDING_1_MLP.pkl",
+                    "outputs": [
+                        "O1",
+                        "O2"
+                    ]
+                }
+            ],
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/model_deployment/model.py",
+            "method": "sklearn"
+        },
+        "Model_Training": {
+            "Models": [
+                {
+                    "label": "GradientBoosting",
+                    "name": "MultiOutputGradientBoosting",
+                    "inputs": [
+                        "I1",
+                        "I2",
+                        "I3",
+                        "I4",
+                        "I5",
+                        "I6",
+                        "I7"
+                    ],
+                    "outputs": [
+                        "O1",
+                        "O2"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/model_UCHARDLANDING_1_GradientBoosting.modl"
+                },
+                {
+                    "label": "MLP",
+                    "name": "MLPRegressor",
+                    "inputs": [
+                        "I1",
+                        "I2",
+                        "I3",
+                        "I4",
+                        "I5",
+                        "I6",
+                        "I7"
+                    ],
+                    "outputs": [
+                        "O1",
+                        "O2"
+                    ],
+                    "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/model_UCHARDLANDING_1_MLP.modl"
+                }
+            ],
+            "Tracking": {
+                "eval": {
+                    "MLP": {
+                        "run_id": "13212d49ebec48ada15085b40be00843"
+                    }
+                }
+            },
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/model_training/learn.py",
+            "note": "Two models trained \u2014 MLP (multioutput) and GradientBoosting (one regressor per output)."
+        },
+        "Model_Selection": {
+            "inputs": [
+                "I1",
+                "I2",
+                "I3",
+                "I4",
+                "I5",
+                "I6",
+                "I7"
+            ],
+            "outputs": [
+                "O1",
+                "O2"
+            ],
+            "algorithms": [
+                {
+                    "name": "MultiOutputGradientBoosting",
+                    "label": "GradientBoosting",
+                    "settings": {
+                        "n_estimators": 300,
+                        "max_depth": 5,
+                        "learning_rate": 0.05,
+                        "subsample": 0.8,
+                        "min_samples_leaf": 10,
+                        "random_state": 42,
+                        "verbose": 0
+                    }
+                },
+                {
+                    "name": "MLPRegressor",
+                    "label": "MLP",
+                    "settings": {
+                        "hidden_layer_sizes": [
+                            64,
+                            32
+                        ],
+                        "activation": "relu",
+                        "solver": "adam",
+                        "alpha": 0.01,
+                        "batch_size": 128,
+                        "learning_rate": "adaptive",
+                        "learning_rate_init": 0.001,
+                        "max_iter": 500,
+                        "early_stopping": true,
+                        "validation_fraction": 0.1,
+                        "n_iter_no_change": 20,
+                        "tol": 1e-05,
+                        "random_state": 42,
+                        "verbose": true
+                    }
+                }
+            ]
+        },
+        "Feature_Selection": {
+            "Add_Remove_Features": {
+                "inputs": [
+                    "I1",
+                    "I2",
+                    "I3",
+                    "I4",
+                    "I5",
+                    "I6",
+                    "I7"
+                ],
+                "outputs": [
+                    "O1",
+                    "O2"
+                ]
+            },
+            "Preprocess": {
+                "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/preprocess_UCHARDLANDING_1.pkl",
+                "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/feature_selection/preprocess.py",
+                "inputs": [
+                    "I1",
+                    "I2",
+                    "I3",
+                    "I4",
+                    "I5",
+                    "I6",
+                    "I7"
+                ],
+                "method": "normalizer_transformer",
+                "numerical_features": "[I1, I2, I3, I4, I5, I6, I7]"
+            }
+        },
+        "Data_Partition": {
+            "data_split": {
+                "algorithm": "sklearn.model_selection.train_test_split",
+                "percentages": {
+                    "train": 0.8,
+                    "test": 0.1,
+                    "validation": 0.1
+                }
+            }
+        },
+        "Data_Cleansing": {
+            "Managing_Missing_Values": {
+                "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/data_cleansing/manage_missing.py",
+                "output": []
+            },
+            "Managing_Outliers": {
+                "input": []
+            }
+        },
+        "Data_Acquisition_Generation": {
+            "Data_Acquisition": {
+                "Extract": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/data_acquisition/outputs_parser.py",
+                    "method": "pandas.read_csv",
+                    "path": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/data/datos.csv",
+                    "sep": ";"
+                },
+                "Transform": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/data_acquisition/outputs_parser.py"
+                },
+                "Load": {
+                    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/data_acquisition/outputs_parser.py"
+                }
+            }
+        },
+        "Requirements": {
+            "accuracy": [
+                {
+                    "output": "O1",
+                    "metric": "quantile90",
+                    "value": 0.1
+                },
+                {
+                    "output": "O2",
+                    "metric": "quantile90",
+                    "value": 0.1
+                }
+            ]
+        }
+    }
+}
