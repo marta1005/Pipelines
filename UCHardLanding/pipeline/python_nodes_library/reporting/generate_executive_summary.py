@@ -378,7 +378,7 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
     )
 
     return (
-        '% ════ EXECUTIVE SUMMARY ════\n'
+        '% ==== EXECUTIVE SUMMARY ====\n'
         r'\thispagestyle{fancy}' + '\n\n'
         r'\begin{center}' + '\n'
         rf'  {{\large\bfseries\color{{primary}} Executive Summary --- Surrogate Model Validation Report}}\\[2pt]' + '\n'
@@ -1170,7 +1170,7 @@ def _part3(d, best, paths, stats, out_dir):
 
     if not paths:
         return (
-            '% ════ PART 3 — DEEP ANALYSIS (no CSVs) ════\n'
+            '% ==== PART 3 - DEEP ANALYSIS (no CSVs) ====\n'
             r'\label{sec:deepanalysis}' + '\n'
             rf'\section*{{Deep Analysis --- {best_esc}}}' + '\n'
             r'\noindent\textit{Validation CSVs not found. Run the pipeline first.}' + '\n'
@@ -1249,7 +1249,7 @@ def _part3(d, best, paths, stats, out_dir):
     )
 
     return (
-        '% ════ PART 3 — DEEP ANALYSIS ════\n'
+        '% ==== PART 3 - DEEP ANALYSIS ====\n'
         r'\label{sec:deepanalysis}' + '\n'
         r'\begin{center}' + '\n'
         rf'  {{\normalsize\bfseries\color{{primary}} Deep Analysis --- {best_esc}}}\\[2pt]' + '\n'
@@ -1533,6 +1533,59 @@ def build_latex(d, scatter_paths, paths, stats, out_dir):
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 
+def _build_pdf(tex_file, out_dir):
+    """
+    Compile the .tex with whichever LaTeX engine is available.
+
+    tectonic is preferred (self-contained, downloads its own packages), but it
+    is not installable via pip and not always present. The emitted .tex uses
+    only standard packages and pure-ASCII content, so any TeX Live engine can
+    build it. Returns the engine name, or None if none succeeded.
+    """
+    import shutil as _shutil
+
+    tex, odir = str(tex_file), str(out_dir)
+
+    # (executable, argv, passes) — pdflatex/xelatex need two passes to
+    # resolve the table of contents and hyperref references.
+    candidates = [
+        ('tectonic', ['tectonic', '-o', odir, tex], 1),
+        ('latexmk',  ['latexmk', '-pdf', '-interaction=nonstopmode',
+                      '-halt-on-error', f'-outdir={odir}', tex], 1),
+        ('xelatex',  ['xelatex', '-interaction=nonstopmode', '-halt-on-error',
+                      '-output-directory', odir, tex], 2),
+        ('pdflatex', ['pdflatex', '-interaction=nonstopmode', '-halt-on-error',
+                      '-output-directory', odir, tex], 2),
+    ]
+
+    tried, last_log = [], ''
+    for exe, argv, passes in candidates:
+        if _shutil.which(exe) is None:
+            tried.append(f'{exe}: not installed')
+            continue
+        for _ in range(passes):
+            # cwd=out_dir so the relative image paths in the .tex resolve.
+            result = subprocess.run(argv, capture_output=True, text=True, cwd=odir)
+        if result.returncode == 0:
+            return exe
+        tried.append(f'{exe}: exited {result.returncode}')
+        last_log = (result.stdout or '') + (result.stderr or '')
+
+    print('ERROR: could not build the PDF. Engines tried:')
+    for t in tried:
+        print(f'  - {t}')
+    if last_log:
+        print('\nLast engine output:\n' + last_log[-3000:])
+    else:
+        print('\nNo LaTeX engine found. tectonic is NOT available via pip;')
+        print('install the static binary (no root, no conda):')
+        print('  mkdir -p ~/.local/bin && cd ~/.local/bin')
+        print('  curl --proto "=https" --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh')
+        print('  export PATH="$HOME/.local/bin:$PATH"      # add to ~/.bashrc')
+        print('\nAlternatively any TeX Live install works (latexmk / xelatex / pdflatex).')
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('metadata', help='Path to metadata_*.json')
@@ -1567,14 +1620,10 @@ def main():
     tex_file.write_text(tex, encoding='utf-8')
     print(f'LaTeX source     → {tex_file}')
 
-    result = subprocess.run(
-        ['tectonic', '-o', str(out_dir), str(tex_file)],
-        capture_output=True, text=True,
-    )
-    if result.returncode == 0:
-        print(f'PDF generated    → {pdf_file}')
+    engine = _build_pdf(tex_file, out_dir)
+    if engine:
+        print(f'PDF generated    → {pdf_file}   (engine: {engine})')
     else:
-        print('tectonic STDERR:\n', result.stderr[-4000:])
         sys.exit(1)
 
     if paths:
