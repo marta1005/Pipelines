@@ -1,8 +1,5 @@
-import numpy as np
 import pandas as pd
 import surrogate_factory as sf
-
-MAX_SPLIT_VAL_ROWS = 3000  # pairwise distance matrix: n² × 8 bytes → 3000² = ~72 MB
 
 
 @sf.node
@@ -12,25 +9,24 @@ def split_validation(workflow, Train_set, Test_set):
 
     inputs = workflow.metadata.get_step_data(['metadata', 'Model_Selection', 'inputs'])
 
-    train_vals = Train_set[inputs].values
-    test_vals  = Test_set[inputs].values
-
-    # The method builds an O(n²) pairwise distance matrix. Subsample large datasets
-    # to avoid OOM — the split quality check is statistical, so a representative
-    # sample is sufficient.
-    rng = np.random.default_rng(42)
-    if len(train_vals) > MAX_SPLIT_VAL_ROWS:
-        idx = rng.choice(len(train_vals), MAX_SPLIT_VAL_ROWS, replace=False)
-        train_vals = train_vals[idx]
-        print(f"  [split_val] Subsampled train: {len(idx)}/{Train_set.shape[0]} rows")
-    if len(test_vals) > MAX_SPLIT_VAL_ROWS:
-        idx = rng.choice(len(test_vals), MAX_SPLIT_VAL_ROWS, replace=False)
-        test_vals = test_vals[idx]
-        print(f"  [split_val] Subsampled test : {len(idx)}/{Test_set.shape[0]} rows")
+    # All inputs are continuous — no categorical variables.
+    # VTP builds an O(n^2) pairwise distance matrix per test point, so it blows up
+    # on large sets. Cap the sample; the split check is statistical, so a
+    # representative subset is enough. Measured on the full 62,549-row train set:
+    # the matrix would be 31 GB, and 2,000 rows runs in ~3.6 min.
+    MAX_VTP_ROWS = 2000
+    train_in = Train_set[inputs]
+    test_in  = Test_set[inputs]
+    if len(train_in) > MAX_VTP_ROWS:
+        train_in = train_in.sample(MAX_VTP_ROWS, random_state=42)
+        print(f"  [split_val] Subsampled train: {MAX_VTP_ROWS}/{len(Train_set)} rows")
+    if len(test_in) > MAX_VTP_ROWS:
+        test_in = test_in.sample(MAX_VTP_ROWS, random_state=42)
+        print(f"  [split_val] Subsampled test : {MAX_VTP_ROWS}/{len(Test_set)} rows")
 
     result = voxel_tesselation_proximity_method(
-        train_vals,
-        test_vals,
+        train_in.values,
+        test_in.values,
         categorical_variables=[],
         verbose=False,
     )
