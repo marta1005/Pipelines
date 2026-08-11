@@ -12,9 +12,22 @@ def split_validation(workflow, Train_set, Test_set):
     # FLAP and Type_segment are the categorical features in our input space
     categorical_cols = [inputs.index('FLAP'), inputs.index('Type_segment')]
 
+    # VTP builds an O(n^2) pairwise distance matrix per test point, so it blows up
+    # on large sets. Cap the sample; the split check is statistical, so a
+    # representative subset is enough. Column indices above are unaffected.
+    MAX_VTP_ROWS = 2000
+    train_in = Train_set[inputs]
+    test_in  = Test_set[inputs]
+    if len(train_in) > MAX_VTP_ROWS:
+        train_in = train_in.sample(MAX_VTP_ROWS, random_state=42)
+        print(f"  [split_val] Subsampled train: {MAX_VTP_ROWS}/{len(Train_set)} rows")
+    if len(test_in) > MAX_VTP_ROWS:
+        test_in = test_in.sample(MAX_VTP_ROWS, random_state=42)
+        print(f"  [split_val] Subsampled test : {MAX_VTP_ROWS}/{len(Test_set)} rows")
+
     result = voxel_tesselation_proximity_method(
-        Train_set[inputs].values,
-        Test_set[inputs].values,
+        train_in.values,
+        test_in.values,
         categorical_variables=categorical_cols,
         verbose=False,
     )
