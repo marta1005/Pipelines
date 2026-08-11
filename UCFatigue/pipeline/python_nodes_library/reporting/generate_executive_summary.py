@@ -171,6 +171,15 @@ def _recs(d, model, rows, detailed=False):
     return bullets
 
 
+# ── Figure sizing ──────────────────────────────────────────────────────────────
+# width alone is not enough: a tall, narrow figure (more inputs than outputs)
+# scaled to the full text width grows far past the bottom of the page. Capping
+# the height as well, with keepaspectratio, makes the image fit inside whichever
+# dimension binds first — so nothing can ever run off the sheet.
+_GFX_MAXH = r'height=0.80\textheight'
+_GFX_FIT  = r'width=\linewidth,' + _GFX_MAXH + r',keepaspectratio'
+
+
 # ── Preamble ───────────────────────────────────────────────────────────────────
 
 _PREAMBLE = r"""\documentclass[9pt,a4paper]{article}
@@ -278,14 +287,24 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         p = paths.get(name, '')
         if not p: return ''
         rp = os.path.relpath(p, str(out_dir))
-        return (r'\begin{center}\includegraphics[width=\linewidth]{' + rp + r'}\end{center}' + '\n')
+        return (r'\begin{center}\includegraphics[' + _GFX_FIT + r']{'
+                + rp + r'}\end{center}' + '\n')
+
+    def _fig_es_multi(name):
+        """Emit a figure plus any `<name>_2`, `_3`, ... continuation chunks."""
+        out, i = _fig_es(name), 2
+        while f'{name}_{i}' in paths:
+            out += _fig_es(f'{name}_{i}')
+            i += 1
+        return out
 
     # ── Winner scatter ─────────────────────────────────────────────────────────
     winner_scatter_tex = ''
     p = scatter_paths.get(best, '')
     if p:
         winner_scatter_tex = (
-            r'\begin{center}\includegraphics[width=\linewidth]{' + p + r'}\end{center}' + '\n'
+            r'\begin{center}\includegraphics[' + _GFX_FIT + r']{'
+            + p + r'}\end{center}' + '\n'
         )
 
     # ── Model comparison table (both models) ──────────────────────────────────
@@ -403,7 +422,7 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
 
         # 3. Variable correlation scatter
         r'\section{Variable Correlation --- Input vs Output}' + '\n'
-        + _fig_es('data_scatter_vars')
+        + _fig_es_multi('data_scatter_vars')
 
         # 4. Model Selection
         + r'\section{Model Selection}' + '\n'
@@ -637,30 +656,40 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
     plt.tight_layout()
     _save(fig, 'data_output_cdf.png')
 
-    # 5b. Variable correlation scatter — grid of scatter plots (input vs output)
-    fig, axes = plt.subplots(n_inp, n_out,
-                              figsize=(2.8 * n_out, 2.2 * n_inp), squeeze=False)
-    for j, inp in enumerate(inputs):
-        for k, o in enumerate(outputs):
-            ax = axes[j][k]
-            xi = x_all[inp].values
-            yo = yt_all[o].values
-            valid = np.isfinite(xi) & np.isfinite(yo)
-            if valid.sum() > 5:
-                ax.scatter(xi[valid], yo[valid], s=1, alpha=0.15,
-                           color='steelblue', rasterized=True)
-                r, pv = sc.pearsonr(xi[valid], yo[valid])
-                col = 'red' if abs(r) >= 0.5 else ('darkorange' if abs(r) >= 0.25 else 'gray')
-                ax.set_title(f'r={r:.2f}', fontsize=6, color=col, pad=2)
-            if j == n_inp - 1:
-                ax.set_xlabel(o[:14], fontsize=6)
-            if k == 0:
-                ax.set_ylabel(inp[:14], fontsize=6)
-            ax.tick_params(labelsize=5)
-    fig.suptitle('Variable Correlation — Input vs Output (all data)\n'
-                 'Red |r|≥0.5   Orange |r|≥0.25   Gray |r|<0.25', fontsize=10)
-    plt.tight_layout()
-    _save(fig, 'data_scatter_vars.png')
+    # 5b. Variable correlation scatter — grid of scatter plots (input vs output).
+    # One row per input makes this very tall whenever there are more inputs than
+    # outputs (7x2 for UCHardLanding, 20x3 for UCAirfoils). Capping the height in
+    # LaTeX alone would shrink it to an unreadable stamp, so split the rows into
+    # page-sized chunks and emit one figure per chunk instead.
+    rows_per_fig = max(3, min(n_inp, int(1.3 * (2.8 * n_out) / 2.2)))
+    chunks = [inputs[i:i + rows_per_fig] for i in range(0, n_inp, rows_per_fig)]
+    for ci, chunk in enumerate(chunks):
+        nrows_c = len(chunk)
+        fig, axes = plt.subplots(nrows_c, n_out,
+                                  figsize=(2.8 * n_out, 2.2 * nrows_c), squeeze=False)
+        for j, inp in enumerate(chunk):
+            for k, o in enumerate(outputs):
+                ax = axes[j][k]
+                xi = x_all[inp].values
+                yo = yt_all[o].values
+                valid = np.isfinite(xi) & np.isfinite(yo)
+                if valid.sum() > 5:
+                    ax.scatter(xi[valid], yo[valid], s=1, alpha=0.15,
+                               color='steelblue', rasterized=True)
+                    r, pv = sc.pearsonr(xi[valid], yo[valid])
+                    col = 'red' if abs(r) >= 0.5 else ('darkorange' if abs(r) >= 0.25 else 'gray')
+                    ax.set_title(f'r={r:.2f}', fontsize=6, color=col, pad=2)
+                if j == nrows_c - 1:
+                    ax.set_xlabel(o[:14], fontsize=6)
+                if k == 0:
+                    ax.set_ylabel(inp[:14], fontsize=6)
+                ax.tick_params(labelsize=5)
+        part = f'  ({ci + 1}/{len(chunks)})' if len(chunks) > 1 else ''
+        fig.suptitle('Variable Correlation — Input vs Output (all data)' + part + '\n'
+                     'Red |r|≥0.5   Orange |r|≥0.25   Gray |r|<0.25', fontsize=10)
+        plt.tight_layout()
+        _save(fig, 'data_scatter_vars.png' if ci == 0
+                   else f'data_scatter_vars_{ci + 1}.png')
 
     # ── TRAIN-TEST SPLIT ──────────────────────────────────────────────────────
 
@@ -1185,7 +1214,8 @@ def _part3(d, best, paths, stats, out_dir):
         rp = _rp(name)
         if not rp: return ''
         return (r'\begin{center}\includegraphics[width=' + width +
-                r'\linewidth]{' + rp + r'}\end{center}' + '\n')
+                r'\linewidth,' + _GFX_MAXH + r',keepaspectratio]{'
+                + rp + r'}\end{center}' + '\n')
 
     target_pct = _pct(q90_target)
     q90_res    = stats.get('q90_results', {})
