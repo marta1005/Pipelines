@@ -81,6 +81,17 @@ def _tbl_with_legend(tbl_tex, legend_tex):
 def extract(meta_path: Path) -> dict:
     with open(meta_path) as f:
         root = json.load(f)['metadata']
+    if 'Model_Validation' not in root:
+        raise SystemExit(
+            f"ERROR: '{meta_path.name}' contains no Model_Validation section, so there\n"
+            f"       are no results to report on.\n\n"
+            f"       This happens when SF_9 did not run to completion — the validation\n"
+            f"       stages write their results into the workflow metadata, but they are\n"
+            f"       only persisted by the final `workflow.save_metadata()` cell.\n\n"
+            f"       Fix: run SF_9_Model_Validation.ipynb through to the Save cell, then\n"
+            f"       re-run this report.\n\n"
+            f"       Sections currently present: {', '.join(sorted(root)) or '(none)'}"
+        )
     val  = root['Model_Validation']
     sel  = root['Model_Selection']
     trn  = root.get('Model_Training', {})

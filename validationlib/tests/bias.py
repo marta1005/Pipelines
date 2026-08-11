@@ -546,9 +546,12 @@ def parametric_bias_quantification_pipeline(
     zscore_tables_mean = []
     zscore_tables_var = []
     for in_var, out_var in biased_inputs:
+        # zScoreBias signature is (data, x, y, statisticFunc, mask=None, info=True):
+        # passing mask positionally lands it in the `x` slot and collides with
+        # the x= keyword below, so it must be passed by name.
         zscore_table_mean = zScoreBias(
             data,
-            mask,
+            mask=mask,
             x=in_var,
             y=out_var,
             statisticFunc=np.mean,
@@ -558,7 +561,7 @@ def parametric_bias_quantification_pipeline(
 
         zscore_table_var = zScoreBias(
             data,
-            mask,
+            mask=mask,
             x=in_var,
             y=out_var,
             statisticFunc=np.var,
