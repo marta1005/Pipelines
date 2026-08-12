@@ -540,6 +540,66 @@
               }
             }
           ]
+        },
+        {
+          "id": "node-sf10",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "filename": "SF_10_Model_Storage.ipynb",
+              "runtime_image": "continuumio/anaconda3:2021.11",
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "output_files": []
+            },
+            "label": "model_storage",
+            "ui_data": {
+              "label": "model_storage",
+              "image": "/static/elyra/notebook.svg",
+              "x_pos": 1900,
+              "y_pos": 50
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "link-sf9-sf10-ucloads",
+                  "node_id_ref": "node-sf9",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         }
       ],
       "app_data": {
