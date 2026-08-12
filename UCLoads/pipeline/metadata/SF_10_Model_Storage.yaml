@@ -1,0 +1,6 @@
+Model_Storage:
+  Store:
+    # Where the final artifacts are stored.
+    # Relative paths resolve against data.folder; absolute paths (or a mounted
+    # network share) are used as given.
+    storage_path: model_store

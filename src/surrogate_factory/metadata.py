@@ -47,6 +47,10 @@ class MetadataManager:
         "split_validation":['metadata', 'Model_Validation'],
         "distribution_tests":['metadata', 'Model_Validation'],
         "plot":['metadata', 'Model_Validation'],
+        # Model storage (stage 10)
+        "upload_model":['metadata', 'Model_Storage', 'Store'],
+        "save_pipeline":['metadata', 'Model_Storage', 'Store'],
+        "model_test":['metadata', 'Model_Storage', 'Store'],
     }
 
 

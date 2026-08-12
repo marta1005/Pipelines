@@ -51,3 +51,6 @@ build/
 
 # UCLoads mlruns
 UCLoads/pipeline/mlruns/
+
+# Stage 10 model store — copies of artifacts already produced by SF_7/SF_8
+*/pipeline/data/model_store/
