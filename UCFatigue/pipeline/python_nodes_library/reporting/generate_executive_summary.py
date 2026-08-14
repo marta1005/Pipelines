@@ -290,14 +290,6 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         return (r'\begin{center}\includegraphics[' + _GFX_FIT + r']{'
                 + rp + r'}\end{center}' + '\n')
 
-    def _fig_es_multi(name):
-        """Emit a figure plus any `<name>_2`, `_3`, ... continuation chunks."""
-        out, i = _fig_es(name), 2
-        while f'{name}_{i}' in paths:
-            out += _fig_es(f'{name}_{i}')
-            i += 1
-        return out
-
     # ── Winner scatter ─────────────────────────────────────────────────────────
     winner_scatter_tex = ''
     p = scatter_paths.get(best, '')
@@ -422,7 +414,7 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
 
         # 3. Variable correlation scatter
         r'\section{Variable Correlation --- Input vs Output}' + '\n'
-        + _fig_es_multi('data_scatter_vars')
+        + _fig_es('data_scatter_vars')
 
         # 4. Model Selection
         + r'\section{Model Selection}' + '\n'
@@ -657,39 +649,63 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
     _save(fig, 'data_output_cdf.png')
 
     # 5b. Variable correlation scatter — grid of scatter plots (input vs output).
-    # One row per input makes this very tall whenever there are more inputs than
-    # outputs (7x2 for UCHardLanding, 20x3 for UCAirfoils). Capping the height in
-    # LaTeX alone would shrink it to an unreadable stamp, so split the rows into
-    # page-sized chunks and emit one figure per chunk instead.
-    rows_per_fig = max(3, min(n_inp, int(1.3 * (2.8 * n_out) / 2.2)))
-    chunks = [inputs[i:i + rows_per_fig] for i in range(0, n_inp, rows_per_fig)]
-    for ci, chunk in enumerate(chunks):
-        nrows_c = len(chunk)
-        fig, axes = plt.subplots(nrows_c, n_out,
-                                  figsize=(2.8 * n_out, 2.2 * nrows_c), squeeze=False)
-        for j, inp in enumerate(chunk):
-            for k, o in enumerate(outputs):
-                ax = axes[j][k]
-                xi = x_all[inp].values
-                yo = yt_all[o].values
-                valid = np.isfinite(xi) & np.isfinite(yo)
-                if valid.sum() > 5:
-                    ax.scatter(xi[valid], yo[valid], s=1, alpha=0.15,
-                               color='steelblue', rasterized=True)
-                    r, pv = sc.pearsonr(xi[valid], yo[valid])
-                    col = 'red' if abs(r) >= 0.5 else ('darkorange' if abs(r) >= 0.25 else 'gray')
-                    ax.set_title(f'r={r:.2f}', fontsize=6, color=col, pad=2)
-                if j == nrows_c - 1:
-                    ax.set_xlabel(o[:14], fontsize=6)
-                if k == 0:
-                    ax.set_ylabel(inp[:14], fontsize=6)
-                ax.tick_params(labelsize=5)
-        part = f'  ({ci + 1}/{len(chunks)})' if len(chunks) > 1 else ''
-        fig.suptitle('Variable Correlation — Input vs Output (all data)' + part + '\n'
-                     'Red |r|≥0.5   Orange |r|≥0.25   Gray |r|<0.25', fontsize=10)
-        plt.tight_layout()
-        _save(fig, 'data_scatter_vars.png' if ci == 0
-                   else f'data_scatter_vars_{ci + 1}.png')
+    # The whole matrix must land on a single page, however many inputs and
+    # outputs there are. Start from a comfortable cell size and shrink the
+    # figure uniformly until it fits the printable area, then scale the
+    # annotation down with it and drop tick labels once the cells get too
+    # small to carry them.
+    MAX_W_IN, MAX_H_IN = 6.8, 8.0          # A4 minus the 1.8/2.0 cm margins
+    CELL_W, CELL_H = 2.8, 2.2
+    natural_w, natural_h = CELL_W * n_out, CELL_H * n_inp
+    if natural_h > MAX_H_IN:
+        # Height-bound. Preserving the cell aspect here would leave a narrow
+        # sliver of a figure (20x3 came out 3.9 cm wide), so take the full page
+        # width instead and let the cells go wide and short.
+        fig_w, fig_h = MAX_W_IN, MAX_H_IN
+    else:
+        fig_w, fig_h = min(natural_w, MAX_W_IN), natural_h
+
+    fit = fig_w / natural_w
+    cell_h_in = fig_h / n_inp
+
+    r_fs     = max(3.0, min(6.0, cell_h_in * 7))
+    label_fs = max(3.5, min(6.0, cell_h_in * 8))
+    show_ticks = cell_h_in >= 0.55
+
+    fig, axes = plt.subplots(n_inp, n_out, figsize=(fig_w, fig_h), squeeze=False)
+    for j, inp in enumerate(inputs):
+        for k, o in enumerate(outputs):
+            ax = axes[j][k]
+            xi = x_all[inp].values
+            yo = yt_all[o].values
+            valid = np.isfinite(xi) & np.isfinite(yo)
+            if valid.sum() > 5:
+                ax.scatter(xi[valid], yo[valid], s=1 if fit > 0.6 else 0.4,
+                           alpha=0.15, color='steelblue', rasterized=True)
+                r, pv = sc.pearsonr(xi[valid], yo[valid])
+                col = 'red' if abs(r) >= 0.5 else ('darkorange' if abs(r) >= 0.25 else 'gray')
+                # With many rows there is no room above each cell for a title,
+                # so the coefficient goes inside the axes instead.
+                if show_ticks:
+                    ax.set_title(f'r={r:.2f}', fontsize=r_fs, color=col, pad=2)
+                else:
+                    ax.text(0.97, 0.93, f'{r:+.2f}', transform=ax.transAxes,
+                            ha='right', va='top', fontsize=r_fs, color=col)
+            if j == n_inp - 1:
+                ax.set_xlabel(o[:14], fontsize=label_fs)
+            if k == 0:
+                ax.set_ylabel(inp[:14], fontsize=label_fs)
+            if show_ticks:
+                ax.tick_params(labelsize=max(3.0, r_fs - 1))
+            else:
+                ax.set_xticks([])
+                ax.set_yticks([])
+
+    fig.suptitle('Variable Correlation — Input vs Output (all data)\n'
+                 'Red |r|≥0.5   Orange |r|≥0.25   Gray |r|<0.25',
+                 fontsize=max(7.0, 10 * fit))
+    plt.tight_layout()
+    _save(fig, 'data_scatter_vars.png')
 
     # ── TRAIN-TEST SPLIT ──────────────────────────────────────────────────────
 
@@ -1480,6 +1496,35 @@ nav a{color:#004680}"""
         pex_res_html += f'<h3>Residue — {o}</h3>' + _img(f'pex_violin_res_{safe}')
         pex_abs_html += f'<h3>Absolute Error — {o}</h3>' + _img(f'pex_violin_abs_{safe}')
 
+    def _full_reports_nav():
+        """
+        Link the per-model reports that validation_script.py produces from
+        validation_template.ipynb. Those carry the full analysis — every model,
+        plus bias quantification, convex-hull/VTP and uncertainty modelling that
+        this summary does not reproduce. They live in the same folder, so
+        relative links keep working if the folder is moved or zipped.
+        """
+        found = sorted(Path(out_dir).glob('*_validation_output.html'))
+        if not found:
+            return (
+                '<h2 id="dfull">Full per-model validation reports</h2>'
+                '<p class="meta">None found in this folder. They are produced by '
+                'cell 9.5 of SF_9 (<code>validation_script.py</code> running '
+                '<code>validation_template.ipynb</code>) as '
+                '<code>&lt;model&gt;_validation_output.html</code>.</p>'
+            )
+        items = ''.join(
+            f'<li><a href="{f.name}">{f.name.replace("_validation_output.html", "")}</a>'
+            f' &nbsp;<span class="meta">({f.stat().st_size / 1e6:.1f} MB)</span></li>'
+            for f in found
+        )
+        return (
+            '<h2 id="dfull">Full per-model validation reports</h2>'
+            '<p class="meta">Complete output of <code>validation_template.ipynb</code>, '
+            'one per trained model — deeper than the summary below.</p>'
+            f'<ul>{items}</ul>'
+        )
+
     html = f"""<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><title>Deep Analysis — {uc}</title>
 <style>{css}</style></head><body>
@@ -1487,13 +1532,21 @@ nav a{color:#004680}"""
 <p class="meta">Use case: <b>{uc}</b> &nbsp;|&nbsp; {date_str} &nbsp;|&nbsp; Mirrors validation_template.ipynb</p>
 
 <nav><b>Contents</b><ul>
+<li><a href="#d0">3.0 Variable Correlation</a></li>
 <li><a href="#d1">3.1 Data Overview</a></li>
 <li><a href="#d2">3.2 Train-Test Split Analysis</a></li>
 <li><a href="#d3">3.3 Error Quantification &mdash; P(E)</a></li>
 <li><a href="#d4">3.4 P(E|X) &mdash; Error Conditional on Inputs</a></li>
 <li><a href="#d5">3.5 P(E|Y) &mdash; Error Conditional on Outputs</a></li>
 <li><a href="#d6">3.6 Uncertainty Analysis</a></li>
+<li><a href="#dfull">Full per-model validation reports</a></li>
 </ul></nav>
+
+{_full_reports_nav()}
+
+{_section("d0","3.0 Variable Correlation &mdash; Input vs Output",
+    _img("data_scatter_vars")
+)}
 
 {_section("d1","3.1 Data Overview",
     "<h3>Input Statistics</h3>" + _img("data_input_stats") +
