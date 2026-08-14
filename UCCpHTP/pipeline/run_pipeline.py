@@ -101,13 +101,44 @@ job = wf.config['job_name']
 print("\n=== Stage 2: Data Acquisition (pre-split) ===")
 load_stage(wf, 'SF_2_Data_Acquisition_Generation')
 
-x_train = pd.read_csv(split_dir / 'x_train.csv')
-x_val   = pd.read_csv(split_dir / 'x_val.csv')
-x_test  = pd.read_csv(split_dir / 'x_test.csv')
+import re
 
-yt_train = pd.read_csv(split_dir / 'yt_train.csv')
-yt_val   = pd.read_csv(split_dir / 'yt_val.csv')
-yt_test  = pd.read_csv(split_dir / 'yt_test.csv')
+# Names the rest of the pipeline uses (SF_5 / SF_6 metadata). The pre-split CSVs
+# come straight from the CFD export, so their headers need not match — SF_5 was
+# failing with KeyError: Index(['Cp']) because yt_*.csv carried a different name.
+INPUTS  = ['x', 'y', 'z', 'alpha', 'mach']
+OUTPUTS = ['Cp']
+
+
+def load_split(filename, expected, what):
+    """Read a split CSV, drop any written-out index column, and align headers."""
+    df = pd.read_csv(split_dir / filename)
+
+    junk = [c for c in df.columns if re.fullmatch(r'Unnamed: \d+', str(c))]
+    if junk:
+        df = df.drop(columns=junk)
+        print(f"  {filename}: dropped index column(s) {junk}")
+
+    if list(df.columns) != expected:
+        if len(df.columns) != len(expected):
+            raise ValueError(
+                f"{filename}: expected {len(expected)} {what} column(s) {expected}, "
+                f"but the file has {len(df.columns)}: {list(df.columns)}.\n"
+                f"Check the file, or edit INPUTS/OUTPUTS to match your export."
+            )
+        print(f"  {filename}: renaming {list(df.columns)} -> {expected}")
+        df = df.set_axis(expected, axis=1)
+
+    return df
+
+
+x_train = load_split('x_train.csv', INPUTS, 'input')
+x_val   = load_split('x_val.csv',   INPUTS, 'input')
+x_test  = load_split('x_test.csv',  INPUTS, 'input')
+
+yt_train = load_split('yt_train.csv', OUTPUTS, 'output')
+yt_val   = load_split('yt_val.csv',   OUTPUTS, 'output')
+yt_test  = load_split('yt_test.csv',  OUTPUTS, 'output')
 
 Train_set = pd.concat([x_train.reset_index(drop=True),
                         yt_train.reset_index(drop=True)], axis=1)
