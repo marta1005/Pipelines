@@ -39,6 +39,10 @@ Model_Selection:
         # in log space and exponentiated back on predict. Everything
         # downstream still sees CD in physical units.
         log_targets: [CD]
+        # A multi-output MLP minimises one shared squared error, so an unscaled
+        # target with a wider range takes over the gradient. Standardising them
+        # keeps all five on equal footing.
+        scale_targets: true
         # 20 inputs -> 256 -> 128 -> 64 -> 5 outputs. Wider than the previous
         # 128/64/32: the DoE now yields ~120k usable points after the
         # confidence filter, and there are 5 targets instead of 3.

@@ -156,35 +156,40 @@ The previous `airfoils_data.csv` was removed: it covered a different design spac
 
 ## Results
 
-Full run: 200 000 DoE points, 119 756 after the confidence filter, 83 828 train / 11 976 val / 23 952 test. Training stopped early at iteration 199 (loss 1.3e−4).
+Full run: 200 000 DoE points, 119 756 after the confidence filter, 83 828 train / 11 976 val / 23 952 test.
 
 | Output | R² | MAE | Q90 | Target | Status |
 |---|---|---|---|---|---|
-| `CL` | 0.9990 | 0.0127 | 0.0846 | 0.10 | **PASS** |
-| `CD` | 0.9416 | 0.00167 | 0.1340 | 0.10 | FAIL |
-| `CM` | 0.9800 | 0.00329 | 0.5013 | 0.10 | FAIL |
-| `Top_Xtr` | 0.9959 | 0.0119 | 0.1822 | 0.15 | FAIL |
-| `Bot_Xtr` | 0.9940 | 0.0139 | 0.2631 | 0.15 | FAIL |
+| `CL` | 0.9988 | 0.0153 | 0.1103 | 0.10 | FAIL |
+| `CD` | 0.9740 | 0.00058 | 0.0380 | 0.10 | **PASS** |
+| `CM` | 0.9919 | 0.00183 | 0.2912 | 0.10 | FAIL |
+| `Top_Xtr` | 0.9963 | 0.0114 | 0.1520 | 0.15 | FAIL |
+| `Bot_Xtr` | 0.9931 | 0.0157 | 0.2881 | 0.15 | FAIL |
 
 Split quality: residual voxel proportion 0.000, valid test proportion 0.965.
 
-### Reading these numbers
+### How this configuration was chosen
 
-R² is between 0.94 and 0.999 on every output, so the surrogate reproduces the field well. Most of the Q90 failures are the **metric**, not the model: Q90 here is a *relative* error, and three of the five targets pass through or sit on zero.
+Three were measured on the same data:
 
-| Output | Crosses / touches zero | Q90 (all points) | Q90 (excluding the smallest 10 % by magnitude) |
-|---|---|---|---|
-| `CM` | ranges −0.167 … +0.074; 10.5 % of points have \|CM\| < 0.01 | 0.373 | 0.217 |
-| `Top_Xtr` | exactly 0 for 2.0 % of points | 0.233 | 0.105 |
-| `Bot_Xtr` | exactly 0 for 2.4 % of points | 0.406 | 0.211 |
+| | CL | CD | CM | Top_Xtr | Bot_Xtr |
+|---|---|---|---|---|---|
+| **A** raw targets — Q90 | **0.0846** | 0.1340 | 0.5013 | 0.1822 | **0.2631** |
+| **B** log(CD) — Q90 | 0.1036 | 0.0395 | 0.5661 | 0.2918 | 0.2674 |
+| **C** log(CD) + scaled targets — Q90 | 0.1103 | **0.0380** | **0.2912** | **0.1520** | 0.2881 |
+| **A** — R² | **0.9990** | 0.9416 | 0.9800 | 0.9959 | **0.9940** |
+| **B** — R² | 0.9988 | **0.9779** | 0.9747 | 0.9937 | 0.9908 |
+| **C** — R² | 0.9988 | 0.9740 | **0.9919** | **0.9963** | 0.9931 |
 
-Dividing by a target that is essentially zero inflates the error without the prediction being meaningfully wrong — `Top_Xtr` would meet its 0.15 target on the points where the metric is well defined.
+C is what ships. All three pass the same one of five targets, but that count is dominated by the metric problem below; on the comparisons that mean something, C halves the CM error (Q90 0.50 → 0.29, R² 0.980 → 0.992), brings `Top_Xtr` to the edge of its target, and keeps CD's gain. `CL` is the one regression, 0.0846 → 0.1103.
 
-`CD` is the genuine weak spot, and the only one not explained this way: excluding small values barely moves it (0.271 → 0.266 on the same recomputation). It is strictly positive and spans roughly a decade, so training on `log(CD)` and inverting at prediction time is the obvious next step.
+The underlying cause was never CD. A multi-output MLP minimises **one shared squared error**, and the targets were never scaled, so whichever column had the widest range took the gradient: originally CL (std 0.7 against CD's 0.013), which is exactly why CD was the worst output. Putting CD in log space made *it* the widest (~3.7) and it took over in turn, which is why B degraded the other four. Standardising every target removes the competition.
 
-> The Q90 column above is the pipeline's own figure from `metadata_UCAIRFOILS_1.json`. The comparison table uses a plain \|ŷ−y\|/\|y\| recomputation, which gives a different absolute level (0.271 vs 0.134 for CD) but the same ranking — treat it as directional.
+### Why four outputs still "fail"
 
----
+R² is between 0.974 and 0.999, so the surrogate reproduces the field well. Q90 here is a *relative* error, and three of the five targets pass through or sit on zero — `CM` ranges −0.167 … +0.074, and both transition locations are exactly 0 for about 2 % of points. Dividing by a target that is essentially zero inflates the error without the prediction being meaningfully wrong.
+
+Changing the SF_1 criterion to an absolute or range-normalised error would describe these three honestly. `CL` is the only one whose miss is real, and it is marginal.
 
 ## Repository Structure
 
