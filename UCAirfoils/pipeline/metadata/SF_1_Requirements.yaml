@@ -1,11 +1,20 @@
 Requirements:
   accuracy:
-    - output: "Cl"
+    - output: "CL"
       metric: quantile90
       value: 0.1
-    - output: "Cd"
+    - output: "CD"
       metric: quantile90
       value: 0.1
-    - output: "Cm"
+    - output: "CM"
       metric: quantile90
       value: 0.1
+    # Transition locations are positions along the chord in [0, 1] and saturate
+    # at both ends (fully laminar / fully turbulent), so a relative-error target
+    # is looser here than for the force coefficients.
+    - output: "Top_Xtr"
+      metric: quantile90
+      value: 0.15
+    - output: "Bot_Xtr"
+      metric: quantile90
+      value: 0.15

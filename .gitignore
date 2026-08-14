@@ -54,3 +54,10 @@ UCLoads/pipeline/mlruns/
 
 # Stage 10 model store — copies of artifacts already produced by SF_7/SF_8
 */pipeline/data/model_store/
+
+# Generated datasets — SF_2/SF_3/SF_4 rebuild these from scratch
+*/pipeline/data/*_Raw.csv
+*/pipeline/data/*_Cleaned.csv
+*/pipeline/data/*_Train_set.csv
+*/pipeline/data/*_Val_set.csv
+*/pipeline/data/*_Test_set.csv

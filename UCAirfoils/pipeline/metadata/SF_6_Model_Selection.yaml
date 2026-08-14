@@ -1,44 +1,48 @@
 Model_Selection:
   inputs:
     - alpha
-    - Re
-    - Kulfan_1
-    - Kulfan_2
-    - Kulfan_3
-    - Kulfan_4
-    - Kulfan_5
-    - Kulfan_6
-    - Kulfan_7
-    - Kulfan_8
-    - Kulfan_9
-    - Kulfan_10
-    - Kulfan_11
-    - Kulfan_12
-    - Kulfan_13
-    - Kulfan_14
-    - Kulfan_15
-    - Kulfan_16
-    - Kulfan_17
-    - Kulfan_18
+    - log10_Re
+    - uW1
+    - uW2
+    - uW3
+    - uW4
+    - uW5
+    - uW6
+    - uW7
+    - uW8
+    - lW1
+    - lW2
+    - lW3
+    - lW4
+    - lW5
+    - lW6
+    - lW7
+    - lW8
+    - TE_thickness
+    - LE_weight
   outputs:
-    - Cl
-    - Cd
-    - Cm
+    - CL
+    - CD
+    - CM
+    - Top_Xtr
+    - Bot_Xtr
   algorithms:
     # ── RECOMMENDED: MLP ─────────────────────────────────────────────────────
-    # All 20 inputs are continuous (alpha, Re, 18 Kulfan CST coefficients).
-    # Cl/Cd/Cm vary smoothly with all inputs — ideal for a deep MLP.
-    # GradientBoosting is not recommended here: no discrete inputs, 3-output
-    # regression on a smooth aerodynamic manifold favours neural networks.
+    # All 20 inputs are continuous (alpha, log10_Re, 16 Kulfan CST weights,
+    # TE thickness, LE weight) and the 5 outputs vary smoothly over the design
+    # space — a deep MLP suits this better than trees, which have no discrete
+    # splits to exploit here.
     - name: MLPRegressor
       label: MLP
       settings:
-        # 20 inputs → 128 → 64 → 32 → 3 outputs
-        hidden_layer_sizes: [128, 64, 32]
+        # 20 inputs -> 256 -> 128 -> 64 -> 5 outputs. Wider than the previous
+        # 128/64/32: the DoE now yields ~120k usable points after the
+        # confidence filter, and there are 5 targets instead of 3.
+        hidden_layer_sizes: [256, 128, 64]
         activation: relu
         solver: adam
-        alpha: 0.001
-        batch_size: 256
+        alpha: 0.0001
+        batch_size: 512
         learning_rate: adaptive
         learning_rate_init: 0.001
         max_iter: 500

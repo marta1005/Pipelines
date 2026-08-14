@@ -1,52 +1,58 @@
 Feature_Selection:
   Add_Remove_Features:
+    # 20 model inputs. Deliberately excluded from the 22 design-space entries:
+    #   mach      fixed at 0.3, so it carries no information (zero variance)
+    #   alpha_rad an exact linear function of alpha — redundant
+    #   reynolds  replaced by log10_Re (see SF_2 metadata)
     inputs:
       - alpha
-      - Re
-      - Kulfan_1
-      - Kulfan_2
-      - Kulfan_3
-      - Kulfan_4
-      - Kulfan_5
-      - Kulfan_6
-      - Kulfan_7
-      - Kulfan_8
-      - Kulfan_9
-      - Kulfan_10
-      - Kulfan_11
-      - Kulfan_12
-      - Kulfan_13
-      - Kulfan_14
-      - Kulfan_15
-      - Kulfan_16
-      - Kulfan_17
-      - Kulfan_18
+      - log10_Re
+      - uW1
+      - uW2
+      - uW3
+      - uW4
+      - uW5
+      - uW6
+      - uW7
+      - uW8
+      - lW1
+      - lW2
+      - lW3
+      - lW4
+      - lW5
+      - lW6
+      - lW7
+      - lW8
+      - TE_thickness
+      - LE_weight
     outputs:
-      - Cl
-      - Cd
-      - Cm
+      - CL
+      - CD
+      - CM
+      - Top_Xtr
+      - Bot_Xtr
   Preprocess:
     inputs:
       - alpha
-      - Re
-      - Kulfan_1
-      - Kulfan_2
-      - Kulfan_3
-      - Kulfan_4
-      - Kulfan_5
-      - Kulfan_6
-      - Kulfan_7
-      - Kulfan_8
-      - Kulfan_9
-      - Kulfan_10
-      - Kulfan_11
-      - Kulfan_12
-      - Kulfan_13
-      - Kulfan_14
-      - Kulfan_15
-      - Kulfan_16
-      - Kulfan_17
-      - Kulfan_18
+      - log10_Re
+      - uW1
+      - uW2
+      - uW3
+      - uW4
+      - uW5
+      - uW6
+      - uW7
+      - uW8
+      - lW1
+      - lW2
+      - lW3
+      - lW4
+      - lW5
+      - lW6
+      - lW7
+      - lW8
+      - TE_thickness
+      - LE_weight
     method: normalizer_transformer
-    # All 20 inputs are continuous — MinMax scaling applied uniformly
-    numerical_features: "[alpha, Re, Kulfan_1, Kulfan_2, Kulfan_3, Kulfan_4, Kulfan_5, Kulfan_6, Kulfan_7, Kulfan_8, Kulfan_9, Kulfan_10, Kulfan_11, Kulfan_12, Kulfan_13, Kulfan_14, Kulfan_15, Kulfan_16, Kulfan_17, Kulfan_18]"
+    # Every input is continuous — MinMax scaling applied uniformly.
+    numerical_features: "[alpha, log10_Re, uW1, uW2, uW3, uW4, uW5, uW6, uW7, uW8, lW1, lW2, lW3, lW4, lW5, lW6, lW7, lW8, TE_thickness, LE_weight]"
