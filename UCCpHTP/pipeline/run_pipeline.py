@@ -168,9 +168,24 @@ def load_split(filename, expected, what):
         )
 
     if list(df.columns) != expected:
-        if header == 0:
-            print(f"  {filename}: renaming {list(df.columns)} -> {expected}")
-        df = df.set_axis(expected, axis=1)
+        if header is None:
+            # No names in the file: position is the only information there is.
+            df = df.set_axis(expected, axis=1)
+        else:
+            # The file does name its columns, so match on the name rather than
+            # the position — renaming positionally would silently mislabel a
+            # file whose columns are in a different order.
+            norm = {str(c).strip().lower().lstrip('﻿'): c for c in df.columns}
+            matched = {e: norm.get(e.lower()) for e in expected}
+            if all(v is not None for v in matched.values()):
+                df = df[[matched[e] for e in expected]].set_axis(expected, axis=1)
+                print(f"  {filename}: matched columns by name -> {expected}")
+            else:
+                unmatched = [e for e, v in matched.items() if v is None]
+                print(f"  {filename}: WARNING no column named {unmatched} in "
+                      f"{list(df.columns)}; falling back to position "
+                      f"{list(df.columns)} -> {expected}. Check the order is right.")
+                df = df.set_axis(expected, axis=1)
 
     return df.apply(pd.to_numeric, errors='coerce')
 
