@@ -139,6 +139,19 @@ The DoE and NeuralFoil evaluation run at roughly 22 000 points/s, so the full 20
 
 Requires `neuralfoil` (`pip install neuralfoil`).
 
+### The committed dataset
+
+`data/airfoils_doe_neuralfoil.csv.gz` holds one generated run — 200 000 rows, 29 columns, before the confidence filter. Read it directly:
+
+```python
+import pandas as pd
+df = pd.read_csv("UCAirfoils/data/airfoils_doe_neuralfoil.csv.gz")
+```
+
+It is committed for reference and reproducibility; the pipeline does **not** read it, SF_2 regenerates the data. Uncompressed it is 111 MB, past GitHub's 100 MB per-file limit, hence the gzip (49 MB).
+
+The previous `airfoils_data.csv` was removed: it covered a different design space (18 Kulfan coefficients, 3 outputs) than the one the pipeline now uses.
+
 ---
 
 ## Results

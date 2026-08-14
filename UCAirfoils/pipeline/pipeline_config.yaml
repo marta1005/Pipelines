@@ -13,6 +13,7 @@ tracker:
 catalog:
   models:
     MLPRegressor: sklearn.neural_network.MLPRegressor
+    LogTargetMLPRegressor: model_training.estimators.LogTargetMLPRegressor
   normalization:
     normalizer_transformer: surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer
   metrics:

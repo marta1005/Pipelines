@@ -104,32 +104,75 @@ load_stage(wf, 'SF_2_Data_Acquisition_Generation')
 import re
 
 # Names the rest of the pipeline uses (SF_5 / SF_6 metadata). The pre-split CSVs
-# come straight from the CFD export, so their headers need not match — SF_5 was
-# failing with KeyError: Index(['Cp']) because yt_*.csv carried a different name.
+# come straight from the CFD export, so neither their headers nor their layout
+# are guaranteed: observed in practice are ';' separators and files with no
+# header row at all, where the first data line would otherwise be read as the
+# column names.
 INPUTS  = ['x', 'y', 'z', 'alpha', 'mach']
 OUTPUTS = ['Cp']
 
 
+def _sniff(path):
+    """Work out the delimiter, and whether the first line is a header."""
+    with open(path) as fh:
+        first = fh.readline().rstrip('\r\n')
+
+    counts = {s: first.count(s) for s in (';', ',', '\t', '|')}
+    sep = max(counts, key=counts.get)
+    if counts[sep] == 0:
+        sep = ','                       # single column: any separator will do
+
+    def numeric(tok):
+        try:
+            float(tok.strip().replace(',', '.') if sep != ',' else tok.strip())
+            return True
+        except ValueError:
+            return False
+
+    fields = [f for f in first.split(sep) if f.strip() != '']
+    # All-numeric first line means the export wrote no header.
+    header = None if fields and all(numeric(f) for f in fields) else 0
+    return sep, header
+
+
 def load_split(filename, expected, what):
-    """Read a split CSV, drop any written-out index column, and align headers."""
-    df = pd.read_csv(split_dir / filename)
+    """Read a split CSV and return it with the pipeline's column names."""
+    path = split_dir / filename
+    sep, header = _sniff(path)
+    df = pd.read_csv(path, sep=sep, header=header)
+    if header is None:
+        print(f"  {filename}: no header row, sep={sep!r} -> naming columns {expected}")
+    elif sep != ',':
+        print(f"  {filename}: sep={sep!r}")
 
     junk = [c for c in df.columns if re.fullmatch(r'Unnamed: \d+', str(c))]
     if junk:
         df = df.drop(columns=junk)
         print(f"  {filename}: dropped index column(s) {junk}")
 
+    # With no header an index column has no name to recognise it by, so spot it
+    # by shape: one column too many, the first being a consecutive integer run.
+    if header is None and len(df.columns) == len(expected) + 1:
+        first = df.iloc[:, 0]
+        step = first.diff().dropna()
+        if (first % 1 == 0).all() and (step == 1).all():
+            df = df.iloc[:, 1:]
+            print(f"  {filename}: dropped unnamed positional index column")
+
+    if len(df.columns) != len(expected):
+        raise ValueError(
+            f"{filename}: expected {len(expected)} {what} column(s) {expected}, "
+            f"but the file has {len(df.columns)}: {list(df.columns)[:8]}.\n"
+            f"Detected separator {sep!r}, header={'yes' if header == 0 else 'no'}. "
+            f"Check the file, or edit INPUTS/OUTPUTS to match your export."
+        )
+
     if list(df.columns) != expected:
-        if len(df.columns) != len(expected):
-            raise ValueError(
-                f"{filename}: expected {len(expected)} {what} column(s) {expected}, "
-                f"but the file has {len(df.columns)}: {list(df.columns)}.\n"
-                f"Check the file, or edit INPUTS/OUTPUTS to match your export."
-            )
-        print(f"  {filename}: renaming {list(df.columns)} -> {expected}")
+        if header == 0:
+            print(f"  {filename}: renaming {list(df.columns)} -> {expected}")
         df = df.set_axis(expected, axis=1)
 
-    return df
+    return df.apply(pd.to_numeric, errors='coerce')
 
 
 x_train = load_split('x_train.csv', INPUTS, 'input')
