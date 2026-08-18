@@ -24,8 +24,8 @@ Model_Selection:
     - CL
     - CD
     - CM
-    - Top_Xtr
-    - Bot_Xtr
+    - top_transition_location
+    - bottom_transition_location
   algorithms:
     # ── RECOMMENDED: MLP ─────────────────────────────────────────────────────
     # All 20 inputs are continuous (alpha, log10_Re, 16 Kulfan CST weights,

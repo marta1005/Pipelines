@@ -119,7 +119,18 @@ def launch_sim(workflow, doe: pd.DataFrame, batch_size: int = 20000) -> pd.DataF
 
     upper = [f'uW{i}' for i in range(1, 9)]
     lower = [f'lW{i}' for i in range(1, 9)]
-    OUTPUTS = ['CL', 'CD', 'CM', 'Top_Xtr', 'Bot_Xtr', 'analysis_confidence']
+
+    # NeuralFoil's own key -> the name used throughout the pipeline. Only these
+    # five are kept as model outputs; analysis_confidence rides along for SF_3
+    # to filter on and is dropped there.
+    OUTPUTS = {
+        'CL': 'CL',
+        'CD': 'CD',
+        'CM': 'CM',
+        'Top_Xtr': 'top_transition_location',
+        'Bot_Xtr': 'bottom_transition_location',
+        'analysis_confidence': 'analysis_confidence',
+    }
 
     missing = [c for c in upper + lower + ['LE_weight', 'TE_thickness', 'alpha', 'reynolds']
                if c not in doe.columns]
@@ -144,8 +155,9 @@ def launch_sim(workflow, doe: pd.DataFrame, batch_size: int = 20000) -> pd.DataF
             alpha=part['alpha'].to_numpy(),
             Re=part['reynolds'].to_numpy(),
         )
-        chunks.append(pd.DataFrame({k: np.asarray(aero[k]).ravel() for k in OUTPUTS},
-                                   index=part.index))
+        chunks.append(pd.DataFrame(
+            {name: np.asarray(aero[key]).ravel() for key, name in OUTPUTS.items()},
+            index=part.index))
         print(f"  evaluated {min(start + batch_size, len(doe)):>8,} / {len(doe):,}")
 
     out = pd.concat([doe, pd.concat(chunks)], axis=1)
@@ -153,7 +165,7 @@ def launch_sim(workflow, doe: pd.DataFrame, batch_size: int = 20000) -> pd.DataF
     conf = out['analysis_confidence']
     print(f"\n  analysis_confidence: mean {conf.mean():.3f}   "
           f"below 0.5: {(conf < 0.5).sum():,} ({(conf < 0.5).mean():.1%})")
-    for c in ('CL', 'CD', 'CM', 'Top_Xtr', 'Bot_Xtr'):
-        print(f"    {c:<10} min {out[c].min():>10.4f}   max {out[c].max():>10.4f}")
+    for c in [n for n in OUTPUTS.values() if n != 'analysis_confidence']:
+        print(f"    {c:<28} min {out[c].min():>10.4f}   max {out[c].max():>10.4f}")
 
     return out

@@ -10,7 +10,8 @@ UCAirfoils trains a surrogate that maps an airfoil's Kulfan CST shape parameters
 
 ```
 f(alpha, log10_Re, uW1..8, lW1..8, TE_thickness, LE_weight)
-        -> (CL, CD, CM, Top_Xtr, Bot_Xtr)
+        -> (CL, CD, CM,
+            top_transition_location, bottom_transition_location)
 ```
 
 Q90 relative error below 10 % on the force coefficients and below 15 % on the transition locations, so arbitrary sections can be screened without calling XFOIL.
@@ -163,8 +164,8 @@ Full run: 200 000 DoE points, 119 756 after the confidence filter, 83 828 train 
 | `CL` | 0.9988 | 0.0153 | 0.1103 | 0.10 | FAIL |
 | `CD` | 0.9740 | 0.00058 | 0.0380 | 0.10 | **PASS** |
 | `CM` | 0.9919 | 0.00183 | 0.2912 | 0.10 | FAIL |
-| `Top_Xtr` | 0.9963 | 0.0114 | 0.1520 | 0.15 | FAIL |
-| `Bot_Xtr` | 0.9931 | 0.0157 | 0.2881 | 0.15 | FAIL |
+| `top_transition_location` | 0.9963 | 0.0114 | 0.1520 | 0.15 | FAIL |
+| `bottom_transition_location` | 0.9931 | 0.0157 | 0.2881 | 0.15 | FAIL |
 
 Split quality: residual voxel proportion 0.000, valid test proportion 0.965.
 
@@ -172,7 +173,7 @@ Split quality: residual voxel proportion 0.000, valid test proportion 0.965.
 
 Three were measured on the same data:
 
-| | CL | CD | CM | Top_Xtr | Bot_Xtr |
+| | CL | CD | CM | top_transition_location | bottom_transition_location |
 |---|---|---|---|---|---|
 | **A** raw targets — Q90 | **0.0846** | 0.1340 | 0.5013 | 0.1822 | **0.2631** |
 | **B** log(CD) — Q90 | 0.1036 | 0.0395 | 0.5661 | 0.2918 | 0.2674 |
@@ -181,7 +182,7 @@ Three were measured on the same data:
 | **B** — R² | 0.9988 | **0.9779** | 0.9747 | 0.9937 | 0.9908 |
 | **C** — R² | 0.9988 | 0.9740 | **0.9919** | **0.9963** | 0.9931 |
 
-C is what ships. All three pass the same one of five targets, but that count is dominated by the metric problem below; on the comparisons that mean something, C halves the CM error (Q90 0.50 → 0.29, R² 0.980 → 0.992), brings `Top_Xtr` to the edge of its target, and keeps CD's gain. `CL` is the one regression, 0.0846 → 0.1103.
+C is what ships. All three pass the same one of five targets, but that count is dominated by the metric problem below; on the comparisons that mean something, C halves the CM error (Q90 0.50 → 0.29, R² 0.980 → 0.992), brings `top_transition_location` to the edge of its target, and keeps CD's gain. `CL` is the one regression, 0.0846 → 0.1103.
 
 The underlying cause was never CD. A multi-output MLP minimises **one shared squared error**, and the targets were never scaled, so whichever column had the widest range took the gradient: originally CL (std 0.7 against CD's 0.013), which is exactly why CD was the worst output. Putting CD in log space made *it* the widest (~3.7) and it took over in turn, which is why B degraded the other four. Standardising every target removes the competition.
 

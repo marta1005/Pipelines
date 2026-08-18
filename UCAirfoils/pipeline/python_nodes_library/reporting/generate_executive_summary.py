@@ -123,6 +123,9 @@ def extract(meta_path: Path) -> dict:
         scores=scores, dist=dist, vres=vres, split=split,
         q90_target=q90_target, best_model=best,
         avg_r2=avg_r2, q90_pass=q90_pass, ks_pass=ks_pass,
+        # Needed to recover the training curves, which live inside the fitted
+        # estimators rather than in the metadata.
+        model_files={m['label']: m.get('file') for m in trn.get('Models', [])},
         pct_train=part.get('train'),
         pct_val=part.get('validation') or part.get('val'),
         pct_test=part.get('test'),
@@ -290,6 +293,20 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         return (r'\begin{center}\includegraphics[' + _GFX_FIT + r']{'
                 + rp + r'}\end{center}' + '\n')
 
+    def _training_curve_tex():
+        """Training history section — omitted when no model recorded one."""
+        p = paths.get('training_curve', '')
+        if not p:
+            return ''
+        return (
+            r'\section{Training History}' + '\n'
+            + _fig_es('training_curve')
+            + r'{\footnotesize Training loss per iteration, log scale. '
+              r'A validation panel is shown for models trained with early '
+              r'stopping. Gradient boosting reports per-stage deviance '
+              r'averaged over its per-output estimators.}' + '\n\n'
+        )
+
     # ── Winner scatter ─────────────────────────────────────────────────────────
     winner_scatter_tex = ''
     p = scatter_paths.get(best, '')
@@ -424,15 +441,18 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         r'\section{Accuracy Assessment (Q90 \& R\textsuperscript{2})}' + '\n'
         + _tbl_with_legend(metrics_tbl, _LEGEND) + '\n\n'
 
-        # 6. Predicted vs True — winner model
+        # 6. Training History
+        + _training_curve_tex() +
+
+        # 7. Predicted vs True — winner model
         rf'\section{{Predicted vs True --- {best_esc}}}' + '\n'
         + winner_scatter_tex + '\n\n'
 
-        # 7. Data Split Quality
+        # 8. Data Split Quality
         r'\section{Data Split Quality}' + '\n'
         + split_tbl + '\n\n'
 
-        # 8. Overfitting Check
+        # 9. Overfitting Check
         rf'\section{{Overfitting Check (KS Test) --- {best_esc}}}' + '\n'
         + _tbl_with_legend(ks_tbl, _KS_LEGEND) + '\n'
     )
@@ -489,6 +509,110 @@ def _violin_grid(fig, axes_flat, n_out, data_list, outputs, title, ylabel):
     for j in range(n_out, len(axes_flat)):
         axes_flat[j].set_visible(False)
     fig.suptitle(title, fontsize=10)
+
+
+def _training_curve(d, plots_dir):
+    """
+    Plot the training history of every model that recorded one.
+
+    The curves are not in the metadata — they live on the fitted estimator, so
+    the saved models are reloaded to read them. MLPRegressor keeps loss_curve_
+    (and validation_scores_ when early stopping is on); gradient boosting keeps
+    a per-stage train_score_ on each inner estimator. Anything else, such as a
+    plain forest, has no notion of training history and is reported as such.
+
+    Returns the saved path, or None when no model exposes a curve.
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import joblib
+
+    curves = {}
+    for label, path in (d.get('model_files') or {}).items():
+        if not path or not Path(path).exists():
+            continue
+        try:
+            model = joblib.load(path)
+        except Exception as e:
+            print(f'  training curve: could not load {label} ({type(e).__name__})')
+            continue
+
+        loss = getattr(model, 'loss_curve_', None)
+        if loss is not None and len(loss):
+            curves[label] = {
+                'loss': list(loss),
+                'val': list(getattr(model, 'validation_scores_', None) or []),
+                'kind': 'loss',
+            }
+            continue
+
+        # MultiOutputRegressor(GradientBoosting...): average the per-stage
+        # training score across the one-estimator-per-output members.
+        inner = getattr(model, 'estimators_', None) or []
+        stage = [getattr(e, 'train_score_', None) for e in inner]
+        stage = [s for s in stage if s is not None and len(s)]
+        if stage:
+            n = min(len(s) for s in stage)
+            curves[label] = {
+                'loss': [float(np.mean([s[i] for s in stage])) for i in range(n)],
+                'val': [],
+                'kind': 'deviance',
+            }
+
+    if not curves:
+        print('  training curve: no model exposes one — skipped')
+        return None
+
+    has_val = any(c['val'] for c in curves.values())
+    ncols = 2 if has_val else 1
+    fig, axes = plt.subplots(1, ncols, figsize=(5.2 * ncols, 3.4), squeeze=False)
+    ax = axes[0][0]
+
+    for label, c in curves.items():
+        ax.plot(range(1, len(c['loss']) + 1), c['loss'], lw=1.2, label=label)
+    ax.set_xlabel('Iteration')
+    ax.set_ylabel('Training loss')
+    ax.set_yscale('log')
+    ax.grid(alpha=0.3, which='both')
+    ax.set_title('Training loss per iteration', fontsize=10)
+    ax.legend(fontsize=8)
+
+    if has_val:
+        ax2 = axes[0][1]
+        vals = []
+        for label, c in curves.items():
+            if c['val']:
+                ax2.plot(range(1, len(c['val']) + 1), c['val'], lw=1.2, label=label)
+                vals += c['val']
+        ax2.set_xlabel('Iteration')
+        ax2.set_ylabel('Validation score (R²)')
+        ax2.grid(alpha=0.3)
+        ax2.set_title('Validation score per iteration', fontsize=10)
+        ax2.legend(fontsize=8)
+
+        # The first few iterations can sit at R² = -200, which flattens the
+        # whole converged region into a line at the top. Clip to the part worth
+        # reading and say that is what happened.
+        hi = max(vals)
+        if min(vals) < -0.5 < hi:
+            ax2.set_ylim(-0.05, min(1.02, hi + 0.02))
+            ax2.text(0.98, 0.04, f'axis clipped — early iterations reach '
+                                 f'{min(vals):.0f}',
+                     transform=ax2.transAxes, ha='right', va='bottom',
+                     fontsize=7, color='gray')
+
+    plt.tight_layout()
+    out = Path(plots_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / 'training_curve.png'
+    fig.savefig(path, dpi=110, bbox_inches='tight')
+    plt.close(fig)
+
+    summary = ', '.join(f"{k} ({len(v['loss'])} it)" for k, v in curves.items())
+    print(f'  plot: training_curve.png  [{summary}]')
+    return str(path)
 
 
 def _analysis_plots(best, csv_dir, plots_dir, q90_target):
@@ -658,27 +782,43 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
     MAX_W_IN, MAX_H_IN = 6.8, 8.0          # A4 minus the 1.8/2.0 cm margins
     CELL_MAX, ASPECT_MAX = 1.6, 1.5
 
-    # Fit the grid to the page, but keep the cells roughly square. Filling the
-    # page width unconditionally distorted them badly in both directions —
-    # 3 inputs x 8 outputs gave 0.86 x 2.20 in strips, 7 x 2 gave 3:1 letterboxes —
-    # and squeezed the tick labels into each other.
-    cell_w = min(MAX_W_IN / n_out, CELL_MAX)
-    cell_h = min(MAX_H_IN / n_inp, CELL_MAX)
-    cell_h = min(cell_h, cell_w * ASPECT_MAX)
-    cell_w = min(cell_w, cell_h * ASPECT_MAX)
-    fig_w, fig_h = cell_w * n_out, cell_h * n_inp
+    def _layout(n_rows, n_cols):
+        """Cell and figure size for a grid, keeping the cells roughly square."""
+        cw = min(MAX_W_IN / n_cols, CELL_MAX)
+        ch = min(MAX_H_IN / n_rows, CELL_MAX)
+        ch = min(ch, cw * ASPECT_MAX)
+        cw = min(cw, ch * ASPECT_MAX)
+        return cw, ch, cw * n_cols, ch * n_rows
+
+    # Either orientation carries the same information, so use whichever fills
+    # the page better: with many inputs and few outputs, inputs down the rows
+    # leaves a narrow sliver, and putting them across the columns does not.
+    tall = _layout(n_inp, n_out)          # inputs as rows (the default reading)
+    wide = _layout(n_out, n_inp)          # transposed
+    transpose = (wide[2] * wide[3]) > (tall[2] * tall[3]) * 1.05
+
+    if transpose:
+        row_vars, col_vars = outputs, inputs
+        row_src, col_src = yt_all, x_all
+    else:
+        row_vars, col_vars = inputs, outputs
+        row_src, col_src = x_all, yt_all
+    n_rows, n_cols = len(row_vars), len(col_vars)
+    cell_w, cell_h, fig_w, fig_h = _layout(n_rows, n_cols)
 
     r_fs     = max(3.5, min(6.0, cell_h * 5.0))
     label_fs = max(4.0, min(6.5, cell_h * 5.5))
     tick_fs  = max(3.0, min(5.0, cell_w * 4.0))
     show_ticks = cell_w >= 0.5 and cell_h >= 0.45
 
-    fig, axes = plt.subplots(n_inp, n_out, figsize=(fig_w, fig_h), squeeze=False)
-    for j, inp in enumerate(inputs):
-        for k, o in enumerate(outputs):
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(fig_w, fig_h), squeeze=False)
+    for j, inp in enumerate(row_vars):
+        for k, o in enumerate(col_vars):
             ax = axes[j][k]
-            xi = x_all[inp].values
-            yo = yt_all[o].values
+            # x is always whatever runs across the columns, y whatever runs down
+            # the rows, so the panels read the same either way round.
+            xi = col_src[o].values
+            yo = row_src[inp].values
             valid = np.isfinite(xi) & np.isfinite(yo)
             if valid.sum() > 5:
                 ax.scatter(xi[valid], yo[valid], s=1 if cell_w > 1.0 else 0.4,
@@ -692,10 +832,10 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
                         ha='right', va='top', fontsize=r_fs, color=col,
                         bbox=dict(boxstyle='square,pad=0.1', fc='white',
                                   ec='none', alpha=0.7))
-            if j == n_inp - 1:
-                ax.set_xlabel(o[:14], fontsize=label_fs, labelpad=1)
+            if j == n_rows - 1:
+                ax.set_xlabel(o[:16], fontsize=label_fs, labelpad=1)
             if k == 0:
-                ax.set_ylabel(inp[:14], fontsize=label_fs, labelpad=1)
+                ax.set_ylabel(inp[:16], fontsize=label_fs, labelpad=1)
             if show_ticks:
                 # Three ticks at most: the default density overlapped its own
                 # labels once the cells got narrow ("0.51.0").
@@ -1539,7 +1679,8 @@ nav a{color:#004680}"""
 <p class="meta">Use case: <b>{uc}</b> &nbsp;|&nbsp; {date_str} &nbsp;|&nbsp; Mirrors validation_template.ipynb</p>
 
 <nav><b>Contents</b><ul>
-<li><a href="#d0">3.0 Variable Correlation</a></li>
+<li><a href="#dtrain">3.0 Training History</a></li>
+<li><a href="#d0">3.0b Variable Correlation</a></li>
 <li><a href="#d1">3.1 Data Overview</a></li>
 <li><a href="#d2">3.2 Train-Test Split Analysis</a></li>
 <li><a href="#d3">3.3 Error Quantification &mdash; P(E)</a></li>
@@ -1551,7 +1692,13 @@ nav a{color:#004680}"""
 
 {_full_reports_nav()}
 
-{_section("d0","3.0 Variable Correlation &mdash; Input vs Output",
+{_section("dtrain","3.0 Training History",
+    _img("training_curve") +
+    "<p class='meta'>Training loss per iteration, log scale, with a validation "
+    "panel for models trained with early stopping.</p>"
+) if paths.get("training_curve") else ""}
+
+{_section("d0","3.0b Variable Correlation &mdash; Input vs Output",
     _img("data_scatter_vars")
 )}
 
@@ -1701,6 +1848,10 @@ def main():
     plots_dir = out_dir / 'analysis_plots'
     print(f'Generating analysis plots from {csv_dir} ...')
     paths, stats = _analysis_plots(best, csv_dir, plots_dir, d['q90_target'])
+
+    curve = _training_curve(d, plots_dir)
+    if curve:
+        paths['training_curve'] = curve
 
     use_case = d['use_case']
     tex_file = out_dir / f'executive_summary_{use_case}.tex'

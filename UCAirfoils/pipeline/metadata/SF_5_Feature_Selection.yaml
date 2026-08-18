@@ -29,8 +29,8 @@ Feature_Selection:
       - CL
       - CD
       - CM
-      - Top_Xtr
-      - Bot_Xtr
+      - top_transition_location
+      - bottom_transition_location
   Preprocess:
     inputs:
       - alpha
