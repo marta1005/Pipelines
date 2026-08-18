@@ -511,23 +511,28 @@ def _violin_grid(fig, axes_flat, n_out, data_list, outputs, title, ylabel):
     fig.suptitle(title, fontsize=10)
 
 
-def _training_curve(d, plots_dir):
+def _training_curve(d, plots_dir, artifacts_dir=None):
     """
     Plot the training history of every model that recorded one.
 
-    The curves are not in the metadata — they live on the fitted estimator, so
-    the saved models are reloaded to read them. MLPRegressor keeps loss_curve_
-    (and validation_scores_ when early stopping is on); gradient boosting keeps
-    a per-stage train_score_ on each inner estimator. Anything else, such as a
-    plain forest, has no notion of training history and is reported as such.
+    SF_9 already saves this as an artifact (model_validation/training_curve.py);
+    that copy is reused when present so the report and the pipeline cannot
+    disagree. Otherwise it is rebuilt here from the saved models, since the
+    curves live on the fitted estimator rather than in the metadata.
 
-    Returns the saved path, or None when no model exposes a curve.
+    Returns the path to use, or None when no model exposes a curve.
     """
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import numpy as np
     import joblib
+
+    if artifacts_dir:
+        existing = Path(artifacts_dir) / 'training_curve.png'
+        if existing.exists():
+            print(f'  training curve: reusing SF_9 artifact {existing.name}')
+            return str(existing)
 
     curves = {}
     for label, path in (d.get('model_files') or {}).items():
@@ -1849,7 +1854,7 @@ def main():
     print(f'Generating analysis plots from {csv_dir} ...')
     paths, stats = _analysis_plots(best, csv_dir, plots_dir, d['q90_target'])
 
-    curve = _training_curve(d, plots_dir)
+    curve = _training_curve(d, plots_dir, artifacts_dir)
     if curve:
         paths['training_curve'] = curve
 
