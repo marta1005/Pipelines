@@ -502,6 +502,7 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import MaxNLocator
     import matplotlib.ticker as mticker
     from scipy import stats as sc
 
@@ -655,22 +656,22 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
     # annotation down with it and drop tick labels once the cells get too
     # small to carry them.
     MAX_W_IN, MAX_H_IN = 6.8, 8.0          # A4 minus the 1.8/2.0 cm margins
-    CELL_W, CELL_H = 2.8, 2.2
-    natural_w, natural_h = CELL_W * n_out, CELL_H * n_inp
-    if natural_h > MAX_H_IN:
-        # Height-bound. Preserving the cell aspect here would leave a narrow
-        # sliver of a figure (20x3 came out 3.9 cm wide), so take the full page
-        # width instead and let the cells go wide and short.
-        fig_w, fig_h = MAX_W_IN, MAX_H_IN
-    else:
-        fig_w, fig_h = min(natural_w, MAX_W_IN), natural_h
+    CELL_MAX, ASPECT_MAX = 1.6, 1.5
 
-    fit = fig_w / natural_w
-    cell_h_in = fig_h / n_inp
+    # Fit the grid to the page, but keep the cells roughly square. Filling the
+    # page width unconditionally distorted them badly in both directions —
+    # 3 inputs x 8 outputs gave 0.86 x 2.20 in strips, 7 x 2 gave 3:1 letterboxes —
+    # and squeezed the tick labels into each other.
+    cell_w = min(MAX_W_IN / n_out, CELL_MAX)
+    cell_h = min(MAX_H_IN / n_inp, CELL_MAX)
+    cell_h = min(cell_h, cell_w * ASPECT_MAX)
+    cell_w = min(cell_w, cell_h * ASPECT_MAX)
+    fig_w, fig_h = cell_w * n_out, cell_h * n_inp
 
-    r_fs     = max(3.0, min(6.0, cell_h_in * 7))
-    label_fs = max(3.5, min(6.0, cell_h_in * 8))
-    show_ticks = cell_h_in >= 0.55
+    r_fs     = max(3.5, min(6.0, cell_h * 5.0))
+    label_fs = max(4.0, min(6.5, cell_h * 5.5))
+    tick_fs  = max(3.0, min(5.0, cell_w * 4.0))
+    show_ticks = cell_w >= 0.5 and cell_h >= 0.45
 
     fig, axes = plt.subplots(n_inp, n_out, figsize=(fig_w, fig_h), squeeze=False)
     for j, inp in enumerate(inputs):
@@ -680,30 +681,36 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
             yo = yt_all[o].values
             valid = np.isfinite(xi) & np.isfinite(yo)
             if valid.sum() > 5:
-                ax.scatter(xi[valid], yo[valid], s=1 if fit > 0.6 else 0.4,
+                ax.scatter(xi[valid], yo[valid], s=1 if cell_w > 1.0 else 0.4,
                            alpha=0.15, color='steelblue', rasterized=True)
                 r, pv = sc.pearsonr(xi[valid], yo[valid])
                 col = 'red' if abs(r) >= 0.5 else ('darkorange' if abs(r) >= 0.25 else 'gray')
-                # With many rows there is no room above each cell for a title,
-                # so the coefficient goes inside the axes instead.
-                if show_ticks:
-                    ax.set_title(f'r={r:.2f}', fontsize=r_fs, color=col, pad=2)
-                else:
-                    ax.text(0.97, 0.93, f'{r:+.2f}', transform=ax.transAxes,
-                            ha='right', va='top', fontsize=r_fs, color=col)
+                # Always inside the axes, never as a title: matplotlib puts the
+                # scientific-notation offset ("1e6") above the axes, and a title
+                # there collides with it.
+                ax.text(0.96, 0.94, f'{r:+.2f}', transform=ax.transAxes,
+                        ha='right', va='top', fontsize=r_fs, color=col,
+                        bbox=dict(boxstyle='square,pad=0.1', fc='white',
+                                  ec='none', alpha=0.7))
             if j == n_inp - 1:
-                ax.set_xlabel(o[:14], fontsize=label_fs)
+                ax.set_xlabel(o[:14], fontsize=label_fs, labelpad=1)
             if k == 0:
-                ax.set_ylabel(inp[:14], fontsize=label_fs)
+                ax.set_ylabel(inp[:14], fontsize=label_fs, labelpad=1)
             if show_ticks:
-                ax.tick_params(labelsize=max(3.0, r_fs - 1))
+                # Three ticks at most: the default density overlapped its own
+                # labels once the cells got narrow ("0.51.0").
+                ax.xaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
+                ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
+                ax.tick_params(labelsize=tick_fs, pad=1, length=2)
+                ax.xaxis.get_offset_text().set_fontsize(tick_fs)
+                ax.yaxis.get_offset_text().set_fontsize(tick_fs)
             else:
                 ax.set_xticks([])
                 ax.set_yticks([])
 
     fig.suptitle('Variable Correlation — Input vs Output (all data)\n'
                  'Red |r|≥0.5   Orange |r|≥0.25   Gray |r|<0.25',
-                 fontsize=max(7.0, 10 * fit))
+                 fontsize=max(6.5, min(10.0, fig_w * 1.4)))
     plt.tight_layout()
     _save(fig, 'data_scatter_vars.png')
 
