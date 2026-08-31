@@ -1,2 +1,11 @@
 Model_Validation:
   method: validationlib
+
+  # Variables for the scatterplot matrix in the report (validationlib
+  # scatterplotMatrix). It is a square N x N grid, so keep the list short —
+  # every extra variable costs a whole row and column.
+  # Leave empty or omit to use all outputs plus the first few inputs.
+  scatter_variables: []
+
+  # 'scatter', '2dhist' or '2dhistKDE'
+  scatter_method: scatter

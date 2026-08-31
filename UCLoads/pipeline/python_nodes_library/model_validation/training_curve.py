@@ -109,49 +109,34 @@ def extract_curves(models_info):
 
 
 def render(curves, dest: Path):
-    """Draw the curves to `dest`. Returns the path, or None if there is nothing."""
+    """
+    Draw the curves to `dest` with validationlib's own training_curves_plot, so
+    the report matches validation_output.html instead of carrying a separate,
+    differently-styled reimplementation.
+
+    Returns the path, or None if there is nothing to draw.
+    """
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from validationlib.models.validation import training_curves_plot
 
     if not curves:
         return None
 
-    has_val = any(c['val'] for c in curves.values())
-    ncols = 2 if has_val else 1
-    fig, axes = plt.subplots(1, ncols, figsize=(5.2 * ncols, 3.4), squeeze=False)
+    # One metric per model, keyed by label, which is how the function expects
+    # its two dictionaries.
+    training = {label: c['loss'] for label, c in curves.items()}
+    validation = {label: c['val'] for label, c in curves.items() if c['val']}
 
-    ax = axes[0][0]
-    for label, c in curves.items():
-        ax.plot(range(1, len(c['loss']) + 1), c['loss'], lw=1.2, label=label)
-    ax.set_xlabel('Iteration')
-    ax.set_ylabel('Training loss')
-    ax.set_yscale('log')
-    ax.grid(alpha=0.3, which='both')
-    ax.set_title('Training loss per iteration', fontsize=10)
-    ax.legend(fontsize=8)
+    fig = training_curves_plot(
+        training_metrics=training,
+        validation_metrics=validation,
+        plot_by_epoch=False,
+        title='Training history',
+        ylogscale=True,
+    )
 
-    if has_val:
-        ax2, vals = axes[0][1], []
-        for label, c in curves.items():
-            if c['val']:
-                ax2.plot(range(1, len(c['val']) + 1), c['val'], lw=1.2, label=label)
-                vals += c['val']
-        ax2.set_xlabel('Iteration')
-        ax2.set_ylabel('Validation score (R²)')
-        ax2.grid(alpha=0.3)
-        ax2.set_title('Validation score per iteration', fontsize=10)
-        ax2.legend(fontsize=8)
-        # Early iterations can sit at R² = -200, which flattens the converged
-        # region into a line at the top of the axis.
-        hi = max(vals)
-        if min(vals) < -0.5 < hi:
-            ax2.set_ylim(-0.05, min(1.02, hi + 0.02))
-            ax2.text(0.98, 0.04, f'axis clipped — early iterations reach {min(vals):.0f}',
-                     transform=ax2.transAxes, ha='right', va='bottom',
-                     fontsize=7, color='gray')
-
-    plt.tight_layout()
     dest.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(dest, dpi=110, bbox_inches='tight')
     plt.close(fig)

@@ -78,15 +78,19 @@ def scatterplotMatrix(
 
                 axes[row, col].pcolormesh(xedges, yedges, Z, cmap=plt.cm.jet)
 
-    # Set up ticks only on one side for the "edge" subplots, remove the rest
+    # Set up ticks only on one side for the "edge" subplots, remove the rest.
+    # Axes.is_first_col/is_last_row were removed in matplotlib 3.8; the same
+    # queries live on the SubplotSpec.
     for ax in axes.flat:
         ax.yaxis.set_ticks_position("left")
         ax.xaxis.set_ticks_position("bottom")
-        if ax.is_first_col() and ax.is_last_row():
+        spec = ax.get_subplotspec()
+        first_col, last_row = spec.is_first_col(), spec.is_last_row()
+        if first_col and last_row:
             continue
-        elif ax.is_first_col():
+        elif first_col:
             ax.tick_params(axis="x", which="both", bottom=False, top=False, labelbottom=False)
-        elif ax.is_last_row():
+        elif last_row:
             ax.tick_params(axis="y", which="both", left=False, right=False, labelleft=False)
         else:
             ax.tick_params(axis="x", which="both", bottom=False, top=False, labelbottom=False)

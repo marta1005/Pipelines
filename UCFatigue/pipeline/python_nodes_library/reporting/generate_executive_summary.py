@@ -126,6 +126,8 @@ def extract(meta_path: Path) -> dict:
         # Needed to recover the training curves, which live inside the fitted
         # estimators rather than in the metadata.
         model_files={m['label']: m.get('file') for m in trn.get('Models', [])},
+        scatter_cfg={'variables': val.get('scatter_variables') or [],
+                     'method': val.get('scatter_method') or 'scatter'},
         pct_train=part.get('train'),
         pct_val=part.get('validation') or part.get('val'),
         pct_test=part.get('test'),
@@ -620,7 +622,10 @@ def _training_curve(d, plots_dir, artifacts_dir=None):
     return str(path)
 
 
-def _analysis_plots(best, csv_dir, plots_dir, q90_target):
+MAX_SCATTER_VARS = 8   # a square grid past this is unreadable on a page
+
+
+def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
     """
     Generate all analysis plots from validation CSVs.
     Returns (paths_dict, stats_dict).
@@ -778,85 +783,48 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target):
     plt.tight_layout()
     _save(fig, 'data_output_cdf.png')
 
-    # 5b. Variable correlation scatter — grid of scatter plots (input vs output).
-    # The whole matrix must land on a single page, however many inputs and
-    # outputs there are. Start from a comfortable cell size and shrink the
-    # figure uniformly until it fits the printable area, then scale the
-    # annotation down with it and drop tick labels once the cells get too
-    # small to carry them.
-    MAX_W_IN, MAX_H_IN = 6.8, 8.0          # A4 minus the 1.8/2.0 cm margins
-    CELL_MAX, ASPECT_MAX = 1.6, 1.5
+    # 5b. Variable correlation — validationlib's own scatterplot matrix, so the
+    # report and validation_output.html show the same figure in the same style
+    # rather than a second, differently-coloured reimplementation.
+    #
+    # It is a square N x N grid over one variable list, so which variables go in
+    # matters: SF_9 metadata carries `scatter_variables`, and the default keeps
+    # the grid usable rather than plotting all 25 columns of a wide use case.
+    from validationlib.plots.nDimensional import scatterplotMatrix
 
-    def _layout(n_rows, n_cols):
-        """Cell and figure size for a grid, keeping the cells roughly square."""
-        cw = min(MAX_W_IN / n_cols, CELL_MAX)
-        ch = min(MAX_H_IN / n_rows, CELL_MAX)
-        ch = min(ch, cw * ASPECT_MAX)
-        cw = min(cw, ch * ASPECT_MAX)
-        return cw, ch, cw * n_cols, ch * n_rows
+    cfg = scatter_cfg or {}
+    chosen = [v for v in (cfg.get('variables') or []) if v in x_all.columns or v in yt_all.columns]
+    if not chosen:
+        # Split the budget between the two sides. Filling it with outputs first
+        # left UCFatigue (7 outputs) room for a single input, which defeats the
+        # point of an input-against-output view.
+        half = MAX_SCATTER_VARS // 2
+        n_out_keep = min(len(outputs), max(half, MAX_SCATTER_VARS - len(inputs)))
+        n_inp_keep = min(len(inputs), MAX_SCATTER_VARS - n_out_keep)
+        chosen = list(inputs[:n_inp_keep]) + list(outputs[:n_out_keep])
+        if n_inp_keep < len(inputs) or n_out_keep < len(outputs):
+            print(f"  scatter matrix: {len(inputs)} inputs and {len(outputs)} outputs "
+                  f"do not fit a square grid — showing {n_inp_keep} and {n_out_keep}. "
+                  f"Set Model_Validation.scatter_variables in SF_9 metadata to choose.")
+    elif len(chosen) > MAX_SCATTER_VARS:
+        print(f"  scatter matrix: {len(chosen)} variables requested, using the "
+              f"first {MAX_SCATTER_VARS}")
+        chosen = chosen[:MAX_SCATTER_VARS]
 
-    # Either orientation carries the same information, so use whichever fills
-    # the page better: with many inputs and few outputs, inputs down the rows
-    # leaves a narrow sliver, and putting them across the columns does not.
-    tall = _layout(n_inp, n_out)          # inputs as rows (the default reading)
-    wide = _layout(n_out, n_inp)          # transposed
-    transpose = (wide[2] * wide[3]) > (tall[2] * tall[3]) * 1.05
+    combined = pd.concat([x_all, yt_all], axis=1)
+    matrix = combined[chosen].to_numpy(dtype=float)
+    method = cfg.get('method') or 'scatter'
 
-    if transpose:
-        row_vars, col_vars = outputs, inputs
-        row_src, col_src = yt_all, x_all
-    else:
-        row_vars, col_vars = inputs, outputs
-        row_src, col_src = x_all, yt_all
-    n_rows, n_cols = len(row_vars), len(col_vars)
-    cell_w, cell_h, fig_w, fig_h = _layout(n_rows, n_cols)
-
-    r_fs     = max(3.5, min(6.0, cell_h * 5.0))
-    label_fs = max(4.0, min(6.5, cell_h * 5.5))
-    tick_fs  = max(3.0, min(5.0, cell_w * 4.0))
-    show_ticks = cell_w >= 0.5 and cell_h >= 0.45
-
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(fig_w, fig_h), squeeze=False)
-    for j, inp in enumerate(row_vars):
-        for k, o in enumerate(col_vars):
-            ax = axes[j][k]
-            # x is always whatever runs across the columns, y whatever runs down
-            # the rows, so the panels read the same either way round.
-            xi = col_src[o].values
-            yo = row_src[inp].values
-            valid = np.isfinite(xi) & np.isfinite(yo)
-            if valid.sum() > 5:
-                ax.scatter(xi[valid], yo[valid], s=1 if cell_w > 1.0 else 0.4,
-                           alpha=0.15, color='steelblue', rasterized=True)
-                r, pv = sc.pearsonr(xi[valid], yo[valid])
-                col = 'red' if abs(r) >= 0.5 else ('darkorange' if abs(r) >= 0.25 else 'gray')
-                # Always inside the axes, never as a title: matplotlib puts the
-                # scientific-notation offset ("1e6") above the axes, and a title
-                # there collides with it.
-                ax.text(0.96, 0.94, f'{r:+.2f}', transform=ax.transAxes,
-                        ha='right', va='top', fontsize=r_fs, color=col,
-                        bbox=dict(boxstyle='square,pad=0.1', fc='white',
-                                  ec='none', alpha=0.7))
-            if j == n_rows - 1:
-                ax.set_xlabel(o[:16], fontsize=label_fs, labelpad=1)
-            if k == 0:
-                ax.set_ylabel(inp[:16], fontsize=label_fs, labelpad=1)
-            if show_ticks:
-                # Three ticks at most: the default density overlapped its own
-                # labels once the cells got narrow ("0.51.0").
-                ax.xaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
-                ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
-                ax.tick_params(labelsize=tick_fs, pad=1, length=2)
-                ax.xaxis.get_offset_text().set_fontsize(tick_fs)
-                ax.yaxis.get_offset_text().set_fontsize(tick_fs)
-            else:
-                ax.set_xticks([])
-                ax.set_yticks([])
-
-    fig.suptitle('Variable Correlation — Input vs Output (all data)\n'
-                 'Red |r|≥0.5   Orange |r|≥0.25   Gray |r|<0.25',
-                 fontsize=max(6.5, min(10.0, fig_w * 1.4)))
-    plt.tight_layout()
+    fig = scatterplotMatrix(matrix, list(chosen), method=method,
+                            s=1, figsize=min(8.0, 1.5 * len(chosen) + 1.5))
+    # Only thin the ticks: the library leaves its default density, which runs
+    # the labels of neighbouring panels together ("1000020000"). Styling is
+    # otherwise left exactly as validationlib draws it.
+    for ax in fig.get_axes():
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
+        ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
+        ax.tick_params(labelsize=6)
+    fig.suptitle(f'Variable Correlation — {method}', fontsize=11)
     _save(fig, 'data_scatter_vars.png')
 
     # ── TRAIN-TEST SPLIT ──────────────────────────────────────────────────────
@@ -1852,7 +1820,8 @@ def main():
     csv_dir   = artifacts_dir / f'validation_{best}'
     plots_dir = out_dir / 'analysis_plots'
     print(f'Generating analysis plots from {csv_dir} ...')
-    paths, stats = _analysis_plots(best, csv_dir, plots_dir, d['q90_target'])
+    paths, stats = _analysis_plots(best, csv_dir, plots_dir, d['q90_target'],
+                                   d.get('scatter_cfg'))
 
     curve = _training_curve(d, plots_dir, artifacts_dir)
     if curve:

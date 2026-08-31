@@ -53,6 +53,15 @@ def training_curves_plot(
         else:
             xlabel_ = "Epoch" if plot_by_epoch else "Iteration" 
 
+        # Defaults for the cases where only one of the two curves is present.
+        # Without these, a metric with training but no validation data (a model
+        # trained without early stopping, say) never assigns x_training and
+        # fails with UnboundLocalError on the plot call below.
+        x_training = (np.arange(1, len(training_metric) + 1)
+                      if training_metric is not None else None)
+        x_validation = (np.arange(1, len(validation_metric) + 1)
+                        if validation_metric is not None else None)
+
         # Check if the length of the training and validation metrics are the same
         if training_metric is not None and validation_metric is not None:
             if len(training_metric) == len(validation_metric):
