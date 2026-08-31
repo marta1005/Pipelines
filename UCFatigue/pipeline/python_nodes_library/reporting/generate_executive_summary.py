@@ -310,13 +310,16 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         )
 
     # ── Winner scatter ─────────────────────────────────────────────────────────
-    winner_scatter_tex = ''
-    p = scatter_paths.get(best, '')
-    if p:
-        winner_scatter_tex = (
-            r'\begin{center}\includegraphics[' + _GFX_FIT + r']{'
-            + p + r'}\end{center}' + '\n'
-        )
+    # Prefer the validationlib predicted-vs-true figure (same one the extended
+    # validation notebook draws); the SF_9 scatter_<model>.png is the fallback.
+    winner_scatter_tex = _fig_es('winner_pred_true')
+    if not winner_scatter_tex:
+        p = scatter_paths.get(best, '')
+        if p:
+            winner_scatter_tex = (
+                r'\begin{center}\includegraphics[' + _GFX_FIT + r']{'
+                + p + r'}\end{center}' + '\n'
+            )
 
     # ── Model comparison table (both models) ──────────────────────────────────
     comp_rows = []
@@ -358,7 +361,10 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
             cells += [_r2cell(r2), _q90cell(q90, ok), _gapcell(gap)]
         mrows.append(' & '.join(cells) + r' \\ \hline')
     metrics_tex = '\n  '.join(mrows)
-    metrics_tbl = (
+    # Three columns per model: with five models (UCLoads) that is 16 columns and
+    # the bare tabular runs off the page, clipping whole model blocks. Scale it
+    # to the line width whenever more than two models are present.
+    metrics_inner = (
         r'\renewcommand{\arraystretch}{1.2}' + '\n'
         rf'\begin{{tabular}}{{{col_spec}|}}' + '\n'
         r'  \hline' + '\n'
@@ -367,6 +373,11 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         f'  {metrics_tex}\n'
         r'\end{tabular}'
     )
+    if len(models) > 2:
+        metrics_tbl = (r'\resizebox{\linewidth}{!}{%' + '\n'
+                       + metrics_inner + '\n' + r'}')
+    else:
+        metrics_tbl = metrics_inner
 
     # ── KS table (winner model) ────────────────────────────────────────────────
     ks_cells = []
@@ -485,34 +496,6 @@ def _separator(uc):
 
 # ── Analysis plots ─────────────────────────────────────────────────────────────
 
-def _sturges(n):
-    import math
-    return max(5, int(math.ceil(math.log2(n) + 1)))
-
-def _axes_flat(axes, nrows, ncols):
-    """Always return a flat list of axes, regardless of subplot shape."""
-    import numpy as np
-    arr = np.array(axes)
-    return arr.flatten().tolist()
-
-def _violin_grid(fig, axes_flat, n_out, data_list, outputs, title, ylabel):
-    """Fill a grid of violin plots; data_list[i] is list of arrays for output i."""
-    for i, o in enumerate(outputs):
-        ax = axes_flat[i]
-        groups = [g for g in data_list[i] if len(g) >= 3]
-        if groups:
-            parts = ax.violinplot(groups, positions=range(len(groups)), showmedians=True)
-            for pc in parts.get('bodies', []):
-                pc.set_alpha(0.6)
-        ax.axhline(0, color='k', lw=0.8, ls='--')
-        ax.set_title(o, fontsize=8)
-        ax.set_ylabel(ylabel if i % max(1, len(outputs) // 4 + 1) == 0 else '', fontsize=7)
-        ax.tick_params(labelsize=6)
-    for j in range(n_out, len(axes_flat)):
-        axes_flat[j].set_visible(False)
-    fig.suptitle(title, fontsize=10)
-
-
 def _training_curve(d, plots_dir, artifacts_dir=None):
     """
     Plot the training history of every model that recorded one.
@@ -625,20 +608,134 @@ def _training_curve(d, plots_dir, artifacts_dir=None):
 MAX_SCATTER_VARS = 8   # a square grid past this is unreadable on a page
 
 
+def _styler_df(styler):
+    """The DataFrame under a pandas Styler (or the object itself if plain)."""
+    import pandas as pd
+    return styler.data if hasattr(styler, 'data') else pd.DataFrame(styler)
+
+
+def _cell_to_tex(v):
+    """One table cell to LaTeX, converting prediction_stats' <sup>/<sub> CI markup."""
+    import re
+    s = str(v)
+    m = re.search(r'(.*?)<sup>(.*?)</sup>\s*<sub>(.*?)</sub>(.*)', s)
+    if m:
+        head, hi, lo, tail = (t.strip() for t in m.groups())
+        return rf'{_esc(head)}$^{{{_esc2m(hi)}}}_{{{_esc2m(lo)}}}$'
+    s = re.sub(r'<[^>]+>', '', s)          # any other stray markup
+    return _esc(s)
+
+
+def _esc2m(s):
+    """Escape for use inside math mode (percent signs mainly)."""
+    return s.replace('%', r'\%').replace('&', r'\&')
+
+
+def _df_to_tex(df, caption=None, font=r'\footnotesize', col_fmt=None,
+               cell_colors=None):
+    """
+    A DataFrame as a LaTeX table. cell_colors: optional callable
+    (row_label, col_label, value) -> LaTeX color name or None.
+    """
+    cols = list(df.columns)
+    fmt = col_fmt or ('l' + 'r' * len(cols))
+    # A wide table (prediction_stats emits ~15 columns) runs off the page at
+    # any fixed font size, so scale it to the line width instead.
+    wide = len(cols) > 8
+    lines = [r'\begin{center}', font,
+             r'\renewcommand{\arraystretch}{1.15}']
+    if wide:
+        lines.append(r'\resizebox{\linewidth}{!}{%')
+    lines += [rf'\begin{{tabular}}{{|{"|".join(fmt)}|}}', r'\hline',
+              ' & '.join([r'\textbf{}'] + [rf'\textbf{{{_esc(str(c))}}}' for c in cols])
+              + r' \\ \hline']
+    for idx, row in df.iterrows():
+        cells = []
+        for c in cols:
+            tex = _cell_to_tex(row[c])
+            if cell_colors:
+                color = cell_colors(idx, c, row[c])
+                if color:
+                    tex = rf'\cellcolor{{{color}}}{tex}'
+            cells.append(tex)
+        lines.append(rf'\textbf{{{_esc(str(idx))}}} & ' + ' & '.join(cells) + r' \\ \hline')
+    lines += [r'\end{tabular}']
+    if wide:
+        lines.append('}')
+    if caption:
+        lines += [r'\par\vspace{2pt}', rf'{{\scriptsize {caption}}}']
+    lines += [r'\end{center}']
+    return '\n'.join(lines) + '\n'
+
+
+def _pval_color(v, alpha=0.05):
+    """validationlib's own convention: red below alpha, green otherwise."""
+    try:
+        x = float(str(v).strip())
+    except (TypeError, ValueError):
+        return None
+    return 'failred' if x < alpha else 'passgreen'
+
+
+def _table_pair(styler, tex_caption=None, alpha=None):
+    """A Styler (or DataFrame) rendered both ways: {'tex': ..., 'html': ...}."""
+    df = _styler_df(styler)
+    colors = (lambda i, c, v: _pval_color(v, alpha)) if alpha is not None else None
+    tex = _df_to_tex(df, caption=tex_caption, cell_colors=colors)
+    try:
+        html = styler.to_html() if hasattr(styler, 'to_html') else df.to_html()
+    except Exception:
+        html = df.to_html()
+    return {'tex': tex, 'html': html}
+
+
+def _describe_pair(df, title):
+    """
+    The feature-selection notebook's Train_set.describe(), transposed so many
+    variables fit an A4 page: one row per variable, the standard eight columns.
+    """
+    import pandas as pd
+    desc = df.describe().T
+    desc = desc.rename(columns={'count': 'count', '25%': 'P25', '50%': 'P50', '75%': 'P75'})
+    shown = desc.copy()
+    shown['count'] = shown['count'].map(lambda v: f'{int(v):,}')
+    for c in [c for c in shown.columns if c != 'count']:
+        shown[c] = shown[c].map(lambda v: f'{v:.4g}')
+    tex = _df_to_tex(shown, caption=_esc(title))
+    html = (f'<h4>{title}</h4>'
+            + shown.to_html(classes='describe-tbl', border=0))
+    return {'tex': tex, 'html': html}
+
+
 def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
     """
-    Generate all analysis plots from validation CSVs.
+    Generate the deep-analysis figures and tables from the validation CSVs.
+
+    Every figure comes from validationlib, called with the same arguments the
+    extended validation notebook (validation_template.ipynb) uses, so the
+    executive summary, the deep-analysis HTML and validation_output.html all
+    share one look. Tables (pandas Stylers from validationlib) are returned in
+    stats['tables'] as native LaTeX and HTML rather than screenshots.
+
     Returns (paths_dict, stats_dict).
     """
     import numpy as np
     import pandas as pd
-    import math
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     from matplotlib.ticker import MaxNLocator
-    import matplotlib.ticker as mticker
+    import scipy.stats as st
     from scipy import stats as sc
+
+    import validationlib
+    import validationlib.plots
+    import validationlib.tables.summary
+    import validationlib.tests.dist
+    import validationlib.tests.bias
+    from validationlib.misc.metrics import DistanceMetrics
+    from validationlib.misc.subsampling import bin_data
+    from validationlib.plots.nDimensional import scatterplotMatrix
 
     csv_dir   = Path(csv_dir)
     plots_dir = Path(plots_dir)
@@ -655,7 +752,6 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
     yt_train = pd.read_csv(csv_dir / 'yt_train.csv')
     yh_test  = pd.read_csv(csv_dir / 'yh_test.csv')
 
-    # Optionally load val set
     x_val = yt_val = yh_val = None
     if (csv_dir / 'x_val.csv').exists():
         x_val  = pd.read_csv(csv_dir / 'x_val.csv')
@@ -664,18 +760,25 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
 
     outputs = yt_test.columns.tolist()
     inputs  = x_test.select_dtypes(include='number').columns.tolist()
-    n_out   = len(outputs)
-    n_inp   = len(inputs)
-    ncols   = min(4, n_out)
-    nrows   = -(-n_out // ncols)
 
-    residue = yt_test.values - yh_test.values          # (n, n_out)
-    abserr  = np.abs(residue)
+    # The template's two error metrics, defined identically (Residue = y - yhat).
+    residue_metric = DistanceMetrics('Residue').define_metric(
+        lambda y_true, y_pred: y_true - y_pred)
+    abserr_metric = DistanceMetrics('Absolute Error').define_metric(
+        lambda y_true, y_pred: np.abs(y_true - y_pred))
+    residue_df = residue_metric(yt_test, yh_test)
+    abserr_df  = abserr_metric(yt_test, yh_test)
+
+    # Relative error is not part of the template, but the pipeline's Q90
+    # requirement is defined on it, so it is computed for the requirement table
+    # and one library-styled CDF.
     with np.errstate(divide='ignore', invalid='ignore'):
-        rel_abs = abserr / np.where(np.abs(yt_test.values) > 1e-10,
-                                    np.abs(yt_test.values), np.nan)
+        rel_vals = abserr_df.values / np.where(np.abs(yt_test.values) > 1e-10,
+                                               np.abs(yt_test.values), np.nan)
+    relerr_df = pd.DataFrame(rel_vals, columns=outputs)
+    q90_results = {o: float(np.nanquantile(relerr_df[o].values, 0.90)) for o in outputs}
 
-    paths = {}
+    paths, tables = {}, {}
 
     def _save(fig, name):
         p = plots_dir / name
@@ -684,642 +787,334 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
         paths[name.replace('.png', '')] = str(p)
         print(f'  plot: {name}')
 
-    # ── DATA ──────────────────────────────────────────────────────────────────
+    def _step(name, fn):
+        """Run one figure/table step; a failure loses that item, not the report."""
+        try:
+            fn()
+        except Exception as e:
+            print(f'  SKIPPED {name}: {type(e).__name__}: {str(e)[:140]}')
 
-    # 1. Input statistics table
-    x_all = pd.concat([x_train, x_test] + ([x_val] if x_val is not None else []), ignore_index=True)
-    stat_rows = []
-    for inp in inputs:
-        col = x_all[inp].dropna()
-        stat_rows.append([inp, f'{len(col):,}', f'{col.mean():.4g}', f'{col.std():.4g}',
-                          f'{sc.iqr(col):.4g}', f'{sc.skew(col):.3f}', f'{sc.kurtosis(col):.3f}',
-                          f'{col.quantile(.10):.4g}', f'{col.median():.4g}', f'{col.quantile(.90):.4g}'])
-    col_labels = ['Input', 'N', 'Mean', 'Std', 'IQR', 'Skew', 'Kurt', 'P10', 'P50', 'P90']
-    fig, ax = plt.subplots(figsize=(14, 0.4 * n_inp + 1.2))
-    ax.axis('off')
-    tbl = ax.table(cellText=stat_rows, colLabels=col_labels, cellLoc='center', loc='center')
-    tbl.auto_set_font_size(False); tbl.set_fontsize(8); tbl.scale(1, 1.5)
-    for j in range(len(col_labels)):
-        tbl[(0, j)].set_facecolor('#004680')
-        tbl[(0, j)].set_text_props(color='white', fontweight='bold')
-    for i in range(1, n_inp + 1):
-        bg = '#f2f2f2' if i % 2 == 0 else 'white'
-        for j in range(len(col_labels)):
-            tbl[(i, j)].set_facecolor(bg)
-    ax.set_title(f'Input Variable Statistics — {best} (all data)', fontsize=10, pad=8)
-    plt.tight_layout()
-    _save(fig, 'data_input_stats.png')
+    def _lib_scatter(name, x, y, **kw):
+        """
+        validationlib scatterplot with a fallback for one-sided color data:
+        TwoSlopeNorm demands vmin < vcenter < vmax, so coloring by a strictly
+        positive metric (absolute error) with the default center 0 raises.
+        """
+        try:
+            fig = validationlib.plots.scatterplot(x, y, **kw)
+        except ValueError:
+            c = kw.get('c')
+            if c is not None:
+                kw = dict(kw, cmapCenter=float(np.nanmedian(_styler_df(c).values)))
+                fig = validationlib.plots.scatterplot(x, y, **kw)
+            else:
+                raise
+        _save(fig, name)
 
-    # 2. Input histograms
-    n_inp_cols = min(4, n_inp)
-    n_inp_rows = -(-n_inp // n_inp_cols)
-    fig, axes = plt.subplots(n_inp_rows, n_inp_cols, figsize=(5 * n_inp_cols, 3.5 * n_inp_rows),
-                              squeeze=False)
-    af = _axes_flat(axes, n_inp_rows, n_inp_cols)
-    for i, inp in enumerate(inputs):
-        ax = af[i]
-        data = x_all[inp].dropna()
-        bins = _sturges(len(data))
-        ax.hist(data, bins=bins, color='steelblue', alpha=0.75, edgecolor='white', linewidth=0.4)
-        ax.set_title(inp, fontsize=9); ax.tick_params(labelsize=7)
-    for j in range(n_inp, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Input Histograms — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'data_input_hist.png')
+    # ── 3.1 DATA OVERVIEW ─────────────────────────────────────────────────────
+    x_all  = pd.concat([x_train, x_test] + ([x_val] if x_val is not None else []),
+                       ignore_index=True)[inputs]
+    yt_all = pd.concat([yt_train, yt_test] + ([yt_val] if yt_val is not None else []),
+                       ignore_index=True)
 
-    # 3. Output statistics table
-    yt_all = pd.concat([yt_train, yt_test] + ([yt_val] if yt_val is not None else []), ignore_index=True)
-    stat_rows_out = []
-    for o in outputs:
-        col = yt_all[o].dropna()
-        stat_rows_out.append([o, f'{len(col):,}', f'{col.mean():.4g}', f'{col.std():.4g}',
-                               f'{sc.iqr(col):.4g}', f'{sc.skew(col):.3f}', f'{sc.kurtosis(col):.3f}',
-                               f'{col.quantile(.10):.4g}', f'{col.median():.4g}', f'{col.quantile(.90):.4g}'])
-    fig, ax = plt.subplots(figsize=(14, 0.4 * n_out + 1.2))
-    ax.axis('off')
-    tbl = ax.table(cellText=stat_rows_out, colLabels=['Output','N','Mean','Std','IQR','Skew','Kurt','P10','P50','P90'],
-                   cellLoc='center', loc='center')
-    tbl.auto_set_font_size(False); tbl.set_fontsize(8); tbl.scale(1, 1.5)
-    for j in range(10):
-        tbl[(0, j)].set_facecolor('#004680')
-        tbl[(0, j)].set_text_props(color='white', fontweight='bold')
-    for i in range(1, n_out + 1):
-        bg = '#f2f2f2' if i % 2 == 0 else 'white'
-        for j in range(10):
-            tbl[(i, j)].set_facecolor(bg)
-    ax.set_title(f'Output Variable Statistics — {best} (all data)', fontsize=10, pad=8)
-    plt.tight_layout()
-    _save(fig, 'data_output_stats.png')
+    # The describe() tables from the feature-selection notebook, as asked.
+    _step('describe_inputs', lambda: tables.update(
+        describe_inputs=_describe_pair(x_all, 'Input variables — Train_set.describe()')))
+    _step('describe_outputs', lambda: tables.update(
+        describe_outputs=_describe_pair(yt_all, 'Output variables — Train_set.describe()')))
 
-    # 4. Output histograms
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        data = yt_all[o].dropna()
-        ax.hist(data, bins=_sturges(len(data)), color='steelblue', alpha=0.75,
-                edgecolor='white', linewidth=0.4)
-        ax.set_title(o, fontsize=9); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Output Histograms — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'data_output_hist.png')
+    _step('data_input_hist', lambda: _save(
+        validationlib.plots.histogram(
+            x_all, xlabel='Input Variable', trimStds=3,
+            multiPlotsKwargs={'tight_layout': True}, logscale=True),
+        'data_input_hist.png'))
 
-    # 5. Output CDFs
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        data = np.sort(yt_all[o].dropna().values)
-        cdf  = np.arange(1, len(data) + 1) / len(data)
-        ax.plot(data, cdf, color='steelblue', lw=1.5)
-        for q, col in [(0.10, 'orange'), (0.50, 'gray'), (0.90, 'red')]:
-            v = np.quantile(data, q)
-            ax.axvline(v, lw=0.9, ls=':', color=col, label=f'P{int(q*100)}={v:.3g}')
-        ax.set_title(o, fontsize=9); ax.set_ylabel('CDF', fontsize=7)
-        ax.legend(fontsize=6); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Output CDFs — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'data_output_cdf.png')
+    _step('data_input_cdf', lambda: _save(
+        validationlib.plots.cumulative(
+            x_all, xlabel='Input Variable', bins=1000,
+            quantiles=[0.1, 0.50, 0.90, 0.95, 0.99]),
+        'data_input_cdf.png'))
 
-    # 5b. Variable correlation — validationlib's own scatterplot matrix, so the
-    # report and validation_output.html show the same figure in the same style
-    # rather than a second, differently-coloured reimplementation.
-    #
-    # It is a square N x N grid over one variable list, so which variables go in
-    # matters: SF_9 metadata carries `scatter_variables`, and the default keeps
-    # the grid usable rather than plotting all 25 columns of a wide use case.
-    from validationlib.plots.nDimensional import scatterplotMatrix
+    _step('data_output_hist', lambda: _save(
+        validationlib.plots.histogram(
+            yt_all, xlabel='Output Variable',
+            multiPlotsKwargs={'tight_layout': True}, logscale=True),
+        'data_output_hist.png'))
 
-    cfg = scatter_cfg or {}
-    chosen = [v for v in (cfg.get('variables') or []) if v in x_all.columns or v in yt_all.columns]
-    if not chosen:
-        # Split the budget between the two sides. Filling it with outputs first
-        # left UCFatigue (7 outputs) room for a single input, which defeats the
-        # point of an input-against-output view.
-        half = MAX_SCATTER_VARS // 2
-        n_out_keep = min(len(outputs), max(half, MAX_SCATTER_VARS - len(inputs)))
-        n_inp_keep = min(len(inputs), MAX_SCATTER_VARS - n_out_keep)
-        chosen = list(inputs[:n_inp_keep]) + list(outputs[:n_out_keep])
-        if n_inp_keep < len(inputs) or n_out_keep < len(outputs):
-            print(f"  scatter matrix: {len(inputs)} inputs and {len(outputs)} outputs "
-                  f"do not fit a square grid — showing {n_inp_keep} and {n_out_keep}. "
-                  f"Set Model_Validation.scatter_variables in SF_9 metadata to choose.")
-    elif len(chosen) > MAX_SCATTER_VARS:
-        print(f"  scatter matrix: {len(chosen)} variables requested, using the "
-              f"first {MAX_SCATTER_VARS}")
-        chosen = chosen[:MAX_SCATTER_VARS]
+    _step('data_output_cdf', lambda: _save(
+        validationlib.plots.cumulative(
+            yt_all, xlabel='Ground truth', bins=1000,
+            quantiles=[0.1, 0.50, 0.90, 0.95, 0.99]),
+        'data_output_cdf.png'))
 
-    combined = pd.concat([x_all, yt_all], axis=1)
-    matrix = combined[chosen].to_numpy(dtype=float)
-    method = cfg.get('method') or 'scatter'
+    # Scatterplot matrix over a configurable variable list (square N x N grid,
+    # so which variables go in is a choice — SF_9 metadata scatter_variables).
+    def _scatter_matrix():
+        cfg = scatter_cfg or {}
+        chosen = [v for v in (cfg.get('variables') or [])
+                  if v in x_all.columns or v in yt_all.columns]
+        if not chosen:
+            half = MAX_SCATTER_VARS // 2
+            n_out_keep = min(len(outputs), max(half, MAX_SCATTER_VARS - len(inputs)))
+            n_inp_keep = min(len(inputs), MAX_SCATTER_VARS - n_out_keep)
+            chosen = list(inputs[:n_inp_keep]) + list(outputs[:n_out_keep])
+            if n_inp_keep < len(inputs) or n_out_keep < len(outputs):
+                print(f'  scatter matrix: {len(inputs)} inputs and {len(outputs)} outputs '
+                      f'do not fit a square grid — showing {n_inp_keep} and {n_out_keep}. '
+                      f'Set Model_Validation.scatter_variables in SF_9 metadata to choose.')
+        elif len(chosen) > MAX_SCATTER_VARS:
+            print(f'  scatter matrix: {len(chosen)} variables requested, using the '
+                  f'first {MAX_SCATTER_VARS}')
+            chosen = chosen[:MAX_SCATTER_VARS]
 
-    fig = scatterplotMatrix(matrix, list(chosen), method=method,
-                            s=1, figsize=min(8.0, 1.5 * len(chosen) + 1.5))
-    # Only thin the ticks: the library leaves its default density, which runs
-    # the labels of neighbouring panels together ("1000020000"). Styling is
-    # otherwise left exactly as validationlib draws it.
-    for ax in fig.get_axes():
-        ax.xaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
-        ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
-        ax.tick_params(labelsize=6)
-    fig.suptitle(f'Variable Correlation — {method}', fontsize=11)
-    _save(fig, 'data_scatter_vars.png')
+        combined = pd.concat([x_all, yt_all], axis=1)
+        fig = scatterplotMatrix(combined[chosen].to_numpy(dtype=float), list(chosen),
+                                method=(cfg.get('method') or 'scatter'),
+                                s=1, figsize=min(8.0, 1.5 * len(chosen) + 1.5))
+        for ax in fig.get_axes():
+            ax.xaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
+            ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
+            ax.tick_params(labelsize=6)
+        fig.suptitle('Variable Correlation', fontsize=11)
+        _save(fig, 'data_scatter_vars.png')
+    _step('data_scatter_vars', _scatter_matrix)
 
-    # ── TRAIN-TEST SPLIT ──────────────────────────────────────────────────────
+    # ── 3.2 TRAIN-TEST SPLIT ──────────────────────────────────────────────────
+    _step('split_output_dists', lambda: _save(
+        validationlib.plots.doubleHistogram(
+            yt_train, yt_test, xlabel='Output', x1label='Train', x2label='Test',
+            multiPlotsKwargs={'tight_layout': True}, logscale=True),
+        'split_output_dists.png'))
 
-    # 6. Double histograms outputs
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
+    _step('split_input_dists', lambda: _save(
+        validationlib.plots.doubleHistogram(
+            x_train[inputs], x_test[inputs], xlabel='Input',
+            x1label='Train', x2label='Test',
+            multiPlotsKwargs={'tight_layout': True}),
+        'split_input_dists.png'))
+
+    _step('split_ks_ad', lambda: tables.update(split_ks_ad=_table_pair(
+        validationlib.tests.dist.dist_similarity_table(
+            yt_train, yt_test, title='p-values', tests=['KS', 'AD']),
+        tex_caption='Train vs test p-values. Red: $p<0.05$ (distributions differ).',
+        alpha=0.05)))
+
+    # KS results per output, for the summary prose elsewhere in the report.
     ks_results = {}
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        tr = yt_train[o].dropna().values
-        te = yt_test[o].dropna().values
-        lo, hi = min(tr.min(), te.min()), max(tr.max(), te.max())
-        bins = np.linspace(lo, hi, _sturges(len(te)))
-        ax.hist(tr, bins=bins, density=True, alpha=0.55, label='Train', color='steelblue')
-        ax.hist(te, bins=bins, density=True, alpha=0.55, label='Test',  color='tomato')
-        ks_stat, ks_pval = sc.ks_2samp(tr, te)
-        ks_results[o] = {'ks': ks_stat, 'ks_pval': ks_pval}
-        ax.set_title(f'{o}\nKS p={ks_pval:.3f}', fontsize=9,
-                     color='green' if ks_pval >= 0.05 else 'red')
-        ax.legend(fontsize=7); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Train vs Test Output Distributions — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'split_output_dists.png')
-
-    # 7. Double histograms inputs
-    fig, axes = plt.subplots(n_inp_rows, n_inp_cols,
-                              figsize=(5 * n_inp_cols, 3.5 * n_inp_rows), squeeze=False)
-    af = _axes_flat(axes, n_inp_rows, n_inp_cols)
-    ks_inputs = {}
-    for i, inp in enumerate(inputs):
-        ax = af[i]
-        tr = x_train[inp].dropna().values
-        te = x_test[inp].dropna().values
-        lo, hi = min(tr.min(), te.min()), max(tr.max(), te.max())
-        bins = np.linspace(lo, hi, _sturges(len(te)))
-        ax.hist(tr, bins=bins, density=True, alpha=0.55, label='Train', color='steelblue')
-        ax.hist(te, bins=bins, density=True, alpha=0.55, label='Test',  color='tomato')
-        _, ks_pval = sc.ks_2samp(tr, te)
-        ks_inputs[inp] = ks_pval
-        ax.set_title(f'{inp}\nKS p={ks_pval:.3f}', fontsize=8,
-                     color='green' if ks_pval >= 0.05 else 'red')
-        ax.legend(fontsize=6); ax.tick_params(labelsize=7)
-    for j in range(n_inp, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Train vs Test Input Distributions — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'split_input_dists.png')
-
-    # 8. KS / AD table (outputs)
-    ks_ad_rows = []
     for o in outputs:
-        r  = ks_results.get(o, {})
-        tr = yt_train[o].dropna().values
-        te = yt_test[o].dropna().values
-        try:
-            ad_res = sc.anderson_ksamp([tr, te])
-            ad_pval = ad_res.significance_level / 100.0
-        except Exception:
-            ad_pval = float('nan')
-        ks_pval = r.get('ks_pval', float('nan'))
-        ks_ad_rows.append([o, f'{ks_pval:.4f}',
-                           'Pass' if ks_pval >= 0.05 else 'Fail',
-                           f'{ad_pval:.4f}' if not math.isnan(ad_pval) else '—',
-                           'Pass' if (not math.isnan(ad_pval)) and ad_pval >= 0.05 else 'Fail'])
-    fig, ax = plt.subplots(figsize=(10, 0.4 * n_out + 1.2))
-    ax.axis('off')
-    col_labels = ['Output', 'KS p-val', 'KS', 'AD p-val', 'AD']
-    tbl = ax.table(cellText=ks_ad_rows, colLabels=col_labels, cellLoc='center', loc='center')
-    tbl.auto_set_font_size(False); tbl.set_fontsize(9); tbl.scale(1, 1.5)
-    for j in range(5):
-        tbl[(0, j)].set_facecolor('#004680')
-        tbl[(0, j)].set_text_props(color='white', fontweight='bold')
-    for i, row in enumerate(ks_ad_rows, 1):
-        for j, val in enumerate(row):
-            c = 'white'
-            if val == 'Pass': c = '#c6efce'
-            elif val == 'Fail': c = '#ffc7ce'
-            elif j % 2 == 0: c = '#f2f2f2'
-            tbl[(i, j)].set_facecolor(c)
-    ax.set_title(f'KS and AD Tests: Train vs Test — {best}', fontsize=10, pad=8)
-    plt.tight_layout()
-    _save(fig, 'split_ks_ad_table.png')
+        ks_stat, ks_p = sc.ks_2samp(yt_train[o].values, yt_test[o].values)
+        ks_results[o] = {'stat': float(ks_stat), 'p': float(ks_p)}
 
-    # ── ERROR QUANTIFICATION ──────────────────────────────────────────────────
+    # ── 3.3 ERROR QUANTIFICATION P(E) ─────────────────────────────────────────
+    statistics = {'mean': np.mean, 'median': [np.percentile, {'q': 50}],
+                  'std': np.std, 'IQR': st.iqr,
+                  'kurtosis': st.kurtosis, 'skewness': st.skew}
 
-    # 9. Residue statistics table
-    res_stat_rows = []
-    for i, o in enumerate(outputs):
-        res = residue[:, i]
-        res_stat_rows.append([o, f'{res.mean():.4g}', f'{res.std():.4g}',
-                               f'{sc.iqr(res):.4g}', f'{sc.skew(res):.3f}', f'{sc.kurtosis(res):.3f}',
-                               f'{np.percentile(res,10):.4g}', f'{np.percentile(res,50):.4g}',
-                               f'{np.percentile(res,90):.4g}'])
-    fig, ax = plt.subplots(figsize=(14, 0.4 * n_out + 1.2))
-    ax.axis('off')
-    tbl = ax.table(cellText=res_stat_rows,
-                   colLabels=['Output','Mean','Std','IQR','Skew','Kurt','P10','P50','P90'],
-                   cellLoc='center', loc='center')
-    tbl.auto_set_font_size(False); tbl.set_fontsize(8); tbl.scale(1, 1.5)
-    for j in range(9):
-        tbl[(0, j)].set_facecolor('#004680')
-        tbl[(0, j)].set_text_props(color='white', fontweight='bold')
-    for i in range(1, n_out + 1):
-        # Colour mean cell by whether it's close to 0
-        try:
-            mean_v = float(res_stat_rows[i-1][1])
-            std_v  = float(res_stat_rows[i-1][2])
-            ratio  = abs(mean_v) / (std_v + 1e-12)
-            tbl[(i, 1)].set_facecolor('#c6efce' if ratio < 0.1 else '#fff2cc' if ratio < 0.3 else '#ffc7ce')
-        except Exception:
-            pass
-        for j in [0] + list(range(2, 9)):
-            tbl[(i, j)].set_facecolor('#f2f2f2' if i % 2 == 0 else 'white')
-    ax.set_title(f'Residue Statistics (y − ŷ) — {best} (test set)', fontsize=10, pad=8)
-    plt.tight_layout()
-    _save(fig, 'err_residue_stats.png')
+    _step('res_stats', lambda: tables.update(res_stats=_table_pair(
+        validationlib.tables.summary.prediction_stats(
+            residue_df, statistics=statistics, precision=3, nsim=100,
+            method='Bootstrap'),
+        tex_caption='Residue statistics with bootstrap confidence intervals '
+                    '(superscript/subscript bounds).')))
 
-    # 10. Residue histograms with Gaussian fit
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        res = residue[:, i]
-        bins = _sturges(len(res))
-        ax.hist(res, bins=bins, density=True, color='steelblue', alpha=0.65,
-                edgecolor='white', linewidth=0.4, label='Residue')
-        mu, sig = res.mean(), res.std()
-        xs = np.linspace(res.min(), res.max(), 300)
-        ax.plot(xs, sc.norm.pdf(xs, mu, sig), 'r-', lw=1.5, label=f'N({mu:.3g},{sig:.3g})')
-        ax.axvline(0, color='k', lw=0.8, ls='--')
-        ax.set_title(o, fontsize=9); ax.legend(fontsize=6); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Residue Histograms with Gaussian Fit — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'err_residue_hist.png')
+    _step('abs_stats', lambda: tables.update(abs_stats=_table_pair(
+        validationlib.tables.summary.prediction_stats(
+            abserr_df, statistics=statistics, precision=3, nsim=100,
+            method='Bootstrap'),
+        tex_caption='Absolute-error statistics with bootstrap confidence intervals.')))
 
-    # 11. Residue CDFs
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        res = np.sort(residue[:, i])
-        cdf = np.arange(1, len(res) + 1) / len(res)
-        ax.plot(res, cdf, color='steelblue', lw=1.5)
-        ax.axvline(0, color='k', lw=0.8, ls='--')
-        for q, col in [(10, 'orange'), (90, 'red')]:
-            v = np.percentile(res, q)
-            ax.axvline(v, color=col, lw=1, ls=':', label=f'P{q}={v:.3g}')
-        ax.set_title(o, fontsize=9); ax.set_ylabel('CDF', fontsize=7)
-        ax.legend(fontsize=6); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Residue CDF (y − ŷ) — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'err_residue_cdf.png')
+    _step('err_residue_hist', lambda: _save(
+        validationlib.plots.histogram(
+            residue_df, xlabel=residue_metric.name,
+            multiPlotsKwargs={'tight_layout': True}),
+        'err_residue_hist.png'))
 
-    # 12. Abs error histograms
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        ae = abserr[:, i]
-        ax.hist(ae, bins=_sturges(len(ae)), color='tomato', alpha=0.65,
-                edgecolor='white', linewidth=0.4)
-        ax.set_title(o, fontsize=9); ax.set_xlabel('|y − ŷ|', fontsize=7)
-        ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Absolute Error Histograms — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'err_abserr_hist.png')
+    _step('err_residue_cdf', lambda: _save(
+        validationlib.plots.cumulative(
+            residue_df, xlabel=residue_metric.name, bins=1000,
+            quantiles=[0.1, 0.50, 0.90, 0.95, 0.99]),
+        'err_residue_cdf.png'))
 
-    # 13. Relative abs error CDF + Q90
-    q90_results = {}
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        re = rel_abs[:, i]
-        re = re[~np.isnan(re)]
-        re_s = np.sort(re)
-        cdf  = np.arange(1, len(re_s) + 1) / len(re_s)
-        q90v = float(np.quantile(re, 0.90)) if len(re) > 0 else float('nan')
-        q90_results[o] = q90v
-        passed = (not math.isnan(q90v)) and q90v < q90_target
-        ax.plot(re_s, cdf, color='steelblue', lw=1.5)
-        ax.axhline(0.90, color='gray', lw=0.8, ls='--')
-        ax.axvline(q90_target, color='red', lw=1.2, ls='--', label=f'Target {q90_target:.0%}')
-        if not math.isnan(q90v):
-            ax.axvline(q90v, color='orange', lw=1.2, ls=':', label=f'Q90={q90v:.4f}')
-        xlim = min(max(q90v * 2 if not math.isnan(q90v) else 0.5, q90_target * 2), 1.0)
-        ax.set_xlim(0, xlim)
-        ax.set_title(f'{o}\nQ90={q90v:.4f} {"✓" if passed else "✗"}', fontsize=9,
-                     color='green' if passed else 'red')
-        ax.set_xlabel('|Rel. Error|', fontsize=7); ax.set_ylabel('CDF', fontsize=7)
-        ax.legend(fontsize=6); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Relative Absolute Error CDF — {best} (target Q90<{q90_target:.0%})', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'err_relerr_cdf.png')
+    _step('err_abserr_hist', lambda: _save(
+        validationlib.plots.histogram(
+            abserr_df, xlabel=abserr_metric.name,
+            multiPlotsKwargs={'tight_layout': True}, logscale=True),
+        'err_abserr_hist.png'))
 
-    # 14. True vs Predicted distribution comparison (double histogram)
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        tr = yt_test[o].values
-        pr = yh_test[o].values
-        lo, hi = min(tr.min(), pr.min()), max(tr.max(), pr.max())
-        bins = np.linspace(lo, hi, _sturges(len(tr)))
-        ax.hist(tr, bins=bins, density=True, alpha=0.55, label='True', color='steelblue')
-        ax.hist(pr, bins=bins, density=True, alpha=0.55, label='Pred', color='tomato')
-        _, ks_pval = sc.ks_2samp(tr, pr)
-        ax.set_title(f'{o}\nKS p={ks_pval:.3f}', fontsize=9,
-                     color='green' if ks_pval >= 0.05 else 'red')
-        ax.legend(fontsize=7); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'True vs Predicted Distribution (test set) — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'err_true_vs_pred_dist.png')
+    _step('err_relerr_cdf', lambda: _save(
+        validationlib.plots.cumulative(
+            relerr_df.dropna(), xlabel='Relative Absolute Error', bins=1000,
+            quantiles=[0.90]),
+        'err_relerr_cdf.png'))
 
-    # ── P(E|X): violin plots per output ───────────────────────────────────────
+    _step('err_true_vs_pred_dist', lambda: _save(
+        validationlib.plots.doubleHistogram(
+            yt_test, yh_test, xlabel='Output', x1label='True', x2label='Predicted',
+            logscale=True),
+        'err_true_vs_pred_dist.png'))
 
-    # 15. Bias heatmap (KW test)
-    kw_pvals = np.ones((n_inp, n_out))
-    for j, inp in enumerate(inputs):
-        try:
-            binned = pd.cut(x_test[inp], bins=_sturges(len(x_test)))
-            cats = [c for c in binned.cat.categories if (binned == c).sum() >= 5]
-            if len(cats) < 2: continue
-            for k in range(n_out):
-                groups = [residue[(binned == c).values, k] for c in cats]
-                _, pval = sc.kruskal(*groups)
-                kw_pvals[j, k] = pval
-        except Exception:
-            pass
-    fig, ax = plt.subplots(figsize=(max(6, n_out * 1.3), max(4, n_inp * 0.6 + 1.5)))
-    im = ax.imshow(kw_pvals, aspect='auto', vmin=0, vmax=1, cmap='RdYlGn')
-    ax.set_xticks(range(n_out))
-    ax.set_xticklabels([o[:14] for o in outputs], rotation=30, ha='right', fontsize=8)
-    ax.set_yticks(range(n_inp))
-    ax.set_yticklabels(inputs, fontsize=8)
-    for j in range(n_inp):
-        for k in range(n_out):
-            c = 'white' if kw_pvals[j, k] < 0.25 else 'black'
-            ax.text(k, j, f'{kw_pvals[j,k]:.2f}', ha='center', va='center', fontsize=7, color=c)
-    plt.colorbar(im, ax=ax, label='KW p-value (green=no bias, red=bias)')
-    ax.set_title(f'Bias Detection: KW p-values (Residue) — {best}\n'
-                 f'Rows=inputs, Cols=outputs. p<0.05 → bias', fontsize=9)
-    plt.tight_layout()
-    _save(fig, 'pex_bias_heatmap.png')
+    _step('true_pred_pvals', lambda: tables.update(true_pred_pvals=_table_pair(
+        validationlib.tests.dist.dist_similarity_table(
+            yt_test, yh_test, title='Hypothesis Tests Results (p-value)',
+            tests=['AD', 'KS']),
+        tex_caption='True vs predicted distribution tests. Red: $p<0.05$.',
+        alpha=0.05)))
 
-    # 16. P(E|X) violin plots: one figure per output (inputs on x-axis)
-    in_ncols = min(4, n_inp)
-    in_nrows = -(-n_inp // in_ncols)
-    for k, o in enumerate(outputs):
-        fig, axes = plt.subplots(in_nrows, in_ncols,
-                                  figsize=(4 * in_ncols, 3.5 * in_nrows), squeeze=False)
-        af = _axes_flat(axes, in_nrows, in_ncols)
-        for j, inp in enumerate(inputs):
-            ax = af[j]
-            try:
-                n_bins = _sturges(len(x_test))
-                binned = pd.cut(x_test[inp], bins=n_bins)
-                cats = [c for c in binned.cat.categories if (binned == c).sum() >= 3]
-                groups = [residue[(binned == c).values, k] for c in cats]
-                if groups:
-                    parts = ax.violinplot(groups, positions=range(len(groups)), showmedians=True)
-                    for pc in parts.get('bodies', []):
-                        pc.set_alpha(0.6)
-                    mid_idx = len(cats) // 2
-                    cat = cats[mid_idx]
-                    ax.set_xticks([0, len(cats) // 2, len(cats) - 1])
-                    ax.set_xticklabels([f'{cats[0].left:.2g}', f'{cat.mid:.2g}',
-                                        f'{cats[-1].right:.2g}'], fontsize=6, rotation=20)
-            except Exception:
-                pass
-            ax.axhline(0, color='k', lw=0.8, ls='--')
-            ax.set_title(inp[:15], fontsize=8)
-            ax.set_ylabel('Residue' if j % in_ncols == 0 else '', fontsize=7)
-            ax.tick_params(labelsize=6)
-        for j in range(n_inp, len(af)): af[j].set_visible(False)
-        fig.suptitle(f'P(E|X) Residue Violin — Output: {o}', fontsize=10)
-        plt.tight_layout()
+    # The template's predicted-vs-true scatter, reused as the Part 1 figure.
+    _step('winner_pred_true', lambda: _lib_scatter(
+        'winner_pred_true.png', yt_test, yh_test,
+        c=residue_df, correlationAxis='fit', fit_info='default',
+        significant_figures=3, xlabel='True', ylabel='Predicted',
+        clabel=residue_metric.name, cmapCenter=0,
+        multiPlotsKwargs={'tight_layout': True}))
+
+    _step('true_pred_hist2d', lambda: _save(
+        validationlib.plots.hist2D(
+            yt_test, yh_test, bins=100, xlabel='True', ylabel='Predicted',
+            scale='frequency', correlationAxis='fit', logscale=True,
+            figHsize=7, figAspectRatio=2),
+        'true_pred_hist2d.png'))
+
+    # ── 3.4 P(E|X) ────────────────────────────────────────────────────────────
+    for o in outputs:
         safe = o.replace(' ', '_').replace('/', '_')
-        _save(fig, f'pex_violin_res_{safe}.png')
+        _step(f'pex_violin_res_{safe}', lambda o=o, safe=safe: _save(
+            validationlib.plots.violinPlot(
+                x_test[inputs], residue_df[[o]], bins='sturges', var_y=o,
+                xlabel='Bins', ylabel=residue_metric.name, showextrema=True,
+                trimStds=3, multiPlotsKwargs={'tight_layout': True}),
+            f'pex_violin_res_{safe}.png'))
+        _step(f'pex_violin_abs_{safe}', lambda o=o, safe=safe: _save(
+            validationlib.plots.violinPlot(
+                x_test[inputs], abserr_df[[o]], bins='sturges', var_y=o,
+                xlabel='Bins', ylabel=abserr_metric.name, showextrema=True,
+                trimStds=3, multiPlotsKwargs={'tight_layout': True}),
+            f'pex_violin_abs_{safe}.png'))
 
-    # 17. P(E|X) violin plots for absolute error (same structure)
-    for k, o in enumerate(outputs):
-        fig, axes = plt.subplots(in_nrows, in_ncols,
-                                  figsize=(4 * in_ncols, 3.5 * in_nrows), squeeze=False)
-        af = _axes_flat(axes, in_nrows, in_ncols)
-        for j, inp in enumerate(inputs):
-            ax = af[j]
-            try:
-                n_bins = _sturges(len(x_test))
-                binned = pd.cut(x_test[inp], bins=n_bins)
-                cats = [c for c in binned.cat.categories if (binned == c).sum() >= 3]
-                groups = [abserr[(binned == c).values, k] for c in cats]
-                if groups:
-                    parts = ax.violinplot(groups, positions=range(len(groups)), showmedians=True)
-                    for pc in parts.get('bodies', []):
-                        pc.set_alpha(0.6); pc.set_facecolor('tomato')
-                    ax.set_xticks([0, len(cats) // 2, len(cats) - 1])
-                    ax.set_xticklabels([f'{cats[0].left:.2g}', f'{cats[len(cats)//2].mid:.2g}',
-                                        f'{cats[-1].right:.2g}'], fontsize=6, rotation=20)
-            except Exception:
-                pass
-            ax.set_title(inp[:15], fontsize=8)
-            ax.set_ylabel('|Error|' if j % in_ncols == 0 else '', fontsize=7)
-            ax.tick_params(labelsize=6)
-        for j in range(n_inp, len(af)): af[j].set_visible(False)
-        fig.suptitle(f'P(E|X) AbsErr Violin — Output: {o}', fontsize=10)
-        plt.tight_layout()
-        safe = o.replace(' ', '_').replace('/', '_')
-        _save(fig, f'pex_violin_abs_{safe}.png')
+    # Kruskal-Wallis bias table on Sturges-binned inputs, exactly as the
+    # template's bias_detection_table cell.
+    kw_pvals = None
+    def _bias_table():
+        nonlocal kw_pvals
+        df_binned = pd.DataFrame(index=x_test.index)
+        binned_vars = []
+        for in_var in inputs:
+            _, df_binned[in_var + '_binned'] = bin_data(
+                x_test[in_var].values, bins='sturges')
+            binned_vars.append(in_var + '_binned')
+        df_binned = df_binned.join(residue_df)
+        styler = validationlib.tests.bias.bias_detection_table(
+            df_binned, binned_vars, list(residue_df.columns),
+            method='kruskal', info=False)
+        tables['bias_kruskal'] = _table_pair(
+            styler,
+            tex_caption='Kruskal-Wallis p-values on Sturges-binned inputs. '
+                        'Red: $p<0.05$ (error depends on that input).',
+            alpha=0.05)
+        raw = _styler_df(styler).apply(pd.to_numeric, errors='coerce')
+        # Orient as (inputs, outputs) whichever way the library returns it.
+        if list(raw.index) == binned_vars or len(raw.index) == len(binned_vars):
+            kw_pvals = raw.values
+        else:
+            kw_pvals = raw.values.T
+    _step('bias_kruskal', _bias_table)
 
-    # ── P(E|Y) ────────────────────────────────────────────────────────────────
+    # ── 3.5 P(E|Y) ────────────────────────────────────────────────────────────
+    _step('pey_residue_scatter', lambda: _lib_scatter(
+        'pey_residue_scatter.png', yt_test, residue_df,
+        c=residue_df, clabel=residue_metric.name, correlationAxis='fit',
+        xlabel='Output', ylabel=residue_metric.name, trimStds=3, cmapCenter=0,
+        multiPlotsKwargs={'tight_layout': True}))
 
-    # 18. Scatter: residue vs true output
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        yt  = yt_test[o].values
-        res = residue[:, i]
-        ax.scatter(yt, res, s=3, alpha=0.3, color='steelblue', rasterized=True)
-        ax.axhline(0, color='k', lw=0.8, ls='--')
-        try:
-            r, pv = sc.pearsonr(yt, res)
-            ax.set_title(f'{o}\nr={r:.3f} p={pv:.3f}', fontsize=9,
-                         color='red' if pv < 0.05 else 'black')
-        except Exception:
-            ax.set_title(o, fontsize=9)
-        ax.set_xlabel('True y', fontsize=7); ax.set_ylabel('Residue', fontsize=7)
-        ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'P(E|Y) Residue vs True Output — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'pey_residue_scatter.png')
+    _step('pey_residue_violin', lambda: _save(
+        validationlib.plots.violinPlot(
+            yt_test, residue_df, bins='sturges', xlabel='Bins',
+            ylabel=residue_metric.name, showextrema=True, trimStds=2,
+            multiPlotsKwargs={'tight_layout': True}),
+        'pey_residue_violin.png'))
 
-    # 19. Violin: residue binned by true output
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 4 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        yt  = pd.Series(yt_test[o].values)
-        res = residue[:, i]
-        try:
-            n_bins = min(_sturges(len(yt)), 8)
-            binned = pd.cut(yt, bins=n_bins, duplicates='drop')
-            cats   = [c for c in binned.cat.categories if (binned == c).sum() >= 3]
-            groups = [res[(binned == c).values] for c in cats]
-            if groups:
-                parts = ax.violinplot(groups, positions=range(len(groups)), showmedians=True)
-                for pc in parts.get('bodies', []):
-                    pc.set_alpha(0.6)
-                ax.set_xticks(range(len(cats)))
-                ax.set_xticklabels([f'Q{k+1}' for k in range(len(cats))], fontsize=7)
-        except Exception:
-            pass
-        ax.axhline(0, color='k', lw=0.8, ls='--')
-        ax.set_title(o, fontsize=9)
-        ax.set_xlabel('Output quantile bins', fontsize=7)
-        ax.set_ylabel('Residue', fontsize=7)
-        ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'P(E|Y) Residue Violin vs True Output Bins — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'pey_residue_violin.png')
+    _step('pey_abserr_scatter', lambda: _lib_scatter(
+        'pey_abserr_scatter.png', yt_test, abserr_df,
+        c=abserr_df, clabel=abserr_metric.name, correlationAxis='fit',
+        xlabel='Output', ylabel=abserr_metric.name, trimStds=3, cmapCenter=0,
+        multiPlotsKwargs={'tight_layout': True}))
 
-    # 20. Scatter: abs error vs true output
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        yt = yt_test[o].values
-        ae = abserr[:, i]
-        ax.scatter(yt, ae, s=3, alpha=0.3, color='tomato', rasterized=True)
-        try:
-            r, pv = sc.spearmanr(yt, ae)
-            ax.set_title(f'{o}\nSpear r={r:.3f} p={pv:.3f}', fontsize=9,
-                         color='red' if pv < 0.05 else 'black')
-        except Exception:
-            ax.set_title(o, fontsize=9)
-        ax.set_xlabel('True y', fontsize=7); ax.set_ylabel('|Error|', fontsize=7)
-        ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'P(E|Y) Absolute Error vs True Output — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'pey_abserr_scatter.png')
+    _step('pey_abserr_violin', lambda: _save(
+        validationlib.plots.violinPlot(
+            yt_test, abserr_df, bins='sturges', xlabel='Bins',
+            ylabel=abserr_metric.name, showextrema=True, trimStds=2,
+            multiPlotsKwargs={'tight_layout': True}),
+        'pey_abserr_violin.png'))
 
-    # 21. Violin: abs error binned by true output
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 4 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        yt = pd.Series(yt_test[o].values)
-        ae = abserr[:, i]
-        try:
-            n_bins = min(_sturges(len(yt)), 8)
-            binned = pd.cut(yt, bins=n_bins, duplicates='drop')
-            cats   = [c for c in binned.cat.categories if (binned == c).sum() >= 3]
-            groups = [ae[(binned == c).values] for c in cats]
-            if groups:
-                parts = ax.violinplot(groups, positions=range(len(groups)), showmedians=True)
-                for pc in parts.get('bodies', []):
-                    pc.set_alpha(0.6); pc.set_facecolor('tomato')
-                ax.set_xticks(range(len(cats)))
-                ax.set_xticklabels([f'Q{k+1}' for k in range(len(cats))], fontsize=7)
-        except Exception:
-            pass
-        ax.set_title(o, fontsize=9)
-        ax.set_xlabel('Output quantile bins', fontsize=7)
-        ax.set_ylabel('|Error|', fontsize=7)
-        ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'P(E|Y) AbsErr Violin vs True Output Bins — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'pey_abserr_violin.png')
+    # ── 3.6 UNCERTAINTY ───────────────────────────────────────────────────────
+    # The template's global binned uncertainty model (bins=1), trained on the
+    # validation split and covered on test. Needs a validation split.
+    def _uncertainty():
+        from scipy.sparse import csr_matrix
+        from validationlib.tests.interval import BinnedUncertaintyModel, ModelCoverage
 
-    # ── UNCERTAINTY ───────────────────────────────────────────────────────────
+        if yt_val is None or len(yt_val) < 20:
+            print('  uncertainty: no validation split in the CSVs — skipped')
+            return
 
-    # 22. Sigma coverage table
-    cov_rows = []
-    for i, o in enumerate(outputs):
-        res   = residue[:, i]
-        sigma = res.std()
-        c1 = np.mean(np.abs(res) < 1 * sigma)
-        c2 = np.mean(np.abs(res) < 2 * sigma)
-        c3 = np.mean(np.abs(res) < 3 * sigma)
-        cov_rows.append([o, f'{sigma:.4g}', f'{c1:.1%}', f'{c2:.1%}', f'{c3:.1%}',
-                         f'{abs(c1-0.683):.3f}', f'{abs(c2-0.954):.3f}', f'{abs(c3-0.997):.3f}'])
-    fig, ax = plt.subplots(figsize=(13, 0.4 * n_out + 1.2))
-    ax.axis('off')
-    col_labels = ['Output', 'σ', 'Cov ±1σ', 'Cov ±2σ', 'Cov ±3σ',
-                  'Δ from 68.3%', 'Δ from 95.4%', 'Δ from 99.7%']
-    tbl = ax.table(cellText=cov_rows, colLabels=col_labels, cellLoc='center', loc='center')
-    tbl.auto_set_font_size(False); tbl.set_fontsize(8); tbl.scale(1, 1.5)
-    expected = [0.683, 0.954, 0.997]
-    for j in range(len(col_labels)):
-        tbl[(0, j)].set_facecolor('#004680')
-        tbl[(0, j)].set_text_props(color='white', fontweight='bold')
-    for i, row in enumerate(cov_rows, 1):
-        for j_c, (c_idx, exp) in enumerate([(2, 0.683), (3, 0.954), (4, 0.997)]):
-            val = float(row[c_idx].strip('%')) / 100
-            diff = abs(val - exp)
-            color = '#c6efce' if diff < 0.03 else '#fff2cc' if diff < 0.10 else '#ffc7ce'
-            tbl[(i, c_idx)].set_facecolor(color)
-        for j in [0, 1, 5, 6, 7]:
-            tbl[(i, j)].set_facecolor('#f2f2f2' if i % 2 == 0 else 'white')
-    ax.set_title(f'Uncertainty — Sigma Coverage — {best}\n'
-                 f'Expected for Gaussian: ±1σ=68.3%, ±2σ=95.4%, ±3σ=99.7%\n'
-                 f'Green=within 3%, Yellow=within 10%, Red=deviates significantly', fontsize=9)
-    plt.tight_layout()
-    _save(fig, 'uncertainty_coverage.png')
+        yt_valtest = pd.concat([yt_val, yt_test], axis=0, ignore_index=True)
+        yh_valtest = pd.concat([yh_val, yh_test], axis=0, ignore_index=True)
+        abserr_valtest = abserr_metric(yt_valtest, yh_valtest)
 
-    # 23. Uncertainty bounds scatter (predicted + ±2σ ribbon per output)
-    fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 3.5 * nrows), squeeze=False)
-    af = _axes_flat(axes, nrows, ncols)
-    for i, o in enumerate(outputs):
-        ax = af[i]
-        yt_v  = yt_test[o].values
-        yh_v  = yh_test[o].values
-        sigma = residue[:, i].std()
-        idx   = np.argsort(yt_v)
-        ax.scatter(yt_v[idx], yh_v[idx], s=3, alpha=0.3, color='steelblue', label='Pred')
-        ax.fill_between(yt_v[idx], yh_v[idx] - 2*sigma, yh_v[idx] + 2*sigma,
-                        alpha=0.15, color='orange', label='±2σ')
-        lo = min(yt_v.min(), yh_v.min())
-        hi = max(yt_v.max(), yh_v.max())
-        ax.plot([lo, hi], [lo, hi], 'k--', lw=0.8)
-        ax.set_title(o, fontsize=9)
-        ax.set_xlabel('True', fontsize=7); ax.set_ylabel('Predicted', fontsize=7)
-        ax.legend(fontsize=6); ax.tick_params(labelsize=7)
-    for j in range(n_out, len(af)): af[j].set_visible(False)
-    fig.suptitle(f'Uncertainty Bounds (±2σ) — {best}', fontsize=11)
-    plt.tight_layout()
-    _save(fig, 'uncertainty_bounds.png')
+        val_mask = np.zeros(yt_valtest.shape, dtype=bool)
+        val_mask[:len(yt_val)] = True
+        test_mask = ~val_mask
+        val_mask, test_mask = csr_matrix(val_mask), csr_matrix(test_mask)
 
-    # Stats summary for prose
-    res_stats_dict = {o: {
-        'mean': float(residue[:, i].mean()),
-        'std':  float(residue[:, i].std()),
-        'p10':  float(np.percentile(residue[:, i], 10)),
-        'p90':  float(np.percentile(residue[:, i], 90)),
-    } for i, o in enumerate(outputs)}
+        n_cal = yt_val.shape[0]
+        min_elems = max(10, n_cal // 10)
+
+        model = BinnedUncertaintyModel(
+            percentile_range=95, model_type='eqspaced_bins',
+            ci_type='right_tailed',
+            method_kwargs={'bins': 1, 'nsim': 100, 'min_elems': min_elems,
+                           'conf': 0.95},
+            matched_analysis=True)
+        model.train(yh_valtest, abserr_valtest, val_mask,
+                    x_variables=yt_test.columns, y_variables=yt_test.columns)
+
+        cov_model = ModelCoverage(matched_analysis=True, conf=0.95)
+        cov_model.compute_coverage(yh_valtest, abserr_valtest, test_mask, model,
+                                   x_variables=yt_test.columns,
+                                   y_variables=yt_test.columns)
+
+        # coverage_plot returns a LIST of figures (one per conditioned variable).
+        figs = model.coverage_plot(
+            yh_valtest, abserr_valtest, val_mask, test_mask, cov_model,
+            y_label=abserr_metric.name, plot_type='histogram',
+            hist_data='test', bins=500, logscale=True)
+        if not isinstance(figs, (list, tuple)):
+            figs = [figs]
+        for k, fig in enumerate(f for f in figs if f is not None):
+            _save(fig, 'uncertainty_coverage.png' if k == 0
+                       else f'uncertainty_coverage_{k + 1}.png')
+
+        cov_tables = cov_model.get_tables()
+        if cov_tables:
+            merged = pd.concat(cov_tables, axis=0) if len(cov_tables) > 1 else cov_tables[0]
+            tables['uncertainty_coverage_tbl'] = _table_pair(
+                merged, tex_caption='Empirical coverage of the 95th-percentile '
+                                    'uncertainty bound on the test split.')
+    _step('uncertainty', _uncertainty)
 
     stats = dict(
         q90_results=q90_results,
-        res_stats=res_stats_dict,
+        res_stats={o: {'mean': float(residue_df[o].mean()),
+                       'std': float(residue_df[o].std()),
+                       'p10': float(np.percentile(residue_df[o], 10)),
+                       'p90': float(np.percentile(residue_df[o], 90))}
+                   for o in outputs},
         kw_pvals=kw_pvals,
         inputs=inputs,
         outputs=outputs,
         ks_results=ks_results,
-        cov_rows=cov_rows,
+        cov_rows=[],
+        tables=tables,
     )
     return paths, stats
 
@@ -1352,6 +1147,10 @@ def _part3(d, best, paths, stats, out_dir):
         return (r'\begin{center}\includegraphics[width=' + width +
                 r'\linewidth,' + _GFX_MAXH + r',keepaspectratio]{'
                 + rp + r'}\end{center}' + '\n')
+
+    def _tbl(key):
+        """A native LaTeX table produced alongside the validationlib figures."""
+        return (stats.get('tables') or {}).get(key, {}).get('tex', '')
 
     target_pct = _pct(q90_target)
     q90_res    = stats.get('q90_results', {})
@@ -1428,19 +1227,22 @@ def _part3(d, best, paths, stats, out_dir):
         r'\clearpage' + '\n'
         r'\section{Data Overview}' + '\n'
         r'\label{sec:d1}' + '\n\n'
-        rf'Statistical summary of inputs and outputs for \textbf{{{best_esc}}} (all data: train + val + test combined). '
-        r'IQR = interquartile range; Skew and Kurt are the Fisher skewness and excess kurtosis. '
-        r'P10/P50/P90 are the 10th, 50th, and 90th percentiles.' + '\n\n'
+        r'Statistical summary of inputs and outputs over all data (train + val + test), '
+        r'as reported by \texttt{describe()} in the feature-selection notebook: '
+        r'count, mean, standard deviation, minimum, quartiles and maximum per variable. '
+        r'All figures in this part are drawn by \texttt{validationlib}, matching the '
+        r'extended validation notebook.' + '\n\n'
         r'\exhead{Input Statistics}' + '\n'
-        + _fig('data_input_stats') +
+        + _tbl('describe_inputs') +
         r'\exhead{Input Histograms}' + '\n'
         + _fig('data_input_hist') +
+        r'\exhead{Input Cumulative Distributions}' + '\n'
+        + _fig('data_input_cdf') +
         r'\exhead{Output Statistics}' + '\n'
-        + _fig('data_output_stats') +
+        + _tbl('describe_outputs') +
         r'\exhead{Output Histograms}' + '\n'
         + _fig('data_output_hist') +
         r'\exhead{Output Cumulative Distributions}' + '\n'
-        r'Vertical markers show P10, P50, and P90.' + '\n'
         + _fig('data_output_cdf')
 
         # 3.2 Train-Test Split
@@ -1456,7 +1258,7 @@ def _part3(d, best, paths, stats, out_dir):
         r'\exhead{Input Distributions: Train vs Test}' + '\n'
         + _fig('split_input_dists') +
         r'\exhead{KS and AD Test Results}' + '\n'
-        + _fig('split_ks_ad_table')
+        + _tbl('split_ks_ad')
 
         # 3.3 Error Quantification
         + r'\clearpage' + '\n'
@@ -1470,10 +1272,11 @@ def _part3(d, best, paths, stats, out_dir):
         r'Always non-negative; its Q90 must satisfy the accuracy requirement.' + '\n'
         r'\end{itemize}' + '\n\n'
         r'\exhead{Residue Statistics Table}' + '\n'
-        r'Mean highlighted: green $|\mu|/\sigma<0.10$, yellow $<0.30$, red $\geq 0.30$.' + '\n'
-        + _fig('err_residue_stats') +
-        r'\exhead{Residue Histograms with Gaussian Fit}' + '\n'
-        r'Red curve = fitted normal distribution. Deviation from the normal indicates heavy tails or skew.' + '\n'
+        r'Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).' + '\n'
+        + _tbl('res_stats') +
+        r'\exhead{Absolute Error Statistics Table}' + '\n'
+        + _tbl('abs_stats') +
+        r'\exhead{Residue Histograms}' + '\n'
         + _fig('err_residue_hist') +
         r'\exhead{Residue CDF}' + '\n'
         + _fig('err_residue_cdf') +
@@ -1492,9 +1295,13 @@ def _part3(d, best, paths, stats, out_dir):
             _KS_LEGEND.replace('no overfitting', 'pass').replace('overfitting detected', 'fail')
         ) + '\n\n'
         r'\exhead{True vs Predicted Distribution Comparison}' + '\n'
-        r'KS test comparing the distribution of true vs.\ predicted values on the test set. '
+        r'AD and KS tests comparing the distribution of true vs.\ predicted values on the test set. '
         r'A significant difference indicates the model is not reproducing the output distribution faithfully.' + '\n'
         + _fig('err_true_vs_pred_dist')
+        + _tbl('true_pred_pvals') +
+        r'\exhead{True vs Predicted --- 2D Histogram}' + '\n'
+        r'Log-scaled frequency with a linear fit; the normalized slope should be close to 1.' + '\n'
+        + _fig('true_pred_hist2d')
 
         # 3.4 P(E|X)
         + r'\clearpage' + '\n'
@@ -1505,11 +1312,10 @@ def _part3(d, best, paths, stats, out_dir):
         r'(Sturges rule for bin count), and (2) violin plots showing the error distribution '
         r'within each input bin.' + '\n\n'
         + bias_prose + '\n\n'
-        r'\exhead{Bias Detection Heatmap (KW p-values)}' + '\n'
-        r'Rows = inputs, columns = outputs. '
+        r'\exhead{Bias Detection Table (KW p-values)}' + '\n'
         r'Green ($p\geq 0.05$) = residue uniform across input bins; '
         r'red ($p<0.05$) = significant bias.' + '\n'
-        + _fig('pex_bias_heatmap')
+        + _tbl('bias_kruskal')
         + r'\clearpage' + '\n'
         r'\exhead{Residue Violin Plots per Output (binned by input)}' + '\n'
         r'Each panel shows the residue distribution for each input bin. '
@@ -1542,17 +1348,14 @@ def _part3(d, best, paths, stats, out_dir):
         + r'\clearpage' + '\n'
         r'\section{Uncertainty Analysis}' + '\n'
         r'\label{sec:d6}' + '\n\n'
-        r'A global Gaussian uncertainty model is estimated from the residue standard deviation on the test set. '
-        r'Coverage is the empirical proportion of test points within $\pm k\sigma$ bounds. '
-        r'For a perfectly Gaussian error, $\pm 1\sigma$ should cover 68.3\%, $\pm 2\sigma$ 95.4\%, '
-        r'$\pm 3\sigma$ 99.7\%. '
-        r'Green = within 3\% of Gaussian expectation, yellow = within 10\%, red = significant deviation.' + '\n\n'
-        r'\exhead{Sigma Coverage Table}' + '\n'
+        r'A global binned uncertainty model (95th percentile, right-tailed) is trained on the '
+        r'validation split of the absolute error and evaluated on the held-out test split, '
+        r'as in the extended validation notebook. Coverage is the proportion of test points '
+        r'whose error falls inside the predicted bound; it should be close to 95\%.' + '\n\n'
+        r'\exhead{Coverage Plot}' + '\n'
         + _fig('uncertainty_coverage') +
-        r'\exhead{Uncertainty Bounds $\pm 2\sigma$ on Predicted vs True}' + '\n'
-        r'Orange ribbon = $\pm 2\sigma$ around the prediction. '
-        r'Points outside the ribbon are larger errors than expected under the Gaussian model.' + '\n'
-        + _fig('uncertainty_bounds')
+        r'\exhead{Coverage Table}' + '\n'
+        + _tbl('uncertainty_coverage_tbl')
     )
 
 
@@ -1570,9 +1373,14 @@ def _generate_html(d, best, paths, stats, out_dir):
 
     q90_res  = stats.get('q90_results', {})
     q90_target = d['q90_target']
-    cov_rows   = stats.get('cov_rows', [])
     outputs    = d['outputs']
-    inputs_l   = stats.get('inputs', [])
+
+    def _tblh(key, heading=None):
+        """A native HTML table produced alongside the validationlib figures."""
+        html = (stats.get('tables') or {}).get(key, {}).get('html', '')
+        if not html:
+            return ''
+        return (f'<h3>{heading}</h3>{html}' if heading else html)
 
     def _q90_tbl():
         rows = ''
@@ -1583,14 +1391,6 @@ def _generate_html(d, best, paths, stats, out_dir):
             c  = '#c6efce' if ok else '#ffc7ce'
             rows += f'<tr><td>{o}</td><td style="background:{c}">{vs}</td><td>{q90_target:.0%}</td><td style="background:{c}"><b>{"PASS" if ok else "FAIL"}</b></td></tr>'
         return f'<table><tr><th>Output</th><th>Q90</th><th>Target</th><th>Status</th></tr>{rows}</table>'
-
-    def _cov_tbl():
-        if not cov_rows: return ''
-        rows = ''.join(
-            f'<tr>{"".join(f"<td>{v}</td>" for v in row)}</tr>'
-            for row in cov_rows)
-        hdrs = '<tr><th>Output</th><th>σ</th><th>Cov±1σ</th><th>Cov±2σ</th><th>Cov±3σ</th><th>Δ68.3%</th><th>Δ95.4%</th><th>Δ99.7%</th></tr>'
-        return f'<table>{hdrs}{rows}</table>'
 
     css = """body{font-family:Arial,sans-serif;font-size:10pt;margin:40px auto;max-width:1100px;color:#222}
 h1{color:#004680;border-bottom:2px solid #004680;padding-bottom:6px}
@@ -1676,9 +1476,10 @@ nav a{color:#004680}"""
 )}
 
 {_section("d1","3.1 Data Overview",
-    "<h3>Input Statistics</h3>" + _img("data_input_stats") +
+    _tblh("describe_inputs", "Input Statistics — describe()") +
     "<h3>Input Histograms</h3>" + _img("data_input_hist") +
-    "<h3>Output Statistics</h3>" + _img("data_output_stats") +
+    "<h3>Input CDFs</h3>" + _img("data_input_cdf") +
+    _tblh("describe_outputs", "Output Statistics — describe()") +
     "<h3>Output Histograms</h3>" + _img("data_output_hist") +
     "<h3>Output CDFs</h3>" + _img("data_output_cdf")
 )}
@@ -1686,20 +1487,24 @@ nav a{color:#004680}"""
 {_section("d2","3.2 Train-Test Split Analysis",
     "<h3>Output Distributions</h3>" + _img("split_output_dists") +
     "<h3>Input Distributions</h3>" + _img("split_input_dists") +
-    "<h3>KS &amp; AD Test Table</h3>" + _img("split_ks_ad_table")
+    _tblh("split_ks_ad", "KS &amp; AD Test Table")
 )}
 
 {_section("d3","3.3 Error Quantification &mdash; P(E)",
-    "<h3>Residue Statistics</h3>" + _img("err_residue_stats") +
-    "<h3>Residue Histograms (Gaussian fit)</h3>" + _img("err_residue_hist") +
+    _tblh("res_stats", "Residue Statistics") +
+    _tblh("abs_stats", "Absolute Error Statistics") +
+    "<h3>Residue Histograms</h3>" + _img("err_residue_hist") +
     "<h3>Residue CDFs</h3>" + _img("err_residue_cdf") +
     "<h3>Absolute Error Histograms</h3>" + _img("err_abserr_hist") +
     "<h3>Relative Error CDFs — Q90 Requirement</h3>" + _img("err_relerr_cdf") + _q90_tbl() +
-    "<h3>True vs Predicted Distributions</h3>" + _img("err_true_vs_pred_dist")
+    "<h3>True vs Predicted Distributions</h3>" + _img("err_true_vs_pred_dist") +
+    _tblh("true_pred_pvals") +
+    "<h3>True vs Predicted — 2D Histogram</h3>" + _img("true_pred_hist2d") +
+    "<h3>Predicted vs True (scatter, colored by residue)</h3>" + _img("winner_pred_true")
 )}
 
 {_section("d4","3.4 P(E|X) &mdash; Error Conditional on Inputs",
-    "<h3>Bias Heatmap (KW p-values)</h3>" + _img("pex_bias_heatmap") +
+    _tblh("bias_kruskal", "Bias Detection Table (KW p-values)") +
     "<h3>Residue Violin per Output</h3>" + pex_res_html +
     "<h3>Absolute Error Violin per Output</h3>" + pex_abs_html
 )}
@@ -1712,8 +1517,8 @@ nav a{color:#004680}"""
 )}
 
 {_section("d6","3.6 Uncertainty Analysis",
-    "<h3>Sigma Coverage Table</h3>" + _cov_tbl() + _img("uncertainty_coverage") +
-    "<h3>±2σ Bounds on Predicted vs True</h3>" + _img("uncertainty_bounds")
+    "<h3>Coverage Plot</h3>" + _img("uncertainty_coverage") +
+    _tblh("uncertainty_coverage_tbl", "Coverage Table")
 )}
 
 <hr><p class="meta">Generated by Surrogate Factory v2.2 &mdash; Automated Validation Report</p>
