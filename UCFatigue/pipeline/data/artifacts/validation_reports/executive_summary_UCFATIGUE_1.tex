@@ -29,12 +29,12 @@
 \rfoot{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}\renewcommand{\footrulewidth}{0.4pt}
 \begin{document}
-% ════ EXECUTIVE SUMMARY ════
+% ==== EXECUTIVE SUMMARY ====
 \thispagestyle{fancy}
 
 \begin{center}
   {\large\bfseries\color{primary} Executive Summary --- Surrogate Model Validation Report}\\[2pt]
-  {\small\color{sepgray} Use case: \textbf{UCFATIGUE\_1} \quad|\quad 04 August 2026 \quad|\quad 2 model(s)}
+  {\small\color{sepgray} Use case: \textbf{UCFATIGUE\_1} \quad|\quad 31 August 2026 \quad|\quad 2 model(s)}
 \end{center}
 \vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{3pt}
 
@@ -61,7 +61,7 @@
 \end{tabular}
 
 \section{Variable Correlation --- Input vs Output}
-\begin{center}\includegraphics[width=\linewidth]{analysis_plots/data_scatter_vars.png}\end{center}
+\begin{center}\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_scatter_vars.png}\end{center}
 \section{Model Selection}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
@@ -94,8 +94,12 @@
 {\footnotesize \colorbox{r2green}{\ } R\textsuperscript{2}$\!\geq\!0.95$\enspace \colorbox{r2amber}{\ } R\textsuperscript{2}$\!\in[0.80,0.95)$\enspace \colorbox{failred}{\ } R\textsuperscript{2}$\!<\!0.80$ or Q90 fail\enspace \colorbox{passgreen}{\ } pass\enspace Gap$=$Q90$-$target ($<\!0\Rightarrow$ margin)}
 \end{minipage}
 
+\section{Training History}
+\begin{center}\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{../training_curve.png}\end{center}
+{\footnotesize Training loss per iteration, log scale. A validation panel is shown for models trained with early stopping. Gradient boosting reports per-stage deviance averaged over its per-output estimators.}
+
 \section{Predicted vs True --- GradientBoosting}
-\begin{center}\includegraphics[width=\linewidth]{../scatter_GradientBoosting.png}\end{center}
+\begin{center}\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/winner_pred_true.png}\end{center}
 
 
 \section{Data Split Quality}
@@ -139,7 +143,7 @@
 \end{center}
 \vspace*{\fill}
 \clearpage
-% ════ PART 3 — DEEP ANALYSIS ════
+% ==== PART 3 - DEEP ANALYSIS ====
 \label{sec:deepanalysis}
 \begin{center}
   {\normalsize\bfseries\color{primary} Deep Analysis --- GradientBoosting}\\[2pt]
@@ -159,19 +163,52 @@
 \section{Data Overview}
 \label{sec:d1}
 
-Statistical summary of inputs and outputs for \textbf{GradientBoosting} (all data: train + val + test combined). IQR = interquartile range; Skew and Kurt are the Fisher skewness and excess kurtosis. P10/P50/P90 are the 10th, 50th, and 90th percentiles.
+Statistical summary of inputs and outputs over all data (train + val + test), as reported by \texttt{describe()} in the feature-selection notebook: count, mean, standard deviation, minimum, quartiles and maximum per variable. All figures in this part are drawn by \texttt{validationlib}, matching the extended validation notebook.
 
 \exhead{Input Statistics}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_input_stats.png}\end{center}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
+\textbf{FLAP} & 869 & 2.219 & 5.37 & 0 & 0 & 0 & 0 & 23 \\ \hline
+\textbf{Altitude} & 869 & 9295 & 7702 & 18 & 2000 & 8000 & 1.5e+04 & 2.6e+04 \\ \hline
+\textbf{TAS} & 869 & 190.9 & 48.87 & 101 & 144 & 197.6 & 230 & 302 \\ \hline
+\textbf{Mass} & 869 & 1.887e+04 & 1325 & 1.412e+04 & 1.776e+04 & 1.89e+04 & 1.999e+04 & 2.189e+04 \\ \hline
+\textbf{q} & 869 & 4510 & 1845 & 1652 & 2881 & 3580 & 6375 & 9638 \\ \hline
+\textbf{gamma} & 869 & -0.2667 & 4.573 & -39.45 & -4.704 & 0 & 2.944 & 18.22 \\ \hline
+\textbf{Xcg(\%CMA)} & 869 & 19.41 & 4.095 & 14.6 & 16.43 & 18.5 & 20.58 & 29.3 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Input variables — Train\_set.describe()}
+\end{center}
 \exhead{Input Histograms}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_input_hist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_input_hist.png}\end{center}
+\exhead{Input Cumulative Distributions}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_input_cdf.png}\end{center}
 \exhead{Output Statistics}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_output_stats.png}\end{center}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
+\textbf{1g} & 869 & 53.62 & 8.296 & 31.56 & 47.36 & 51.78 & 61.56 & 73.31 \\ \hline
+\textbf{Vertical maneuver} & 869 & 19.14 & 2.454 & 12.03 & 17.18 & 18.89 & 21.39 & 24.47 \\ \hline
+\textbf{Vertical gust} & 869 & 0.6494 & 0.1681 & 0.3466 & 0.5097 & 0.575 & 0.806 & 1.092 \\ \hline
+\textbf{Turn} & 869 & 6.362 & 0.6415 & 4.122 & 6.01 & 6.382 & 6.83 & 7.53 \\ \hline
+\textbf{Frontal gust} & 869 & 0.4806 & 1.154 & 0 & 0 & 0 & 0 & 3.722 \\ \hline
+\textbf{n0} & 869 & 1.939 & 0.07768 & 1.73 & 1.9 & 1.94 & 1.98 & 2.19 \\ \hline
+\textbf{Giro} & 869 & 1.996 & 1.533 & 0.662 & 1.299 & 1.587 & 1.874 & 7.599 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Output variables — Train\_set.describe()}
+\end{center}
 \exhead{Output Histograms}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_output_hist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_output_hist.png}\end{center}
 \exhead{Output Cumulative Distributions}
-Vertical markers show P10, P50, and P90.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/data_output_cdf.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_output_cdf.png}\end{center}
 \clearpage
 \section{Train-Test Split Analysis}
 \label{sec:d2}
@@ -179,11 +216,27 @@ Vertical markers show P10, P50, and P90.
 A well-designed split produces training and test distributions that are similar but not identical. The Kolmogorov-Smirnov (KS) test and the Anderson-Darling (AD) test are used to assess distributional similarity. $H_0$: both sets come from the same distribution. $p<0.05$ rejects $H_0$ (undesirable if too low; undesirable if the split was done by stratification and $p$ is too high).
 
 \exhead{Output Distributions: Train vs Test}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/split_output_dists.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/split_output_dists.png}\end{center}
 \exhead{Input Distributions: Train vs Test}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/split_input_dists.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/split_input_dists.png}\end{center}
 \exhead{KS and AD Test Results}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/split_ks_ad_table.png}\end{center}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{} & \textbf{KS} & \textbf{AD} \\ \hline
+\textbf{1g} & \cellcolor{passgreen}0.12601607692346975 & \cellcolor{passgreen}0.16557574708490383 \\ \hline
+\textbf{Vertical maneuver} & \cellcolor{passgreen}0.9577252265855336 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Vertical gust} & \cellcolor{passgreen}0.4767770596888548 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Turn} & \cellcolor{passgreen}0.4440799002733104 & \cellcolor{passgreen}0.15119819759103426 \\ \hline
+\textbf{Frontal gust} & \cellcolor{passgreen}0.9999764926830589 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{n0} & \cellcolor{passgreen}0.7097390087434631 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Giro} & \cellcolor{passgreen}0.4078625477599695 & \cellcolor{passgreen}0.25 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Train vs test p-values. Red: $p<0.05$ (distributions differ).}
+\end{center}
 \clearpage
 \section{Error Quantification --- P(E)}
 \label{sec:d3}
@@ -195,18 +248,55 @@ Two error metrics are studied:
 \end{itemize}
 
 \exhead{Residue Statistics Table}
-Mean highlighted: green $|\mu|/\sigma<0.10$, yellow $<0.30$, red $\geq 0.30$.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_residue_stats.png}\end{center}
-\exhead{Residue Histograms with Gaussian Fit}
-Red curve = fitted normal distribution. Deviation from the normal indicates heavy tails or skew.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_residue_hist.png}\end{center}
+Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
+\textbf{1g} & 174 & -9.66 & 1.97 & -0.210 & $^{-0.0725}_{-0.387}$ & -0.0456 & $^{-0.00561}_{-0.139}$ & 1.16 & $^{1.62}_{0.675}$ & 0.594 & $^{0.707}_{0.416}$ & 29.2 & $^{41.7}_{3.80}$ & -4.36 & $^{-0.772}_{-5.53}$ \\ \hline
+\textbf{Vertical maneuver} & 174 & -2.39 & 1.85 & -0.0341 & $^{0.0216}_{-0.0879}$ & -0.00741 & $^{0.0164}_{-0.0295}$ & 0.419 & $^{0.496}_{0.308}$ & 0.224 & $^{0.270}_{0.185}$ & 10.8 & $^{16.8}_{5.61}$ & -1.61 & $^{0.800}_{-2.97}$ \\ \hline
+\textbf{Vertical gust} & 174 & -0.127 & 0.0307 & -0.00243 & $^{-0.000467}_{-0.00499}$ & -0.00131 & $^{0.000279}_{-0.00260}$ & 0.0157 & $^{0.021}_{0.0112}$ & 0.00965 & $^{0.0127}_{0.00848}$ & 23.7 & $^{34.4}_{3.56}$ & -3.64 & $^{-0.865}_{-4.68}$ \\ \hline
+\textbf{Turn} & 174 & -0.840 & 0.881 & -0.0176 & $^{0.00779}_{-0.0429}$ & -0.00305 & $^{0.0129}_{-0.0161}$ & 0.184 & $^{0.219}_{0.142}$ & 0.0983 & $^{0.14}_{0.0723}$ & 8.00 & $^{12.2}_{3.93}$ & -0.788 & $^{0.686}_{-2.21}$ \\ \hline
+\textbf{Frontal gust} & 174 & -0.249 & 0.628 & 0.00612 & $^{0.0162}_{-0.00242}$ & 0.0000916 & $^{0.0000916}_{0.0000916}$ & 0.068 & $^{0.101}_{0.0266}$ & 0.0000000000000000139 & $^{0.0000000000000000936}_{0.00}$ & 48.3 & $^{99.3}_{16.6}$ & 5.57 & $^{8.95}_{-4.69}$ \\ \hline
+\textbf{n0} & 174 & -0.0583 & 0.0883 & 0.00218 & $^{0.00482}_{-0.000106}$ & 0.00135 & $^{0.00311}_{-0.00159}$ & 0.0192 & $^{0.0231}_{0.0154}$ & 0.0150 & $^{0.0197}_{0.0122}$ & 4.62 & $^{6.81}_{1.05}$ & 0.979 & $^{1.80}_{-0.203}$ \\ \hline
+\textbf{Giro} & 174 & -1.55 & 1.51 & -0.034 & $^{0.00362}_{-0.0684}$ & -0.0113 & $^{-0.00241}_{-0.024}$ & 0.308 & $^{0.374}_{0.219}$ & 0.142 & $^{0.184}_{0.0888}$ & 11.1 & $^{17.0}_{6.54}$ & -0.253 & $^{1.43}_{-2.16}$ \\ \hline
+\end{tabular}
+}
+\par\vspace{2pt}
+{\scriptsize Residue statistics with bootstrap confidence intervals (superscript/subscript bounds).}
+\end{center}
+\exhead{Absolute Error Statistics Table}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
+\textbf{1g} & 174 & 0.00282 & 9.66 & 0.572 & $^{0.733}_{0.449}$ & 0.246 & $^{0.359}_{0.228}$ & 1.03 & $^{1.48}_{0.521}$ & 0.55 & $^{0.635}_{0.431}$ & 39.7 & $^{54.5}_{7.64}$ & 5.57 & $^{6.69}_{2.53}$ \\ \hline
+\textbf{Vertical maneuver} & 174 & 0.000887 & 2.39 & 0.229 & $^{0.275}_{0.180}$ & 0.113 & $^{0.135}_{0.0919}$ & 0.353 & $^{0.448}_{0.235}$ & 0.177 & $^{0.227}_{0.141}$ & 13.9 & $^{24.8}_{6.47}$ & 3.45 & $^{4.36}_{2.53}$ \\ \hline
+\textbf{Vertical gust} & 174 & 0.0000312 & 0.127 & 0.00882 & $^{0.0109}_{0.0074}$ & 0.00550 & $^{0.00612}_{0.00427}$ & 0.0132 & $^{0.0184}_{0.00795}$ & 0.00731 & $^{0.00933}_{0.00636}$ & 38.1 & $^{55.2}_{6.46}$ & 5.28 & $^{6.34}_{2.16}$ \\ \hline
+\textbf{Turn} & 174 & 0.00162 & 0.881 & 0.105 & $^{0.126}_{0.0815}$ & 0.0513 & $^{0.0605}_{0.0362}$ & 0.153 & $^{0.184}_{0.12}$ & 0.0955 & $^{0.134}_{0.0696}$ & 9.81 & $^{15.1}_{5.35}$ & 3.00 & $^{3.55}_{2.38}$ \\ \hline
+\textbf{Frontal gust} & 174 & 0.0000916 & 0.628 & 0.0162 & $^{0.0256}_{0.00916}$ & 0.0000916 & $^{0.0000916}_{0.0000916}$ & 0.0663 & $^{0.103}_{0.0315}$ & 0.00198 & $^{0.00529}_{0.000403}$ & 49.2 & $^{81.4}_{14.4}$ & 6.54 & $^{8.33}_{3.84}$ \\ \hline
+\textbf{n0} & 174 & 0.0000560 & 0.0883 & 0.0130 & $^{0.0159}_{0.0112}$ & 0.00763 & $^{0.0100}_{0.00665}$ & 0.0143 & $^{0.0181}_{0.0108}$ & 0.0141 & $^{0.0192}_{0.0113}$ & 8.74 & $^{11.1}_{2.87}$ & 2.52 & $^{2.93}_{1.59}$ \\ \hline
+\textbf{Giro} & 174 & 0.00118 & 1.55 & 0.158 & $^{0.199}_{0.115}$ & 0.0569 & $^{0.0892}_{0.0443}$ & 0.266 & $^{0.337}_{0.184}$ & 0.149 & $^{0.196}_{0.0872}$ & 12.4 & $^{22.9}_{6.44}$ & 3.36 & $^{4.27}_{2.56}$ \\ \hline
+\end{tabular}
+}
+\par\vspace{2pt}
+{\scriptsize Absolute-error statistics with bootstrap confidence intervals.}
+\end{center}
+\exhead{Residue Histograms}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_residue_hist.png}\end{center}
 \exhead{Residue CDF}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_residue_cdf.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_residue_cdf.png}\end{center}
 \exhead{Absolute Error Histograms}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_abserr_hist.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_abserr_hist.png}\end{center}
 \exhead{Relative Absolute Error CDF --- Q90 Accuracy Requirement}
 Orange dotted = observed Q90; red dashed = target threshold. Green title = PASS; red title = FAIL.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_relerr_cdf.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_relerr_cdf.png}\end{center}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|r|r|c|}
@@ -224,53 +314,89 @@ Orange dotted = observed Q90; red dashed = target threshold. Green title = PASS;
 \end{minipage}
 
 \exhead{True vs Predicted Distribution Comparison}
-KS test comparing the distribution of true vs.\ predicted values on the test set. A significant difference indicates the model is not reproducing the output distribution faithfully.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/err_true_vs_pred_dist.png}\end{center}
+AD and KS tests comparing the distribution of true vs.\ predicted values on the test set. A significant difference indicates the model is not reproducing the output distribution faithfully.
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_true_vs_pred_dist.png}\end{center}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|}
+\hline
+\textbf{} & \textbf{AD} & \textbf{KS} \\ \hline
+\textbf{1g} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9931635214778011 \\ \hline
+\textbf{Vertical maneuver} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9372048405515155 \\ \hline
+\textbf{Vertical gust} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9747502686921694 \\ \hline
+\textbf{Turn} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9372048405515155 \\ \hline
+\textbf{Frontal gust} & \cellcolor{failred}0.001 & \cellcolor{failred}5.39371043839088e-46 \\ \hline
+\textbf{n0} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.6278128269392703 \\ \hline
+\textbf{Giro} & \cellcolor{passgreen}0.21426024782534803 & \cellcolor{passgreen}0.12392282795362734 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize True vs predicted distribution tests. Red: $p<0.05$.}
+\end{center}
+\exhead{True vs Predicted --- 2D Histogram}
+Log-scaled frequency with a linear fit; the normalized slope should be close to 1.
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/true_pred_hist2d.png}\end{center}
 \clearpage
 \section{P(E|X) --- Error Conditional on Inputs}
 \label{sec:d4}
 
 We study whether the model error depends on the input variables. Two approaches are used: (1) a Kruskal-Wallis (KW) test on binned inputs (Sturges rule for bin count), and (2) violin plots showing the error distribution within each input bin.
 
-Significant input-conditional bias ($p<0.05$) detected for: \textcolor{red}{\textit{FLAP$\to$Turn, Mass$\to$Frontal gust, q$\to$Vertical maneuver, q$\to$Vertical gust, q$\to$Turn, q$\to$Giro, gamma$\to$Frontal gust, Xcg(\%CMA)$\to$Frontal gust, Xcg(\%CMA)$\to$Giro}}. These inputs explain residual variance --- consider polynomial features or interaction terms.
+Significant input-conditional bias ($p<0.05$) detected for: \textcolor{red}{\textit{FLAP$\to$Turn, Mass$\to$1g, Mass$\to$Frontal gust, Mass$\to$n0, q$\to$1g, q$\to$Vertical maneuver, q$\to$Vertical gust, q$\to$Turn, q$\to$Giro, gamma$\to$Frontal gust\ldots}}. These inputs explain residual variance --- consider polynomial features or interaction terms.
 
-\exhead{Bias Detection Heatmap (KW p-values)}
-Rows = inputs, columns = outputs. Green ($p\geq 0.05$) = residue uniform across input bins; red ($p<0.05$) = significant bias.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_bias_heatmap.png}\end{center}
+\exhead{Bias Detection Table (KW p-values)}
+Green ($p\geq 0.05$) = residue uniform across input bins; red ($p<0.05$) = significant bias.
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{1g} & \textbf{Vertical maneuver} & \textbf{Vertical gust} & \textbf{Turn} & \textbf{Frontal gust} & \textbf{n0} & \textbf{Giro} \\ \hline
+\textbf{FLAP\_binned} & \cellcolor{passgreen}0.2065973724768399 & \cellcolor{passgreen}0.06104011718038691 & \cellcolor{passgreen}0.15668564248348774 & \cellcolor{failred}0.005793851223069571 & \cellcolor{passgreen}0.1014815355213955 & \cellcolor{passgreen}0.7590522430096617 & \cellcolor{passgreen}0.37270366641352304 \\ \hline
+\textbf{Altitude\_binned} & \cellcolor{passgreen}0.7600647376528422 & \cellcolor{passgreen}0.6685726985430076 & \cellcolor{passgreen}0.20770302663221002 & \cellcolor{passgreen}0.4911758164166914 & \cellcolor{passgreen}0.9793899233159972 & \cellcolor{passgreen}0.675742285151472 & \cellcolor{passgreen}0.10624926417271593 \\ \hline
+\textbf{TAS\_binned} & \cellcolor{passgreen}0.373883876500768 & \cellcolor{passgreen}0.8346350123713844 & \cellcolor{passgreen}0.7358769291681275 & \cellcolor{passgreen}0.07180184139864736 & \cellcolor{passgreen}0.551546577470945 & \cellcolor{passgreen}0.27378578912030466 & \cellcolor{passgreen}0.3334753392205595 \\ \hline
+\textbf{Mass\_binned} & \cellcolor{failred}0.03979950129289494 & \cellcolor{passgreen}0.13958767162222122 & \cellcolor{passgreen}0.7809502379154429 & \cellcolor{passgreen}0.08975212620353369 & \cellcolor{failred}0.0010053396346996445 & \cellcolor{failred}0.01571852447479331 & \cellcolor{passgreen}0.1062533266323166 \\ \hline
+\textbf{q\_binned} & \cellcolor{failred}0.029142840681280292 & \cellcolor{failred}0.004109515764661657 & \cellcolor{failred}0.004352593886667565 & \cellcolor{failred}0.04687166937364112 & \cellcolor{passgreen}0.11813938954130444 & \cellcolor{passgreen}0.2334386536796402 & \cellcolor{failred}4.5431455475242855e-05 \\ \hline
+\textbf{gamma\_binned} & \cellcolor{passgreen}0.0573856197493953 & \cellcolor{passgreen}0.6324324031842394 & \cellcolor{passgreen}0.7522158259107165 & \cellcolor{passgreen}0.25033324446048494 & \cellcolor{failred}0.0022809160003603316 & \cellcolor{passgreen}0.056145339726880863 & \cellcolor{passgreen}0.2246068001448132 \\ \hline
+\textbf{Xcg(\%CMA)\_binned} & \cellcolor{failred}0.047851843523705626 & \cellcolor{passgreen}0.4163741104766572 & \cellcolor{passgreen}0.39974574684579645 & \cellcolor{passgreen}0.3511065757629104 & \cellcolor{failred}0.008719903210092386 & \cellcolor{passgreen}0.5115887148277983 & \cellcolor{failred}0.0381511594113273 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Kruskal-Wallis p-values on Sturges-binned inputs. Red: $p<0.05$ (error depends on that input).}
+\end{center}
 \clearpage
 \exhead{Residue Violin Plots per Output (binned by input)}
 Each panel shows the residue distribution for each input bin. A flat median line (dashed at 0) and symmetric violins indicate absence of bias.
 
 \subsection*{\normalsize Residue --- 1g}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_1g.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_1g.png}\end{center}
 \subsection*{\normalsize Residue --- Vertical maneuver}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Vertical_maneuver.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Vertical_maneuver.png}\end{center}
 \subsection*{\normalsize Residue --- Vertical gust}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Vertical_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Vertical_gust.png}\end{center}
 \subsection*{\normalsize Residue --- Turn}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Turn.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Turn.png}\end{center}
 \subsection*{\normalsize Residue --- Frontal gust}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Frontal_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Frontal_gust.png}\end{center}
 \subsection*{\normalsize Residue --- n0}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_n0.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_n0.png}\end{center}
 \subsection*{\normalsize Residue --- Giro}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_res_Giro.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Giro.png}\end{center}
 \clearpage
 \exhead{Absolute Error Violin Plots per Output (binned by input)}
 \subsection*{\normalsize Absolute Error --- 1g}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_1g.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_1g.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Vertical maneuver}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Vertical_maneuver.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Vertical_maneuver.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Vertical gust}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Vertical_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Vertical_gust.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Turn}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Turn.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Turn.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Frontal gust}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Frontal_gust.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Frontal_gust.png}\end{center}
 \subsection*{\normalsize Absolute Error --- n0}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_n0.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_n0.png}\end{center}
 \subsection*{\normalsize Absolute Error --- Giro}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pex_violin_abs_Giro.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Giro.png}\end{center}
 \clearpage
 \section{P(E|Y) --- Error Conditional on Outputs}
 \label{sec:d5}
@@ -279,25 +405,35 @@ We study whether the error depends on the output magnitude. A significant trend 
 
 \exhead{Residue vs True Output --- Scatter}
 Pearson r and p-value shown in title. Red title = significant linear trend.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_residue_scatter.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_residue_scatter.png}\end{center}
 \exhead{Residue Violin vs True Output Bins}
 Bins determined by Sturges rule. Median line dashed at 0.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_residue_violin.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_residue_violin.png}\end{center}
 \exhead{Absolute Error vs True Output --- Scatter}
 Spearman r shown. Red title = significant monotonic trend.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_abserr_scatter.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_abserr_scatter.png}\end{center}
 \exhead{Absolute Error Violin vs True Output Bins}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/pey_abserr_violin.png}\end{center}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_abserr_violin.png}\end{center}
 \clearpage
 \section{Uncertainty Analysis}
 \label{sec:d6}
 
-A global Gaussian uncertainty model is estimated from the residue standard deviation on the test set. Coverage is the empirical proportion of test points within $\pm k\sigma$ bounds. For a perfectly Gaussian error, $\pm 1\sigma$ should cover 68.3\%, $\pm 2\sigma$ 95.4\%, $\pm 3\sigma$ 99.7\%. Green = within 3\% of Gaussian expectation, yellow = within 10\%, red = significant deviation.
+A global binned uncertainty model (95th percentile, right-tailed) is trained on the validation split of the absolute error and evaluated on the held-out test split, as in the extended validation notebook. Coverage is the proportion of test points whose error falls inside the predicted bound; it should be close to 95\%.
 
-\exhead{Sigma Coverage Table}
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/uncertainty_coverage.png}\end{center}
-\exhead{Uncertainty Bounds $\pm 2\sigma$ on Predicted vs True}
-Orange ribbon = $\pm 2\sigma$ around the prediction. Points outside the ribbon are larger errors than expected under the Gaussian model.
-\begin{center}\includegraphics[width=1.0\linewidth]{analysis_plots/uncertainty_bounds.png}\end{center}
+\exhead{Coverage Plot}
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/uncertainty_coverage.png}\end{center}
+\exhead{Coverage Table}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{1g} & \textbf{Vertical maneuver} & \textbf{Vertical gust} & \textbf{Turn} & \textbf{Frontal gust} & \textbf{n0} & \textbf{Giro} & \textbf{TOTAL COV} \\ \hline
+\textbf{Coverage} & 97.13 & 94.25 & 94.25 & 94.83 & 94.83 & 96.55 & 92.53 & nan \\ \hline
+\textbf{CI} & [93.42, 99.06] & [89.68, 97.21] & [89.68, 97.21] & [90.41, 97.61] & [90.41, 97.61] & [92.65, 98.72] & [87.56, 95.96] & nan \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Empirical coverage of the 95th-percentile uncertainty bound on the test split.}
+\end{center}
 
 \end{document}

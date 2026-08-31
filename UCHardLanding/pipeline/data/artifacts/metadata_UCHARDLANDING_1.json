@@ -1,5 +1,197 @@
 {
+    "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/model_validation/training_curve.py",
     "metadata": {
+        "Model_Validation": {
+            "training_curve": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/artifacts/training_curve.png",
+            "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/model_validation/visualize.py",
+            "validation_results": [
+                {
+                    "output": "O1",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "GradientBoosting": {
+                            "score": 0.04070952866850995,
+                            "passed": true
+                        },
+                        "MLP": {
+                            "score": 0.0443379603372369,
+                            "passed": true
+                        }
+                    }
+                },
+                {
+                    "output": "O2",
+                    "metric": "quantile90",
+                    "target": 0.1,
+                    "models": {
+                        "GradientBoosting": {
+                            "score": 0.08696648520872328,
+                            "passed": true
+                        },
+                        "MLP": {
+                            "score": 0.08505621472666645,
+                            "passed": true
+                        }
+                    }
+                }
+            ],
+            "distribution_tests": {
+                "GradientBoosting": {
+                    "O1": 0.07423951508276272,
+                    "O2": 0.16233529571219651
+                },
+                "MLP": {
+                    "O1": 0.708594317311237,
+                    "O2": 0.8056796054041998
+                }
+            },
+            "scores": {
+                "GradientBoosting": {
+                    "O1": {
+                        "quantile90": 0.04070952866850995,
+                        "quantile95": 0.05282073509089711,
+                        "quantile99": 0.08226107239385173,
+                        "lstsq": 0.9992837312199592,
+                        "explained_variance": 0.9959902904425101,
+                        "max_error": 0.04763540843513603,
+                        "mean_absolute_error": 0.007539887437106126,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 4.6734574078841746e-05,
+                        "median_absolute_error": 0.005972078625464977,
+                        "R2": 0.9959901993367792,
+                        "mean_poisson_deviance": 0.00024005927884701407,
+                        "mean_gamma_deviance": 0.0007125960823871476,
+                        "mean_absolute_percentage_error": 0.01994116661589769
+                    },
+                    "O2": {
+                        "quantile90": 0.08696648520872328,
+                        "quantile95": 0.1068453862966108,
+                        "quantile99": 0.15768046677759165,
+                        "lstsq": 0.9949953569069271,
+                        "explained_variance": 0.9712044376858119,
+                        "max_error": 0.44861820918513906,
+                        "mean_absolute_error": 0.01369702221563546,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.00021246656280099387,
+                        "median_absolute_error": 0.01046557048351282,
+                        "R2": 0.9711988025210485,
+                        "mean_poisson_deviance": 0.001141017365643294,
+                        "mean_gamma_deviance": 0.0035405407020988556,
+                        "mean_absolute_percentage_error": 0.0430228099068729
+                    }
+                },
+                "MLP": {
+                    "O1": {
+                        "quantile90": 0.0443379603372369,
+                        "quantile95": 0.05731363027514837,
+                        "quantile99": 0.09501328722635771,
+                        "lstsq": 0.9927689563959989,
+                        "explained_variance": 0.9954607408855795,
+                        "max_error": 0.05024390419745467,
+                        "mean_absolute_error": 0.00824212379947677,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 5.519349763420261e-05,
+                        "median_absolute_error": 0.006573831656964513,
+                        "R2": 0.99521151069405,
+                        "mean_poisson_deviance": 0.00028715179567505734,
+                        "mean_gamma_deviance": 0.000895112199533707,
+                        "mean_absolute_percentage_error": 0.0218376577555876
+                    },
+                    "O2": {
+                        "quantile90": 0.08505621472666645,
+                        "quantile95": 0.10784232262073488,
+                        "quantile99": 0.16330215244289642,
+                        "lstsq": 0.9942520207995243,
+                        "explained_variance": 0.9704595488829312,
+                        "max_error": 0.4583814515557164,
+                        "mean_absolute_error": 0.01322493809026429,
+                        "mse": null,
+                        "rmse": null,
+                        "mean_squared_log_error": 0.000210642313050083,
+                        "median_absolute_error": 0.009842802139836543,
+                        "R2": 0.9704577124642831,
+                        "mean_poisson_deviance": 0.0011250823062705286,
+                        "mean_gamma_deviance": 0.003482715995948939,
+                        "mean_absolute_percentage_error": 0.04181749542547175
+                    }
+                }
+            },
+            "split_validation": {
+                "residual_voxel_proportion": 0.0,
+                "valid_test_proportion": 0.968,
+                "phacking_test_proportion": 0.0085,
+                "isolated_test_proportion": 0.0235,
+                "isolated_train_proportion": 0.0,
+                "chi_squared_pvalue": null
+            },
+            "scatter_variables": [],
+            "scatter_method": "scatter",
+            "method": "score",
+            "criteria": [
+                {
+                    "value": 0
+                }
+            ]
+        },
+        "Model_Storage": {
+            "Store": {
+                "integration_test": {
+                    "passed": true,
+                    "results": [
+                        {
+                            "label": "GradientBoosting",
+                            "passed": true,
+                            "reason": ""
+                        },
+                        {
+                            "label": "MLP",
+                            "passed": true,
+                            "reason": ""
+                        }
+                    ],
+                    "storage_path": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store"
+                },
+                "path_to_script": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/python_nodes_library/storage/integration.py",
+                "pipelines": [
+                    {
+                        "label": "GradientBoosting",
+                        "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store/pipeline_UCHARDLANDING_1_GradientBoosting.pkl",
+                        "outputs": [
+                            "O1",
+                            "O2"
+                        ]
+                    },
+                    {
+                        "label": "MLP",
+                        "pipeline_file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store/pipeline_UCHARDLANDING_1_MLP.pkl",
+                        "outputs": [
+                            "O1",
+                            "O2"
+                        ]
+                    }
+                ],
+                "manifest": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store/manifest.json",
+                "storage_path": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store",
+                "models": [
+                    {
+                        "label": "GradientBoosting",
+                        "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store/model_UCHARDLANDING_1_GradientBoosting.modl"
+                    },
+                    {
+                        "label": "MLP",
+                        "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store/model_UCHARDLANDING_1_MLP.modl"
+                    },
+                    {
+                        "label": "preprocessor",
+                        "file": "/Users/martaarnabatmartin/Desktop/Pipelines/UCHardLanding/pipeline/data/model_store/preprocess_UCHARDLANDING_1.pkl"
+                    }
+                ]
+            }
+        },
         "Model_Deployment": {
             "pipelines": [
                 {
@@ -64,7 +256,7 @@
             "Tracking": {
                 "eval": {
                     "MLP": {
-                        "run_id": "13212d49ebec48ada15085b40be00843"
+                        "run_id": "8d6f7ea8a91c45349ddfb1614ac0a6b5"
                     }
                 }
             },
