@@ -186,7 +186,7 @@ _GFX_FIT  = r'width=\linewidth,' + _GFX_MAXH + r',keepaspectratio'
 # Two figures get their own box. The training curve is an inset, not a page
 # filler; the correlation matrix must sit whole on the page its section opens.
 _GFX_CURVE  = r'width=0.70\linewidth,height=0.28\textheight,keepaspectratio'
-_GFX_MATRIX = r'width=0.88\linewidth,height=0.74\textheight,keepaspectratio'
+_GFX_MATRIX = r'width=0.80\linewidth,height=0.46\textheight,keepaspectratio'
 
 
 # ── Preamble ───────────────────────────────────────────────────────────────────
@@ -448,10 +448,10 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         rf'  \textbf{{Accuracy target}}    & Q90 $<$ {target_pct} relative error per output \\ \hline' + '\n'
         r'\end{tabular}' + '\n\n'
 
-        # 3. Variable correlation scatter — opens its own page so the matrix
-        # always lands whole on the first page of the section, never split or
-        # pushed off the bottom by whatever preceded it.
-        r'\clearpage' + '\n'
+        # 3. Variable correlation scatter — must sit on the FIRST page of the
+        # report, in the space left under the banner and project table. The box
+        # is capped at 46 % of the text height so it fits there whatever the
+        # banner's height; LaTeX would otherwise float it to page 2.
         r'\section{Variable Correlation --- Input vs Output}' + '\n'
         + (r'\begin{center}\includegraphics[' + _GFX_MATRIX + r']{'
            + os.path.relpath(paths['data_scatter_vars'], str(out_dir))

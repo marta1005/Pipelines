@@ -131,15 +131,30 @@ def render(curves, dest: Path):
 
     # Library defaults (figHsize=7, aspect 1.5) give a poster-sized panel per
     # model; this keeps it a modest inset in the report.
+    # No figure-level title: at this size the library's suptitle lands on top
+    # of the per-panel titles, and the report section heading already names it.
     fig = training_curves_plot(
         training_metrics=training,
         validation_metrics=validation,
         plot_by_epoch=False,
-        title='Training history',
         ylogscale=True,
         figHsize=4.0,
-        figAspectRatio=1.6,
+        figAspectRatio=1.5,
     )
+    # The compact size also crowds the x ticks into an unreadable run
+    # ("0 50 100 150 200 …"); thin them and shrink the text to match.
+    from matplotlib.ticker import MaxNLocator
+    for ax in fig.get_axes():
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))
+        ax.tick_params(labelsize=7)
+        ax.xaxis.label.set_size(8)
+        ax.yaxis.label.set_size(8)
+        ax.title.set_size(9)
+        leg = ax.get_legend()
+        if leg is not None:
+            for t in leg.get_texts():
+                t.set_fontsize(7)
+    fig.tight_layout()
 
     dest.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(dest, dpi=110, bbox_inches='tight')
