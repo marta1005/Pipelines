@@ -76,7 +76,100 @@ def _tbl_with_legend(tbl_tex, legend_tex):
             + r'\end{minipage}')
 
 
+# ── Split quality (VTPM) table ─────────────────────────────────────────────────
+# Shared by Part 1 and Part 3. The voxel-tesselation proximity method from
+# validationlib flags three kinds of test point: p-hacking (too close to a
+# training point — the test would flatter the model), isolated (too far from
+# any training point — outside what was learned) and residual-voxel (in a
+# region with no training data at all). The residual-voxel and chi-squared
+# thresholds are the library's own; the 5 % marks on the p-hacking and isolated
+# proportions are warning levels, not pass/fail criteria.
+PHACK_WARN = 0.05
+ISOL_WARN  = 0.05
+
+
+def _split_quality_tbl(split):
+    split = split or {}
+
+    def _sv(key, fmt='.3f'):
+        v = split.get(key)
+        return f'{v:{fmt}}' if v is not None else r'\textemdash'
+
+    def _si(key, op, th):
+        v = split.get(key)
+        if v is None: return r'\textemdash'
+        ok = (v <= th) if op == '<=' else (v >= th)
+        return r'\cellcolor{passgreen}$\checkmark$' if ok else r'\cellcolor{failred}$\times$'
+
+    return (
+        r'\begin{minipage}{\linewidth}' + '\n'
+        r'\renewcommand{\arraystretch}{1.2}' + '\n'
+        r'\begin{tabular}{|l|r|c|}' + '\n'
+        r'  \hline\textbf{Metric} & \textbf{Value} & \textbf{Pass} \\ \hline' + '\n'
+        rf'  Residual voxel proportion ($\leq\!0.05$) & {_sv("residual_voxel_proportion")} & {_si("residual_voxel_proportion","<=",0.05)} \\ \hline' + '\n'
+        rf'  Valid test proportion & {_sv("valid_test_proportion")} & \\ \hline' + '\n'
+        rf'  p-hacking test proportion ($\leq\!{PHACK_WARN:.2f}$ warn) & {_sv("phacking_test_proportion")} & {_si("phacking_test_proportion","<=",PHACK_WARN)} \\ \hline' + '\n'
+        rf'  Isolated test proportion ($\leq\!{ISOL_WARN:.2f}$ warn) & {_sv("isolated_test_proportion")} & {_si("isolated_test_proportion","<=",ISOL_WARN)} \\ \hline' + '\n'
+        rf'  Chi\textsuperscript{{2}} p-value ($\geq\!0.05$) & {_sv("chi_squared_pvalue",".4f")} & {_si("chi_squared_pvalue",">=",0.05)} \\ \hline' + '\n'
+        r'\end{tabular}' + '\n'
+        r'\end{minipage}'
+    )
+
+
+def _split_quality_prose(split):
+    """One-paragraph reading of the VTPM result, for the Train-Test section."""
+    split = split or {}
+    ph, iso = split.get('phacking_test_proportion'), split.get('isolated_test_proportion')
+    if ph is None:
+        return (r'\textit{Split validation was not recorded in the metadata '
+                r'(SF\_9 cell 9.0); run it to obtain the p-hacking check.}')
+    # Two different findings, two different readings: p-hacking makes the test
+    # error optimistic, isolation makes it pessimistic (extrapolation).
+    if ph <= PHACK_WARN:
+        phack = (rf'\textcolor{{passgreen!60!black}}{{\textbf{{No p-hacking concern:}}}} '
+                 rf'only {_pct(ph, 1)} of test points lie closer to a training point than '
+                 rf'training points are to each other, so the test error is not flattered.')
+    else:
+        phack = (rf'\textcolor{{failred!70!black}}{{\textbf{{p-hacking risk:}}}} {_pct(ph, 1)} '
+                 rf'of test points sit closer to a training point than training points are '
+                 rf'to each other. Errors on those points are optimistic; read the reported '
+                 rf'accuracy with that in mind, or redraw the split.')
+    if iso is None or iso <= ISOL_WARN:
+        isol = ''
+    else:
+        isol = (rf' \textcolor{{failred!70!black}}{{\textbf{{Isolated points:}}}} {_pct(iso, 1)} '
+                rf'of test points have no training point nearby, so part of the test error '
+                rf'measures extrapolation rather than interpolation --- the model may look '
+                rf'worse there than it is in the region it was trained on.')
+    return phack + isol
+
+
 # ── Data extraction ────────────────────────────────────────────────────────────
+
+def _scatter_cfg_from(meta_path: Path, val: dict) -> dict:
+    """
+    Which variables the correlation matrix shows.
+
+    The SF_9 yaml next to the pipeline is the source of truth: the metadata
+    JSON only receives a copy of it when SF_9 is re-run through
+    import_metadata, so an edit to the yaml would otherwise be ignored until
+    the whole validation stage is executed again.
+    """
+    cfg = {'variables': list(val.get('scatter_variables') or []),
+           'method': val.get('scatter_method') or 'scatter'}
+    yml = meta_path.resolve().parent.parent.parent / 'metadata' / 'SF_9_Model_Validation.yaml'
+    if yml.exists():
+        try:
+            import yaml
+            mv = (yaml.safe_load(yml.read_text()) or {}).get('Model_Validation') or {}
+            if mv.get('scatter_variables'):
+                cfg['variables'] = list(mv['scatter_variables'])
+            if mv.get('scatter_method'):
+                cfg['method'] = mv['scatter_method']
+        except Exception as e:
+            print(f'  scatter config: could not read {yml.name} ({type(e).__name__}); using metadata')
+    return cfg
+
 
 def extract(meta_path: Path) -> dict:
     with open(meta_path) as f:
@@ -126,8 +219,7 @@ def extract(meta_path: Path) -> dict:
         # Needed to recover the training curves, which live inside the fitted
         # estimators rather than in the metadata.
         model_files={m['label']: m.get('file') for m in trn.get('Models', [])},
-        scatter_cfg={'variables': val.get('scatter_variables') or [],
-                     'method': val.get('scatter_method') or 'scatter'},
+        scatter_cfg=_scatter_cfg_from(meta_path, val),
         pct_train=part.get('train'),
         pct_val=part.get('validation') or part.get('val'),
         pct_test=part.get('test'),
@@ -273,7 +365,13 @@ def _banner(d, best, rows):
 
 # ── Executive Summary ──────────────────────────────────────────────────────────
 
-def _part1(d, best, rows, scatter_paths, paths, out_dir):
+def _part1(d, best, rows, scatter_paths, paths, out_dir, stats=None):
+    tables = (stats or {}).get('tables') or {}
+
+    def _tbl(key):
+        """A native LaTeX table produced alongside the validationlib figures."""
+        return tables.get(key, {}).get('tex', '')
+
     uc          = _esc(d['use_case'])
     n_out       = len(d['outputs'])
     n_models    = len(d['models'])
@@ -399,30 +497,8 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         r'\end{tabular}'
     )
 
-    # ── Data Split Quality table ───────────────────────────────────────────────
-    def _sv(key, fmt='.3f'):
-        v = split.get(key)
-        return f'{v:{fmt}}' if v is not None else r'\textemdash'
-
-    def _si(key, op, th):
-        v = split.get(key)
-        if v is None: return r'\textemdash'
-        ok = (v <= th) if op == '<=' else (v >= th)
-        return r'\cellcolor{passgreen}$\checkmark$' if ok else r'\cellcolor{failred}$\times$'
-
-    split_tbl = (
-        r'\begin{minipage}{\linewidth}' + '\n'
-        r'\renewcommand{\arraystretch}{1.2}' + '\n'
-        r'\begin{tabular}{|l|r|c|}' + '\n'
-        r'  \hline\textbf{Metric} & \textbf{Value} & \textbf{Pass} \\ \hline' + '\n'
-        rf'  Residual voxel proportion ($\leq\!0.05$) & {_sv("residual_voxel_proportion")} & {_si("residual_voxel_proportion","<=",0.05)} \\ \hline' + '\n'
-        rf'  Valid test proportion & {_sv("valid_test_proportion")} & \\ \hline' + '\n'
-        rf'  Phacking test proportion & {_sv("phacking_test_proportion")} & \\ \hline' + '\n'
-        rf'  Isolated test proportion & {_sv("isolated_test_proportion")} & \\ \hline' + '\n'
-        rf'  Chi\textsuperscript{{2}} p-value ($\geq\!0.05$) & {_sv("chi_squared_pvalue",".4f")} & {_si("chi_squared_pvalue",">=",0.05)} \\ \hline' + '\n'
-        r'\end{tabular}' + '\n'
-        r'\end{minipage}'
-    )
+    # ── Data Split Quality table (shared with Part 3) ──────────────────────────
+    split_tbl = _split_quality_tbl(split) + '\n' + _split_quality_prose(split)
 
     return (
         '% ==== EXECUTIVE SUMMARY ====\n'
@@ -457,6 +533,16 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
            + os.path.relpath(paths['data_scatter_vars'], str(out_dir))
            + r'}\end{center}' + '\n'
            if paths.get('data_scatter_vars') else '')
+
+        # 3b. Data statistics right under the matrix — the feature-selection
+        # notebook's describe() for inputs and outputs (also in Part 3).
+        + ((r'\section{Data Statistics}' + '\n'
+            r'Per-variable statistics over all data (train + val + test), as '
+            r'\texttt{Train\_set.describe()} reports them in the feature-selection '
+            r'notebook: count, mean, standard deviation, minimum, quartiles and maximum.' + '\n\n'
+            r'\exhead{Inputs}' + '\n' + _tbl('describe_inputs')
+            + r'\exhead{Outputs}' + '\n' + _tbl('describe_outputs'))
+           if (_tbl('describe_inputs') or _tbl('describe_outputs')) else '')
 
         # 4. Model Selection
         + r'\section{Model Selection}' + '\n'
@@ -617,7 +703,7 @@ def _training_curve(d, plots_dir, artifacts_dir=None):
     return str(path)
 
 
-MAX_SCATTER_VARS = 8   # a square grid past this is unreadable on a page
+MAX_SCATTER_VARS = 10  # a square grid past this is unreadable on a page
 
 
 def _styler_df(styler):
@@ -879,6 +965,7 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
                   f'first {MAX_SCATTER_VARS}')
             chosen = chosen[:MAX_SCATTER_VARS]
 
+        print(f'  scatter matrix variables: {list(chosen)}')
         combined = pd.concat([x_all, yt_all], axis=1)
         fig = scatterplotMatrix(combined[chosen].to_numpy(dtype=float), list(chosen),
                                 method=(cfg.get('method') or 'scatter'),
@@ -887,6 +974,24 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
             ax.xaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
             ax.yaxis.set_major_locator(MaxNLocator(nbins=3, prune='both'))
             ax.tick_params(labelsize=6)
+        # The library writes each variable name once, centred on its diagonal
+        # cell, at the default size; a long name such as
+        # bottom_transition_location spills into the neighbours. Break it at
+        # the underscores and size it to the cell.
+        n = len(chosen)
+        axes = fig.get_axes()
+        for i, name in enumerate(chosen):
+            for t in axes[i * n + i].texts:
+                if t.get_text() == name and len(name) > 10:
+                    parts, lines, cur = name.split('_'), [], ''
+                    for p_ in parts:
+                        if cur and len(cur) + 1 + len(p_) > 12:
+                            lines.append(cur); cur = p_
+                        else:
+                            cur = f'{cur}_{p_}' if cur else p_
+                    lines.append(cur)
+                    t.set_text('\n'.join(lines))
+                    t.set_fontsize(7 if n <= 8 else 6)
         fig.suptitle('Variable Correlation', fontsize=11)
         _save(fig, 'data_scatter_vars.png')
     _step('data_scatter_vars', _scatter_matrix)
@@ -1271,6 +1376,13 @@ def _part3(d, best, paths, stats, out_dir):
         + _fig('split_input_dists') +
         r'\exhead{KS and AD Test Results}' + '\n'
         + _tbl('split_ks_ad')
+        + r'\exhead{Split Quality --- Voxel Tesselation Proximity (p-hacking check)}' + '\n'
+        r'Beyond matching distributions, a split can still flatter the model if test '
+        r'points sit right next to training points (\textbf{p-hacking}) or probe regions '
+        r'the model never saw (\textbf{isolated}, \textbf{residual voxel}). The VTPM method '
+        r'from \texttt{validationlib} (SF\_9 cell 9.0) classifies every test point.' + '\n\n'
+        + _split_quality_tbl(d.get('split')) + '\n\n'
+        + _split_quality_prose(d.get('split')) + '\n\n'
 
         # 3.3 Error Quantification
         + r'\clearpage' + '\n'
@@ -1552,7 +1664,7 @@ def build_latex(d, scatter_paths, paths, stats, out_dir):
     return (
         preamble
         + r'\begin{document}' + '\n'
-        + _part1(d, best, rows, scatter_paths, paths, out_dir)
+        + _part1(d, best, rows, scatter_paths, paths, out_dir, stats)
         + _separator(uc)
         + _part3(d, best, paths, stats, out_dir)
         + '\n' + r'\end{document}' + '\n'

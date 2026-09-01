@@ -62,6 +62,42 @@
 
 \section{Variable Correlation --- Input vs Output}
 \begin{center}\includegraphics[width=0.80\linewidth,height=0.46\textheight,keepaspectratio]{analysis_plots/data_scatter_vars.png}\end{center}
+\section{Data Statistics}
+Per-variable statistics over all data (train + val + test), as \texttt{Train\_set.describe()} reports them in the feature-selection notebook: count, mean, standard deviation, minimum, quartiles and maximum.
+
+\exhead{Inputs}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
+\textbf{Mach} & 30,000 & 0.8993 & 0.2877 & 0.4 & 0.649 & 0.899 & 1.148 & 1.4 \\ \hline
+\textbf{Altitude\_ft} & 30,000 & 2.504e+04 & 1.445e+04 & 0.262 & 1.254e+04 & 2.491e+04 & 3.763e+04 & 5e+04 \\ \hline
+\textbf{ALPHA\_deg} & 30,000 & 12.65 & 11.54 & -7.499 & 2.714 & 12.71 & 22.63 & 32.5 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Input variables — Train\_set.describe()}
+\end{center}
+\exhead{Outputs}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
+\textbf{Fz\_WINGROOT} & 30,000 & 1.707e+05 & 3.3e+05 & -5.524e+05 & -2.938e+04 & 5.923e+04 & 2.553e+05 & 2.313e+06 \\ \hline
+\textbf{Mx\_WINGROOT} & 30,000 & 2.198e+05 & 4.339e+05 & -7.196e+05 & -4.198e+04 & 7.218e+04 & 3.289e+05 & 3.054e+06 \\ \hline
+\textbf{My\_WINGROOT} & 30,000 & 2.349e+04 & 1.482e+05 & -7.54e+05 & -2.958e+04 & 7.465e+04 & 1.271e+05 & 2.17e+05 \\ \hline
+\textbf{Fy\_FUS} & 30,000 & 1.335e+04 & 1.86e+04 & -3.087e+04 & 2189 & 7538 & 1.82e+04 & 1.566e+05 \\ \hline
+\textbf{Fz\_FUS} & 30,000 & 1.708e+05 & 3.297e+05 & -5.269e+05 & -2.881e+04 & 5.577e+04 & 2.534e+05 & 2.303e+06 \\ \hline
+\textbf{Mx\_FUS} & 30,000 & 2.194e+05 & 4.339e+05 & -6.836e+05 & -4.365e+04 & 6.652e+04 & 3.241e+05 & 3.028e+06 \\ \hline
+\textbf{My\_FUS} & 30,000 & 2.358e+04 & 1.482e+05 & -7.264e+05 & -2.889e+04 & 7.528e+04 & 1.276e+05 & 1.891e+05 \\ \hline
+\textbf{Mz\_FUS} & 30,000 & -2.266e+04 & 2.787e+04 & -2.63e+05 & -2.583e+04 & -1.26e+04 & -7369 & 7202 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Output variables — Train\_set.describe()}
+\end{center}
 \section{Model Selection}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
@@ -115,11 +151,12 @@
   \hline\textbf{Metric} & \textbf{Value} & \textbf{Pass} \\ \hline
   Residual voxel proportion ($\leq\!0.05$) & 0.000 & \cellcolor{passgreen}$\checkmark$ \\ \hline
   Valid test proportion & 0.966 & \\ \hline
-  Phacking test proportion & 0.005 & \\ \hline
-  Isolated test proportion & 0.029 & \\ \hline
+  p-hacking test proportion ($\leq\!0.05$ warn) & 0.005 & \cellcolor{passgreen}$\checkmark$ \\ \hline
+  Isolated test proportion ($\leq\!0.05$ warn) & 0.029 & \cellcolor{passgreen}$\checkmark$ \\ \hline
   Chi\textsuperscript{2} p-value ($\geq\!0.05$) & \textemdash & \textemdash \\ \hline
 \end{tabular}
 \end{minipage}
+\textcolor{passgreen!60!black}{\textbf{No p-hacking concern:}} only 0.5\% of test points lie closer to a training point than training points are to each other, so the test error is not flattered.
 
 \section{Overfitting Check (KS Test) --- PyTorchNN}
 \begin{minipage}{\linewidth}
@@ -242,6 +279,23 @@ A well-designed split produces training and test distributions that are similar 
 \par\vspace{2pt}
 {\scriptsize Train vs test p-values. Red: $p<0.05$ (distributions differ).}
 \end{center}
+\exhead{Split Quality --- Voxel Tesselation Proximity (p-hacking check)}
+Beyond matching distributions, a split can still flatter the model if test points sit right next to training points (\textbf{p-hacking}) or probe regions the model never saw (\textbf{isolated}, \textbf{residual voxel}). The VTPM method from \texttt{validationlib} (SF\_9 cell 9.0) classifies every test point.
+
+\begin{minipage}{\linewidth}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|r|c|}
+  \hline\textbf{Metric} & \textbf{Value} & \textbf{Pass} \\ \hline
+  Residual voxel proportion ($\leq\!0.05$) & 0.000 & \cellcolor{passgreen}$\checkmark$ \\ \hline
+  Valid test proportion & 0.966 & \\ \hline
+  p-hacking test proportion ($\leq\!0.05$ warn) & 0.005 & \cellcolor{passgreen}$\checkmark$ \\ \hline
+  Isolated test proportion ($\leq\!0.05$ warn) & 0.029 & \cellcolor{passgreen}$\checkmark$ \\ \hline
+  Chi\textsuperscript{2} p-value ($\geq\!0.05$) & \textemdash & \textemdash \\ \hline
+\end{tabular}
+\end{minipage}
+
+\textcolor{passgreen!60!black}{\textbf{No p-hacking concern:}} only 0.5\% of test points lie closer to a training point than training points are to each other, so the test error is not flattered.
+
 \clearpage
 \section{Error Quantification --- P(E)}
 \label{sec:d3}
@@ -261,14 +315,14 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{Fz\_WINGROOT} & 10000 & -2250000. & 2190000. & -4860. & $^{2320.}_{-14000.}$ & -1120. & $^{5730.}_{-7150.}$ & 478000. & $^{487000.}_{469000.}$ & 395000. & $^{410000.}_{382000.}$ & 2.53 & $^{2.78}_{2.29}$ & -0.104 & $^{-0.00729}_{-0.196}$ \\ \hline
-\textbf{Mx\_WINGROOT} & 10000 & -3030000. & 2920000. & -7070. & $^{3190.}_{-18800.}$ & -885. & $^{5670.}_{-8250.}$ & 628000. & $^{639000.}_{619000.}$ & 516000. & $^{530000.}_{496000.}$ & 2.61 & $^{2.84}_{2.37}$ & -0.112 & $^{-0.0158}_{-0.195}$ \\ \hline
-\textbf{My\_WINGROOT} & 10000 & -834000. & 780000. & 2170. & $^{6730.}_{-1990.}$ & 2370. & $^{5330.}_{233.}$ & 210000. & $^{213000.}_{207000.}$ & 201000. & $^{209000.}_{194000.}$ & 1.39 & $^{1.50}_{1.29}$ & -0.00989 & $^{0.0599}_{-0.0711}$ \\ \hline
-\textbf{Fy\_FUS} & 10000 & -141000. & 143000. & -244. & $^{264.}_{-793.}$ & -66.1 & $^{304.}_{-442.}$ & 26800. & $^{27400.}_{26200.}$ & 22400. & $^{23100.}_{21700.}$ & 3.17 & $^{3.43}_{2.91}$ & -0.114 & $^{0.0159}_{-0.231}$ \\ \hline
-\textbf{Fz\_FUS} & 10000 & -2220000. & 2200000. & -4950. & $^{5950.}_{-15500.}$ & 213. & $^{5270.}_{-4580.}$ & 478000. & $^{492000.}_{470000.}$ & 395000. & $^{406000.}_{383000.}$ & 2.55 & $^{2.71}_{2.37}$ & -0.103 & $^{-0.00212}_{-0.199}$ \\ \hline
-\textbf{Mx\_FUS} & 10000 & -2980000. & 2940000. & -6810. & $^{2810.}_{-18000.}$ & 489. & $^{5200.}_{-6010.}$ & 629000. & $^{644000.}_{618000.}$ & 513000. & $^{529000.}_{503000.}$ & 2.63 & $^{2.85}_{2.39}$ & -0.105 & $^{-0.0110}_{-0.204}$ \\ \hline
-\textbf{My\_FUS} & 10000 & -828000. & 780000. & 2340. & $^{6380.}_{-1120.}$ & 2520. & $^{5370.}_{108.}$ & 210000. & $^{214000.}_{207000.}$ & 200000. & $^{206000.}_{193000.}$ & 1.41 & $^{1.53}_{1.28}$ & -0.0125 & $^{0.0576}_{-0.0827}$ \\ \hline
-\textbf{Mz\_FUS} & 10000 & -230000. & 238000. & 469. & $^{965.}_{-239.}$ & 26.8 & $^{354.}_{-213.}$ & 40400. & $^{41400.}_{39500.}$ & 23000. & $^{23800.}_{22400.}$ & 5.22 & $^{5.70}_{4.81}$ & 0.188 & $^{0.297}_{0.0187}$ \\ \hline
+\textbf{Fz\_WINGROOT} & 10000 & -2250000. & 2190000. & -4860. & $^{2620.}_{-12900.}$ & -1120. & $^{5610.}_{-5760.}$ & 478000. & $^{486000.}_{469000.}$ & 395000. & $^{410000.}_{382000.}$ & 2.53 & $^{2.73}_{2.34}$ & -0.104 & $^{-0.0254}_{-0.197}$ \\ \hline
+\textbf{Mx\_WINGROOT} & 10000 & -3030000. & 2920000. & -7070. & $^{3970.}_{-24100.}$ & -885. & $^{8420.}_{-7800.}$ & 628000. & $^{639000.}_{616000.}$ & 516000. & $^{532000.}_{502000.}$ & 2.61 & $^{2.82}_{2.42}$ & -0.112 & $^{-0.00995}_{-0.230}$ \\ \hline
+\textbf{My\_WINGROOT} & 10000 & -834000. & 780000. & 2170. & $^{5700.}_{-1040.}$ & 2370. & $^{4690.}_{-118.}$ & 210000. & $^{213000.}_{206000.}$ & 201000. & $^{206000.}_{195000.}$ & 1.39 & $^{1.52}_{1.27}$ & -0.00989 & $^{0.0617}_{-0.0715}$ \\ \hline
+\textbf{Fy\_FUS} & 10000 & -141000. & 143000. & -244. & $^{151.}_{-692.}$ & -66.1 & $^{234.}_{-458.}$ & 26800. & $^{27500.}_{26300.}$ & 22400. & $^{23100.}_{21700.}$ & 3.17 & $^{3.46}_{2.93}$ & -0.114 & $^{0.00832}_{-0.214}$ \\ \hline
+\textbf{Fz\_FUS} & 10000 & -2220000. & 2200000. & -4950. & $^{3760.}_{-13400.}$ & 213. & $^{4690.}_{-4490.}$ & 478000. & $^{488000.}_{470000.}$ & 395000. & $^{406000.}_{384000.}$ & 2.55 & $^{2.73}_{2.36}$ & -0.103 & $^{-0.00414}_{-0.197}$ \\ \hline
+\textbf{Mx\_FUS} & 10000 & -2980000. & 2940000. & -6810. & $^{8460.}_{-19000.}$ & 489. & $^{6330.}_{-5570.}$ & 629000. & $^{643000.}_{616000.}$ & 513000. & $^{526000.}_{500000.}$ & 2.63 & $^{2.82}_{2.45}$ & -0.105 & $^{0.0154}_{-0.212}$ \\ \hline
+\textbf{My\_FUS} & 10000 & -828000. & 780000. & 2340. & $^{5760.}_{-2140.}$ & 2520. & $^{5440.}_{-336.}$ & 210000. & $^{213000.}_{206000.}$ & 200000. & $^{205000.}_{194000.}$ & 1.41 & $^{1.56}_{1.28}$ & -0.0125 & $^{0.0641}_{-0.0857}$ \\ \hline
+\textbf{Mz\_FUS} & 10000 & -230000. & 238000. & 469. & $^{1190.}_{-276.}$ & 26.8 & $^{398.}_{-219.}$ & 40400. & $^{41500.}_{39100.}$ & 23000. & $^{23700.}_{22300.}$ & 5.22 & $^{5.58}_{4.73}$ & 0.188 & $^{0.349}_{0.0326}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -282,14 +336,14 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{Fz\_WINGROOT} & 10000 & 42.6 & 2250000. & 325000. & $^{331000.}_{319000.}$ & 198000. & $^{203000.}_{190000.}$ & 351000. & $^{358000.}_{344000.}$ & 362000. & $^{372000.}_{351000.}$ & 3.44 & $^{3.76}_{3.09}$ & 1.82 & $^{1.88}_{1.76}$ \\ \hline
-\textbf{Mx\_WINGROOT} & 10000 & 1.58 & 3030000. & 424000. & $^{434000.}_{415000.}$ & 258000. & $^{264000.}_{248000.}$ & 463000. & $^{474000.}_{451000.}$ & 472000. & $^{484000.}_{452000.}$ & 3.53 & $^{3.91}_{3.21}$ & 1.84 & $^{1.90}_{1.79}$ \\ \hline
-\textbf{My\_WINGROOT} & 10000 & 26.1 & 834000. & 150000. & $^{153000.}_{148000.}$ & 100000. & $^{103000.}_{97500.}$ & 147000. & $^{149000.}_{145000.}$ & 175000. & $^{181000.}_{172000.}$ & 1.98 & $^{2.17}_{1.79}$ & 1.48 & $^{1.52}_{1.43}$ \\ \hline
-\textbf{Fy\_FUS} & 10000 & 1.61 & 143000. & 18100. & $^{18500.}_{17800.}$ & 11200. & $^{11500.}_{10900.}$ & 19800. & $^{20200.}_{19200.}$ & 19400. & $^{19900.}_{18700.}$ & 4.79 & $^{5.26}_{4.20}$ & 2.02 & $^{2.09}_{1.93}$ \\ \hline
-\textbf{Fz\_FUS} & 10000 & 12.0 & 2220000. & 324000. & $^{330000.}_{316000.}$ & 197000. & $^{203000.}_{193000.}$ & 352000. & $^{360000.}_{343000.}$ & 364000. & $^{376000.}_{350000.}$ & 3.43 & $^{3.73}_{3.12}$ & 1.82 & $^{1.87}_{1.76}$ \\ \hline
-\textbf{Mx\_FUS} & 10000 & 26.5 & 2980000. & 424000. & $^{432000.}_{415000.}$ & 256000. & $^{262000.}_{249000.}$ & 465000. & $^{473000.}_{450000.}$ & 476000. & $^{491000.}_{461000.}$ & 3.52 & $^{3.94}_{3.12}$ & 1.84 & $^{1.91}_{1.76}$ \\ \hline
-\textbf{My\_FUS} & 10000 & 12.6 & 828000. & 150000. & $^{153000.}_{147000.}$ & 99800. & $^{104000.}_{96900.}$ & 147000. & $^{150000.}_{144000.}$ & 175000. & $^{180000.}_{170000.}$ & 1.98 & $^{2.19}_{1.72}$ & 1.48 & $^{1.53}_{1.42}$ \\ \hline
-\textbf{Mz\_FUS} & 10000 & 0.821 & 238000. & 24400. & $^{24900.}_{23800.}$ & 11500. & $^{12000.}_{11200.}$ & 32200. & $^{33000.}_{31200.}$ & 26100. & $^{27100.}_{25000.}$ & 6.42 & $^{7.08}_{5.76}$ & 2.37 & $^{2.46}_{2.29}$ \\ \hline
+\textbf{Fz\_WINGROOT} & 10000 & 42.6 & 2250000. & 325000. & $^{330000.}_{319000.}$ & 198000. & $^{203000.}_{191000.}$ & 351000. & $^{358000.}_{343000.}$ & 362000. & $^{375000.}_{351000.}$ & 3.44 & $^{3.78}_{3.09}$ & 1.82 & $^{1.88}_{1.76}$ \\ \hline
+\textbf{Mx\_WINGROOT} & 10000 & 1.58 & 3030000. & 424000. & $^{433000.}_{415000.}$ & 258000. & $^{267000.}_{249000.}$ & 463000. & $^{473000.}_{452000.}$ & 472000. & $^{483000.}_{456000.}$ & 3.53 & $^{3.88}_{3.18}$ & 1.84 & $^{1.91}_{1.78}$ \\ \hline
+\textbf{My\_WINGROOT} & 10000 & 26.1 & 834000. & 150000. & $^{153000.}_{147000.}$ & 100000. & $^{103000.}_{96800.}$ & 147000. & $^{150000.}_{144000.}$ & 175000. & $^{181000.}_{170000.}$ & 1.98 & $^{2.24}_{1.80}$ & 1.48 & $^{1.53}_{1.43}$ \\ \hline
+\textbf{Fy\_FUS} & 10000 & 1.61 & 143000. & 18100. & $^{18500.}_{17700.}$ & 11200. & $^{11500.}_{10700.}$ & 19800. & $^{20200.}_{19300.}$ & 19400. & $^{19900.}_{18800.}$ & 4.79 & $^{5.30}_{4.25}$ & 2.02 & $^{2.10}_{1.94}$ \\ \hline
+\textbf{Fz\_FUS} & 10000 & 12.0 & 2220000. & 324000. & $^{330000.}_{318000.}$ & 197000. & $^{202000.}_{192000.}$ & 352000. & $^{360000.}_{345000.}$ & 364000. & $^{376000.}_{351000.}$ & 3.43 & $^{3.70}_{3.14}$ & 1.82 & $^{1.87}_{1.75}$ \\ \hline
+\textbf{Mx\_FUS} & 10000 & 26.5 & 2980000. & 424000. & $^{432000.}_{417000.}$ & 256000. & $^{263000.}_{250000.}$ & 465000. & $^{475000.}_{456000.}$ & 476000. & $^{491000.}_{462000.}$ & 3.52 & $^{3.78}_{3.18}$ & 1.84 & $^{1.89}_{1.77}$ \\ \hline
+\textbf{My\_FUS} & 10000 & 12.6 & 828000. & 150000. & $^{153000.}_{148000.}$ & 99800. & $^{103000.}_{97400.}$ & 147000. & $^{150000.}_{145000.}$ & 175000. & $^{179000.}_{170000.}$ & 1.98 & $^{2.25}_{1.74}$ & 1.48 & $^{1.54}_{1.44}$ \\ \hline
+\textbf{Mz\_FUS} & 10000 & 0.821 & 238000. & 24400. & $^{25200.}_{23800.}$ & 11500. & $^{12000.}_{11100.}$ & 32200. & $^{33100.}_{31300.}$ & 26100. & $^{27400.}_{24800.}$ & 6.42 & $^{6.98}_{5.86}$ & 2.37 & $^{2.45}_{2.29}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -439,8 +493,8 @@ A global binned uncertainty model (95th percentile, right-tailed) is trained on 
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{Fz\_WINGROOT} & \textbf{Mx\_WINGROOT} & \textbf{My\_WINGROOT} & \textbf{Fy\_FUS} & \textbf{Fz\_FUS} & \textbf{Mx\_FUS} & \textbf{My\_FUS} & \textbf{Mz\_FUS} & \textbf{TOTAL COV} \\ \hline
-\textbf{Coverage} & 94.53 & 94.66 & 94.8 & 94.33 & 94.62 & 94.58 & 94.77 & 94.11 & nan \\ \hline
-\textbf{CI} & [94.07, 94.97] & [94.2, 95.09] & [94.35, 95.23] & [93.86, 94.78] & [94.16, 95.05] & [94.12, 95.02] & [94.32, 95.2] & [93.63, 94.56] & nan \\ \hline
+\textbf{Coverage} & 94.55 & 94.54 & 94.77 & 94.39 & 94.72 & 94.54 & 94.77 & 94.07 & nan \\ \hline
+\textbf{CI} & [94.09, 94.99] & [94.08, 94.98] & [94.32, 95.2] & [93.92, 94.83] & [94.26, 95.15] & [94.08, 94.98] & [94.32, 95.2] & [93.59, 94.53] & nan \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}

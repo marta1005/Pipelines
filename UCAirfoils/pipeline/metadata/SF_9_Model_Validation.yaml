@@ -3,7 +3,19 @@ Model_Validation:
   # scatterplotMatrix). It is a square N x N grid, so keep the list short —
   # every extra variable costs a whole row and column.
   # Leave empty or omit to use a balanced pick of inputs and outputs.
-  scatter_variables: []
+  # Flow condition + geometry scalars and the five outputs. The sixteen Kulfan
+  # CST weights are deliberately left out: they are shape parameters with no
+  # individual physical reading, and would crowd the grid.
+  scatter_variables:
+    - alpha
+    - log10_Re
+    - TE_thickness
+    - LE_weight
+    - CL
+    - CD
+    - CM
+    - top_transition_location
+    - bottom_transition_location
 
   # 'scatter', '2dhist' or '2dhistKDE'
   scatter_method: scatter
