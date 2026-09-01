@@ -129,12 +129,16 @@ def render(curves, dest: Path):
     training = {label: c['loss'] for label, c in curves.items()}
     validation = {label: c['val'] for label, c in curves.items() if c['val']}
 
+    # Library defaults (figHsize=7, aspect 1.5) give a poster-sized panel per
+    # model; this keeps it a modest inset in the report.
     fig = training_curves_plot(
         training_metrics=training,
         validation_metrics=validation,
         plot_by_epoch=False,
         title='Training history',
         ylogscale=True,
+        figHsize=4.0,
+        figAspectRatio=1.6,
     )
 
     dest.parent.mkdir(parents=True, exist_ok=True)

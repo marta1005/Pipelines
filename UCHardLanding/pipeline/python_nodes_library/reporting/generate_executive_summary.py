@@ -183,6 +183,10 @@ def _recs(d, model, rows, detailed=False):
 # dimension binds first — so nothing can ever run off the sheet.
 _GFX_MAXH = r'height=0.80\textheight'
 _GFX_FIT  = r'width=\linewidth,' + _GFX_MAXH + r',keepaspectratio'
+# Two figures get their own box. The training curve is an inset, not a page
+# filler; the correlation matrix must sit whole on the page its section opens.
+_GFX_CURVE  = r'width=0.70\linewidth,height=0.28\textheight,keepaspectratio'
+_GFX_MATRIX = r'width=0.88\linewidth,height=0.74\textheight,keepaspectratio'
 
 
 # ── Preamble ───────────────────────────────────────────────────────────────────
@@ -300,9 +304,11 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         p = paths.get('training_curve', '')
         if not p:
             return ''
+        rp = os.path.relpath(p, str(out_dir))
         return (
             r'\section{Training History}' + '\n'
-            + _fig_es('training_curve')
+            + r'\begin{center}\includegraphics[' + _GFX_CURVE + r']{'
+            + rp + r'}\end{center}' + '\n'
             + r'{\footnotesize Training loss per iteration, log scale. '
               r'A validation panel is shown for models trained with early '
               r'stopping. Gradient boosting reports per-stage deviance '
@@ -442,9 +448,15 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir):
         rf'  \textbf{{Accuracy target}}    & Q90 $<$ {target_pct} relative error per output \\ \hline' + '\n'
         r'\end{tabular}' + '\n\n'
 
-        # 3. Variable correlation scatter
+        # 3. Variable correlation scatter — opens its own page so the matrix
+        # always lands whole on the first page of the section, never split or
+        # pushed off the bottom by whatever preceded it.
+        r'\clearpage' + '\n'
         r'\section{Variable Correlation --- Input vs Output}' + '\n'
-        + _fig_es('data_scatter_vars')
+        + (r'\begin{center}\includegraphics[' + _GFX_MATRIX + r']{'
+           + os.path.relpath(paths['data_scatter_vars'], str(out_dir))
+           + r'}\end{center}' + '\n'
+           if paths.get('data_scatter_vars') else '')
 
         # 4. Model Selection
         + r'\section{Model Selection}' + '\n'
@@ -1365,11 +1377,12 @@ def _generate_html(d, best, paths, stats, out_dir):
     uc       = d['use_case']
     date_str = datetime.today().strftime('%d %B %Y')
 
-    def _img(name):
+    def _img(name, max_px=900):
         p = paths.get(name, '')
         if not p or not Path(p).exists(): return ''
         data = base64.b64encode(Path(p).read_bytes()).decode()
-        return f'<img src="data:image/png;base64,{data}" style="width:90%;max-width:900px;display:block;margin:12px auto;">'
+        return (f'<img src="data:image/png;base64,{data}" '
+                f'style="width:90%;max-width:{max_px}px;display:block;margin:12px auto;">')
 
     q90_res  = stats.get('q90_results', {})
     q90_target = d['q90_target']
@@ -1466,7 +1479,7 @@ nav a{color:#004680}"""
 {_full_reports_nav()}
 
 {_section("dtrain","3.0 Training History",
-    _img("training_curve") +
+    _img("training_curve", max_px=620) +
     "<p class='meta'>Training loss per iteration, log scale, with a validation "
     "panel for models trained with early stopping.</p>"
 ) if paths.get("training_curve") else ""}
