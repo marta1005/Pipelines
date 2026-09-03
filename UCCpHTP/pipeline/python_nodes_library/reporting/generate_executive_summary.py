@@ -712,14 +712,50 @@ def _styler_df(styler):
     return styler.data if hasattr(styler, 'data') else pd.DataFrame(styler)
 
 
+def _fmt_num(v):
+    """
+    3-4 meaningful digits, plain notation in the everyday range. Library tables
+    (dist_similarity, bias) carry raw floats — sixteen decimals of a p-value
+    say nothing and blow the column width.
+    """
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    if x != x:                       # NaN
+        return r'\textemdash'
+    if x == int(x) and abs(x) < 1e7:
+        return f'{int(x):,}'
+    if abs(x) >= 1e6 or 0 < abs(x) < 1e-3:
+        return f'{x:.3g}'
+    s = f'{x:.4f}'.rstrip('0').rstrip('.')
+    return s if s not in ('', '-') else '0'
+
+
 def _cell_to_tex(v):
     """One table cell to LaTeX, converting prediction_stats' <sup>/<sub> CI markup."""
     import re
+    num = _fmt_num(v)
+    if num is not None and '<' not in str(v):
+        return num
     s = str(v)
     m = re.search(r'(.*?)<sup>(.*?)</sup>\s*<sub>(.*?)</sub>(.*)', s)
     if m:
         head, hi, lo, tail = (t.strip() for t in m.groups())
-        return rf'{_esc(head)}$^{{{_esc2m(hi)}}}_{{{_esc2m(lo)}}}$'
+
+        # The CI bounds inside the markup are raw library output and can carry
+        # eight-decimal expansions; cap them like every other number. In math
+        # mode a compact "5.42e-06" needs \text{} or the e reads as a variable.
+        def _m(t):
+            f = _fmt_num(t)
+            if f is None:
+                return _esc2m(t)
+            f = f.replace(',', '')
+            return rf'\text{{{f}}}' if 'e' in f else f
+
+        head_fmt = _fmt_num(head)
+        head_tex = _esc(head_fmt if head_fmt is not None else head)
+        return rf'{head_tex}$^{{{_m(hi)}}}_{{{_m(lo)}}}$'
     s = re.sub(r'<[^>]+>', '', s)          # any other stray markup
     return _esc(s)
 
@@ -739,7 +775,7 @@ def _df_to_tex(df, caption=None, font=r'\footnotesize', col_fmt=None,
     fmt = col_fmt or ('l' + 'r' * len(cols))
     # A wide table (prediction_stats emits ~15 columns) runs off the page at
     # any fixed font size, so scale it to the line width instead.
-    wide = len(cols) > 8
+    wide = len(cols) > 6
     lines = [r'\begin{center}', font,
              r'\renewcommand{\arraystretch}{1.15}']
     if wide:
@@ -781,6 +817,9 @@ def _table_pair(styler, tex_caption=None, alpha=None):
     colors = (lambda i, c, v: _pval_color(v, alpha)) if alpha is not None else None
     tex = _df_to_tex(df, caption=tex_caption, cell_colors=colors)
     try:
+        # Same 4-decimal cap in the HTML: the library's Stylers print raw floats.
+        if hasattr(styler, 'format'):
+            styler = styler.format(precision=4)
         html = styler.to_html() if hasattr(styler, 'to_html') else df.to_html()
     except Exception:
         html = df.to_html()
@@ -798,7 +837,7 @@ def _describe_pair(df, title):
     shown = desc.copy()
     shown['count'] = shown['count'].map(lambda v: f'{int(v):,}')
     for c in [c for c in shown.columns if c != 'count']:
-        shown[c] = shown[c].map(lambda v: f'{v:.4g}')
+        shown[c] = shown[c].map(_fmt_num)
     tex = _df_to_tex(shown, caption=_esc(title))
     html = (f'<h4>{title}</h4>'
             + shown.to_html(classes='describe-tbl', border=0))
@@ -1022,6 +1061,52 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
         ks_stat, ks_p = sc.ks_2samp(yt_train[o].values, yt_test[o].values)
         ks_results[o] = {'stat': float(ks_stat), 'p': float(ks_p)}
 
+    # p-hacking by distribution, as the extended notebook's VTPM cell: compare
+    # the absolute error of flagged test points against the valid ones.
+    def _vtpm_distributions():
+        from validationlib.misc.split_validation import voxel_tesselation_proximity_method
+        # Cost grows with n_train^2 per test point, so train is capped harder.
+        # Test keeps more points because the flagged fractions are small (~1 %)
+        # and the comparison needs enough of them to draw anything.
+        CAP_TRAIN, CAP_TEST = 1000, 2000
+        rng = np.random.default_rng(42)
+        tr = x_train[inputs].to_numpy(dtype=float)
+        te = x_test[inputs].to_numpy(dtype=float)
+        if len(tr) > CAP_TRAIN:
+            tr = tr[rng.choice(len(tr), CAP_TRAIN, replace=False)]
+        te_idx = np.arange(len(te))
+        if len(te) > CAP_TEST:
+            te_idx = rng.choice(len(te), CAP_TEST, replace=False)
+            te = te[te_idx]
+        res = voxel_tesselation_proximity_method(tr, te, categorical_variables=[],
+                                                 verbose=False)
+        abserr_sub = abserr_df.iloc[te_idx].reset_index(drop=True)
+        valid = np.asarray(res.valid_test_point, dtype=bool)
+        for mask, name, label in (
+                (np.asarray(res.phacking_test, dtype=bool), 'phack', 'p-hacking'),
+                (np.asarray(res.isolated_test, dtype=bool), 'isolated', 'Isolated')):
+            n = int(mask.sum())
+            # The template draws the comparison whenever flagged points exist;
+            # below 3 the tests themselves cannot run.
+            if n < 3 or valid.sum() < 10:
+                print(f'  vtpm distributions: only {n} {label} point(s) — comparison skipped')
+                continue
+            fig = validationlib.plots.doubleHistogram(
+                abserr_sub[valid], abserr_sub[mask], xlabel=abserr_metric.name,
+                x1label='Valid', x2label=label, bins=20, logscale=True)
+            _save(fig, f'{name}_hist.png')
+            tables[f'{name}_pvals'] = _table_pair(
+                validationlib.tests.dist.dist_similarity_table(
+                    abserr_sub[valid], abserr_sub[mask],
+                    title='Hypothesis Tests Results (p-value)',
+                    tests=['AD', 'KS', 'KW']),
+                tex_caption=f'Valid ($n={int(valid.sum())}$) vs {label} ($n={n}$) '
+                            r'absolute-error distributions, on a subsample of the '
+                            r'test set. Red: $p<0.05$ (the flagged points behave '
+                            r'differently).',
+                alpha=0.05)
+    _step('vtpm_distributions', _vtpm_distributions)
+
     # ── 3.3 ERROR QUANTIFICATION P(E) ─────────────────────────────────────────
     statistics = {'mean': np.mean, 'median': [np.percentile, {'q': 50}],
                   'std': np.std, 'IQR': st.iqr,
@@ -1057,12 +1142,6 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
             abserr_df, xlabel=abserr_metric.name,
             multiPlotsKwargs={'tight_layout': True}, logscale=True),
         'err_abserr_hist.png'))
-
-    _step('err_relerr_cdf', lambda: _save(
-        validationlib.plots.cumulative(
-            relerr_df.dropna(), xlabel='Relative Absolute Error', bins=1000,
-            quantiles=[0.90]),
-        'err_relerr_cdf.png'))
 
     _step('err_true_vs_pred_dist', lambda: _save(
         validationlib.plots.doubleHistogram(
@@ -1383,6 +1462,17 @@ def _part3(d, best, paths, stats, out_dir):
         r'from \texttt{validationlib} (SF\_9 cell 9.0) classifies every test point.' + '\n\n'
         + _split_quality_tbl(d.get('split')) + '\n\n'
         + _split_quality_prose(d.get('split')) + '\n\n'
+        + ((r'\exhead{Error Distribution: Valid vs p-hacking Test Points}' + '\n'
+            r'Absolute error of the test points flagged as p-hacking against the valid '
+            r'ones, exactly as the extended validation notebook draws it. Matching '
+            r'distributions (high p-values) mean the flagged points do not distort '
+            r'the reported error.' + '\n'
+            + _fig('phack_hist') + _tbl('phack_pvals'))
+           if _rp('phack_hist') else '')
+        + ((r'\exhead{Error Distribution: Valid vs Isolated Test Points}' + '\n'
+            r'Same comparison for the test points with no training neighbour.' + '\n'
+            + _fig('isolated_hist') + _tbl('isolated_pvals'))
+           if _rp('isolated_hist') else '')
 
         # 3.3 Error Quantification
         + r'\clearpage' + '\n'
@@ -1406,10 +1496,7 @@ def _part3(d, best, paths, stats, out_dir):
         + _fig('err_residue_cdf') +
         r'\exhead{Absolute Error Histograms}' + '\n'
         + _fig('err_abserr_hist') +
-        r'\exhead{Relative Absolute Error CDF --- Q90 Accuracy Requirement}' + '\n'
-        r'Orange dotted = observed Q90; red dashed = target threshold. '
-        r'Green title = PASS; red title = FAIL.' + '\n'
-        + _fig('err_relerr_cdf')
+        r'\exhead{Q90 Accuracy Requirement}' + '\n'
         + _tbl_with_legend(
             r'\renewcommand{\arraystretch}{1.2}' + '\n'
             r'\begin{tabular}{|l|r|r|c|}' + '\n'
@@ -1612,7 +1699,13 @@ nav a{color:#004680}"""
 {_section("d2","3.2 Train-Test Split Analysis",
     "<h3>Output Distributions</h3>" + _img("split_output_dists") +
     "<h3>Input Distributions</h3>" + _img("split_input_dists") +
-    _tblh("split_ks_ad", "KS &amp; AD Test Table")
+    _tblh("split_ks_ad", "KS &amp; AD Test Table") +
+    (("<h3>Valid vs p-hacking — Absolute Error</h3>" + _img("phack_hist") +
+      _tblh("phack_pvals", "Hypothesis tests (AD / KS / KW)"))
+     if paths.get("phack_hist") else "") +
+    (("<h3>Valid vs Isolated — Absolute Error</h3>" + _img("isolated_hist") +
+      _tblh("isolated_pvals", "Hypothesis tests (AD / KS / KW)"))
+     if paths.get("isolated_hist") else "")
 )}
 
 {_section("d3","3.3 Error Quantification &mdash; P(E)",
@@ -1621,7 +1714,7 @@ nav a{color:#004680}"""
     "<h3>Residue Histograms</h3>" + _img("err_residue_hist") +
     "<h3>Residue CDFs</h3>" + _img("err_residue_cdf") +
     "<h3>Absolute Error Histograms</h3>" + _img("err_abserr_hist") +
-    "<h3>Relative Error CDFs — Q90 Requirement</h3>" + _img("err_relerr_cdf") + _q90_tbl() +
+    "<h3>Q90 Requirement</h3>" + _q90_tbl() +
     "<h3>True vs Predicted Distributions</h3>" + _img("err_true_vs_pred_dist") +
     _tblh("true_pred_pvals") +
     "<h3>True vs Predicted — 2D Histogram</h3>" + _img("true_pred_hist2d") +

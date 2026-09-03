@@ -34,7 +34,7 @@
 
 \begin{center}
   {\large\bfseries\color{primary} Executive Summary --- Surrogate Model Validation Report}\\[2pt]
-  {\small\color{sepgray} Use case: \textbf{UCFATIGUE\_1} \quad|\quad 01 September 2026 \quad|\quad 2 model(s)}
+  {\small\color{sepgray} Use case: \textbf{UCFATIGUE\_1} \quad|\quad 03 September 2026 \quad|\quad 2 model(s)}
 \end{center}
 \vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{3pt}
 
@@ -69,17 +69,19 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
-\textbf{FLAP} & 869 & 2.219 & 5.37 & 0 & 0 & 0 & 0 & 23 \\ \hline
-\textbf{Altitude} & 869 & 9295 & 7702 & 18 & 2000 & 8000 & 1.5e+04 & 2.6e+04 \\ \hline
-\textbf{TAS} & 869 & 190.9 & 48.87 & 101 & 144 & 197.6 & 230 & 302 \\ \hline
-\textbf{Mass} & 869 & 1.887e+04 & 1325 & 1.412e+04 & 1.776e+04 & 1.89e+04 & 1.999e+04 & 2.189e+04 \\ \hline
-\textbf{q} & 869 & 4510 & 1845 & 1652 & 2881 & 3580 & 6375 & 9638 \\ \hline
-\textbf{gamma} & 869 & -0.2667 & 4.573 & -39.45 & -4.704 & 0 & 2.944 & 18.22 \\ \hline
-\textbf{Xcg(\%CMA)} & 869 & 19.41 & 4.095 & 14.6 & 16.43 & 18.5 & 20.58 & 29.3 \\ \hline
+\textbf{FLAP} & 869 & 2.2186 & 5.3696 & 0 & 0 & 0 & 0 & 23 \\ \hline
+\textbf{Altitude} & 869 & 9294.6341 & 7701.9019 & 18 & 2,000 & 8,000 & 15,000 & 26,000 \\ \hline
+\textbf{TAS} & 869 & 190.871 & 48.8676 & 101 & 144 & 197.5712 & 230 & 302 \\ \hline
+\textbf{Mass} & 869 & 18874.7779 & 1324.6887 & 14,125 & 17,761 & 18,905 & 19,991 & 21,886 \\ \hline
+\textbf{q} & 869 & 4510.2453 & 1845.3166 & 1652.3866 & 2881.2026 & 3579.9882 & 6375.4631 & 9637.8604 \\ \hline
+\textbf{gamma} & 869 & -0.2667 & 4.5734 & -39.4508 & -4.7042 & 0 & 2.9442 & 18.2194 \\ \hline
+\textbf{Xcg(\%CMA)} & 869 & 19.4107 & 4.0946 & 14.6 & 16.43 & 18.5 & 20.58 & 29.3 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Input variables — Train\_set.describe()}
 \end{center}
@@ -87,17 +89,19 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
-\textbf{1g} & 869 & 53.62 & 8.296 & 31.56 & 47.36 & 51.78 & 61.56 & 73.31 \\ \hline
-\textbf{Vertical maneuver} & 869 & 19.14 & 2.454 & 12.03 & 17.18 & 18.89 & 21.39 & 24.47 \\ \hline
+\textbf{1g} & 869 & 53.6228 & 8.2962 & 31.561 & 47.364 & 51.778 & 61.558 & 73.308 \\ \hline
+\textbf{Vertical maneuver} & 869 & 19.1377 & 2.4542 & 12.031 & 17.185 & 18.893 & 21.394 & 24.471 \\ \hline
 \textbf{Vertical gust} & 869 & 0.6494 & 0.1681 & 0.3466 & 0.5097 & 0.575 & 0.806 & 1.092 \\ \hline
-\textbf{Turn} & 869 & 6.362 & 0.6415 & 4.122 & 6.01 & 6.382 & 6.83 & 7.53 \\ \hline
-\textbf{Frontal gust} & 869 & 0.4806 & 1.154 & 0 & 0 & 0 & 0 & 3.722 \\ \hline
-\textbf{n0} & 869 & 1.939 & 0.07768 & 1.73 & 1.9 & 1.94 & 1.98 & 2.19 \\ \hline
-\textbf{Giro} & 869 & 1.996 & 1.533 & 0.662 & 1.299 & 1.587 & 1.874 & 7.599 \\ \hline
+\textbf{Turn} & 869 & 6.3621 & 0.6415 & 4.122 & 6.01 & 6.382 & 6.83 & 7.53 \\ \hline
+\textbf{Frontal gust} & 869 & 0.4806 & 1.1541 & 0 & 0 & 0 & 0 & 3.722 \\ \hline
+\textbf{n0} & 869 & 1.9391 & 0.0777 & 1.73 & 1.9 & 1.94 & 1.98 & 2.19 \\ \hline
+\textbf{Giro} & 869 & 1.9959 & 1.5329 & 0.662 & 1.299 & 1.587 & 1.874 & 7.599 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Output variables — Train\_set.describe()}
 \end{center}
@@ -209,17 +213,19 @@ Statistical summary of inputs and outputs over all data (train + val + test), as
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
-\textbf{FLAP} & 869 & 2.219 & 5.37 & 0 & 0 & 0 & 0 & 23 \\ \hline
-\textbf{Altitude} & 869 & 9295 & 7702 & 18 & 2000 & 8000 & 1.5e+04 & 2.6e+04 \\ \hline
-\textbf{TAS} & 869 & 190.9 & 48.87 & 101 & 144 & 197.6 & 230 & 302 \\ \hline
-\textbf{Mass} & 869 & 1.887e+04 & 1325 & 1.412e+04 & 1.776e+04 & 1.89e+04 & 1.999e+04 & 2.189e+04 \\ \hline
-\textbf{q} & 869 & 4510 & 1845 & 1652 & 2881 & 3580 & 6375 & 9638 \\ \hline
-\textbf{gamma} & 869 & -0.2667 & 4.573 & -39.45 & -4.704 & 0 & 2.944 & 18.22 \\ \hline
-\textbf{Xcg(\%CMA)} & 869 & 19.41 & 4.095 & 14.6 & 16.43 & 18.5 & 20.58 & 29.3 \\ \hline
+\textbf{FLAP} & 869 & 2.2186 & 5.3696 & 0 & 0 & 0 & 0 & 23 \\ \hline
+\textbf{Altitude} & 869 & 9294.6341 & 7701.9019 & 18 & 2,000 & 8,000 & 15,000 & 26,000 \\ \hline
+\textbf{TAS} & 869 & 190.871 & 48.8676 & 101 & 144 & 197.5712 & 230 & 302 \\ \hline
+\textbf{Mass} & 869 & 18874.7779 & 1324.6887 & 14,125 & 17,761 & 18,905 & 19,991 & 21,886 \\ \hline
+\textbf{q} & 869 & 4510.2453 & 1845.3166 & 1652.3866 & 2881.2026 & 3579.9882 & 6375.4631 & 9637.8604 \\ \hline
+\textbf{gamma} & 869 & -0.2667 & 4.5734 & -39.4508 & -4.7042 & 0 & 2.9442 & 18.2194 \\ \hline
+\textbf{Xcg(\%CMA)} & 869 & 19.4107 & 4.0946 & 14.6 & 16.43 & 18.5 & 20.58 & 29.3 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Input variables — Train\_set.describe()}
 \end{center}
@@ -231,17 +237,19 @@ Statistical summary of inputs and outputs over all data (train + val + test), as
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
-\textbf{1g} & 869 & 53.62 & 8.296 & 31.56 & 47.36 & 51.78 & 61.56 & 73.31 \\ \hline
-\textbf{Vertical maneuver} & 869 & 19.14 & 2.454 & 12.03 & 17.18 & 18.89 & 21.39 & 24.47 \\ \hline
+\textbf{1g} & 869 & 53.6228 & 8.2962 & 31.561 & 47.364 & 51.778 & 61.558 & 73.308 \\ \hline
+\textbf{Vertical maneuver} & 869 & 19.1377 & 2.4542 & 12.031 & 17.185 & 18.893 & 21.394 & 24.471 \\ \hline
 \textbf{Vertical gust} & 869 & 0.6494 & 0.1681 & 0.3466 & 0.5097 & 0.575 & 0.806 & 1.092 \\ \hline
-\textbf{Turn} & 869 & 6.362 & 0.6415 & 4.122 & 6.01 & 6.382 & 6.83 & 7.53 \\ \hline
-\textbf{Frontal gust} & 869 & 0.4806 & 1.154 & 0 & 0 & 0 & 0 & 3.722 \\ \hline
-\textbf{n0} & 869 & 1.939 & 0.07768 & 1.73 & 1.9 & 1.94 & 1.98 & 2.19 \\ \hline
-\textbf{Giro} & 869 & 1.996 & 1.533 & 0.662 & 1.299 & 1.587 & 1.874 & 7.599 \\ \hline
+\textbf{Turn} & 869 & 6.3621 & 0.6415 & 4.122 & 6.01 & 6.382 & 6.83 & 7.53 \\ \hline
+\textbf{Frontal gust} & 869 & 0.4806 & 1.1541 & 0 & 0 & 0 & 0 & 3.722 \\ \hline
+\textbf{n0} & 869 & 1.9391 & 0.0777 & 1.73 & 1.9 & 1.94 & 1.98 & 2.19 \\ \hline
+\textbf{Giro} & 869 & 1.9959 & 1.5329 & 0.662 & 1.299 & 1.587 & 1.874 & 7.599 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Output variables — Train\_set.describe()}
 \end{center}
@@ -266,13 +274,13 @@ A well-designed split produces training and test distributions that are similar 
 \begin{tabular}{|l|r|r|}
 \hline
 \textbf{} & \textbf{KS} & \textbf{AD} \\ \hline
-\textbf{1g} & \cellcolor{passgreen}0.12601607692346975 & \cellcolor{passgreen}0.16557574708490383 \\ \hline
-\textbf{Vertical maneuver} & \cellcolor{passgreen}0.9577252265855336 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Vertical gust} & \cellcolor{passgreen}0.4767770596888548 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Turn} & \cellcolor{passgreen}0.4440799002733104 & \cellcolor{passgreen}0.15119819759103426 \\ \hline
-\textbf{Frontal gust} & \cellcolor{passgreen}0.9999764926830589 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{n0} & \cellcolor{passgreen}0.7097390087434631 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Giro} & \cellcolor{passgreen}0.4078625477599695 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{1g} & \cellcolor{passgreen}0.126 & \cellcolor{passgreen}0.1656 \\ \hline
+\textbf{Vertical maneuver} & \cellcolor{passgreen}0.9577 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Vertical gust} & \cellcolor{passgreen}0.4768 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Turn} & \cellcolor{passgreen}0.4441 & \cellcolor{passgreen}0.1512 \\ \hline
+\textbf{Frontal gust} & \cellcolor{passgreen}1 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{n0} & \cellcolor{passgreen}0.7097 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Giro} & \cellcolor{passgreen}0.4079 & \cellcolor{passgreen}0.25 \\ \hline
 \end{tabular}
 \par\vspace{2pt}
 {\scriptsize Train vs test p-values. Red: $p<0.05$ (distributions differ).}
@@ -294,6 +302,26 @@ Beyond matching distributions, a split can still flatter the model if test point
 
 \textcolor{passgreen!60!black}{\textbf{No p-hacking concern:}} only 0.6\% of test points lie closer to a training point than training points are to each other, so the test error is not flattered. \textcolor{failred!70!black}{\textbf{Isolated points:}} 6.3\% of test points have no training point nearby, so part of the test error measures extrapolation rather than interpolation --- the model may look worse there than it is in the region it was trained on.
 
+\exhead{Error Distribution: Valid vs Isolated Test Points}
+Same comparison for the test points with no training neighbour.
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/isolated_hist.png}\end{center}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{} & \textbf{AD} & \textbf{KS} & \textbf{KW} \\ \hline
+\textbf{1g} & \cellcolor{failred}0.001 & \cellcolor{failred}3.19e-07 & \cellcolor{failred}3.36e-06 \\ \hline
+\textbf{Vertical maneuver} & \cellcolor{failred}0.001 & \cellcolor{failred}1e-05 & \cellcolor{failred}9.16e-05 \\ \hline
+\textbf{Vertical gust} & \cellcolor{failred}0.001 & \cellcolor{failred}0.000205 & \cellcolor{failred}9.84e-06 \\ \hline
+\textbf{Turn} & \cellcolor{failred}0.001 & \cellcolor{failred}0.0015 & \cellcolor{failred}0.000255 \\ \hline
+\textbf{Frontal gust} & \cellcolor{failred}0.0016 & \cellcolor{passgreen}0.0605 & \cellcolor{failred}0.0069 \\ \hline
+\textbf{n0} & \cellcolor{failred}0.001 & \cellcolor{failred}9.08e-06 & \cellcolor{failred}9.59e-06 \\ \hline
+\textbf{Giro} & \cellcolor{failred}0.001 & \cellcolor{failred}8.38e-05 & \cellcolor{failred}0.000123 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Valid ($n=160$) vs Isolated ($n=14$) absolute-error distributions, on a subsample of the test set. Red: $p<0.05$ (the flagged points behave differently).}
+\end{center}
 \clearpage
 \section{Error Quantification --- P(E)}
 \label{sec:d3}
@@ -313,13 +341,13 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{1g} & 174 & -9.66 & 1.97 & -0.210 & $^{-0.0670}_{-0.343}$ & -0.0456 & $^{-0.00504}_{-0.127}$ & 1.16 & $^{1.51}_{0.72}$ & 0.594 & $^{0.712}_{0.432}$ & 29.2 & $^{45.8}_{4.81}$ & -4.36 & $^{-1.22}_{-5.47}$ \\ \hline
-\textbf{Vertical maneuver} & 174 & -2.39 & 1.85 & -0.0341 & $^{0.0286}_{-0.0920}$ & -0.00741 & $^{0.0306}_{-0.0333}$ & 0.419 & $^{0.519}_{0.303}$ & 0.224 & $^{0.260}_{0.184}$ & 10.8 & $^{17.5}_{5.86}$ & -1.61 & $^{0.636}_{-3.13}$ \\ \hline
-\textbf{Vertical gust} & 174 & -0.127 & 0.0307 & -0.00243 & $^{-0.000245}_{-0.00412}$ & -0.00131 & $^{0.000205}_{-0.00241}$ & 0.0157 & $^{0.0207}_{0.0107}$ & 0.00965 & $^{0.0127}_{0.00851}$ & 23.7 & $^{33.8}_{3.48}$ & -3.64 & $^{-0.792}_{-4.62}$ \\ \hline
-\textbf{Turn} & 174 & -0.840 & 0.881 & -0.0176 & $^{0.00579}_{-0.0464}$ & -0.00305 & $^{0.0129}_{-0.0166}$ & 0.184 & $^{0.228}_{0.137}$ & 0.0983 & $^{0.123}_{0.0794}$ & 8.00 & $^{12.3}_{4.57}$ & -0.788 & $^{0.791}_{-2.36}$ \\ \hline
-\textbf{Frontal gust} & 174 & -0.249 & 0.628 & 0.00612 & $^{0.0164}_{-0.00348}$ & 0.0000916 & $^{0.0000916}_{0.0000916}$ & 0.068 & $^{0.0975}_{0.0381}$ & 0.0000000000000000139 & $^{0.000237}_{0.00}$ & 48.3 & $^{81.6}_{15.3}$ & 5.57 & $^{7.68}_{-2.27}$ \\ \hline
-\textbf{n0} & 174 & -0.0583 & 0.0883 & 0.00218 & $^{0.00489}_{-0.00102}$ & 0.00135 & $^{0.00278}_{-0.00187}$ & 0.0192 & $^{0.0232}_{0.0154}$ & 0.0150 & $^{0.0192}_{0.0129}$ & 4.62 & $^{6.25}_{1.42}$ & 0.979 & $^{1.67}_{-0.347}$ \\ \hline
-\textbf{Giro} & 174 & -1.55 & 1.51 & -0.034 & $^{0.00982}_{-0.0785}$ & -0.0113 & $^{-0.0023}_{-0.0257}$ & 0.308 & $^{0.37}_{0.213}$ & 0.142 & $^{0.173}_{0.0935}$ & 11.1 & $^{17.3}_{6.74}$ & -0.253 & $^{1.74}_{-2.43}$ \\ \hline
+\textbf{1g} & 174 & -9.66 & 1.97 & -0.21 & $^{-0.0384}_{-0.423}$ & -0.0456 & $^{-0.0037}_{-0.136}$ & 1.16 & $^{1.66}_{0.657}$ & 0.594 & $^{0.672}_{0.402}$ & 29.2 & $^{46.6}_{3.2}$ & -4.36 & $^{-0.223}_{-5.41}$ \\ \hline
+\textbf{Vertical maneuver} & 174 & -2.39 & 1.85 & -0.0341 & $^{0.0369}_{-0.0909}$ & -0.0074 & $^{0.0226}_{-0.03}$ & 0.419 & $^{0.512}_{0.295}$ & 0.224 & $^{0.265}_{0.186}$ & 10.8 & $^{17.6}_{5.88}$ & -1.61 & $^{0.597}_{-2.94}$ \\ \hline
+\textbf{Vertical gust} & 174 & -0.127 & 0.0307 & -0.0024 & $^{-0.000262}_{-0.0042}$ & -0.0013 & $^{0.000247}_{-0.0024}$ & 0.0157 & $^{0.021}_{0.0104}$ & 0.0097 & $^{0.0122}_{0.0083}$ & 23.7 & $^{39}_{3.27}$ & -3.64 & $^{-0.872}_{-4.65}$ \\ \hline
+\textbf{Turn} & 174 & -0.84 & 0.881 & -0.0176 & $^{0.0126}_{-0.0501}$ & -0.0031 & $^{0.0138}_{-0.0168}$ & 0.184 & $^{0.224}_{0.144}$ & 0.0983 & $^{0.128}_{0.0777}$ & 8 & $^{12.1}_{4.59}$ & -0.788 & $^{0.808}_{-2.19}$ \\ \hline
+\textbf{Frontal gust} & 174 & -0.249 & 0.628 & 0.0061 & $^{0.0186}_{-0.0018}$ & 9.16e-05 & $^{\text{9.16e-05}}_{\text{9.16e-05}}$ & 0.068 & $^{0.105}_{0.0312}$ & 1.39e-17 & $^{\text{1.03e-05}}_{0}$ & 48.3 & $^{80.4}_{18.9}$ & 5.57 & $^{7.9}_{-2.32}$ \\ \hline
+\textbf{n0} & 174 & -0.0583 & 0.0883 & 0.0022 & $^{0.0046}_{-0.000168}$ & 0.0014 & $^{0.0031}_{-0.002}$ & 0.0192 & $^{0.0228}_{0.0154}$ & 0.015 & $^{0.0188}_{0.0132}$ & 4.62 & $^{6.17}_{0.855}$ & 0.979 & $^{1.69}_{-0.24}$ \\ \hline
+\textbf{Giro} & 174 & -1.55 & 1.51 & -0.034 & $^{0.0193}_{-0.0729}$ & -0.0113 & $^{0.0027}_{-0.0228}$ & 0.308 & $^{0.371}_{0.217}$ & 0.142 & $^{0.182}_{0.0901}$ & 11.1 & $^{18.8}_{6.42}$ & -0.253 & $^{2.11}_{-2.19}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -333,13 +361,13 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{1g} & 174 & 0.00282 & 9.66 & 0.572 & $^{0.669}_{0.426}$ & 0.246 & $^{0.368}_{0.226}$ & 1.03 & $^{1.30}_{0.502}$ & 0.55 & $^{0.669}_{0.387}$ & 39.7 & $^{65.1}_{5.63}$ & 5.57 & $^{7.12}_{2.25}$ \\ \hline
-\textbf{Vertical maneuver} & 174 & 0.000887 & 2.39 & 0.229 & $^{0.282}_{0.182}$ & 0.113 & $^{0.135}_{0.0966}$ & 0.353 & $^{0.453}_{0.254}$ & 0.177 & $^{0.234}_{0.142}$ & 13.9 & $^{21.4}_{7.86}$ & 3.45 & $^{4.24}_{2.67}$ \\ \hline
-\textbf{Vertical gust} & 174 & 0.0000312 & 0.127 & 0.00882 & $^{0.0103}_{0.00722}$ & 0.00550 & $^{0.00633}_{0.00430}$ & 0.0132 & $^{0.019}_{0.00798}$ & 0.00731 & $^{0.00909}_{0.0065}$ & 38.1 & $^{58.8}_{6.00}$ & 5.28 & $^{6.60}_{2.28}$ \\ \hline
-\textbf{Turn} & 174 & 0.00162 & 0.881 & 0.105 & $^{0.122}_{0.0850}$ & 0.0513 & $^{0.0642}_{0.0381}$ & 0.153 & $^{0.188}_{0.115}$ & 0.0955 & $^{0.135}_{0.0671}$ & 9.81 & $^{15.0}_{5.52}$ & 3.00 & $^{3.57}_{2.41}$ \\ \hline
-\textbf{Frontal gust} & 174 & 0.0000916 & 0.628 & 0.0162 & $^{0.0299}_{0.00770}$ & 0.0000916 & $^{0.0000916}_{0.0000916}$ & 0.0663 & $^{0.107}_{0.0285}$ & 0.00198 & $^{0.00323}_{0.000261}$ & 49.2 & $^{85.0}_{15.2}$ & 6.54 & $^{8.52}_{3.85}$ \\ \hline
-\textbf{n0} & 174 & 0.0000560 & 0.0883 & 0.0130 & $^{0.0152}_{0.0113}$ & 0.00763 & $^{0.00932}_{0.00631}$ & 0.0143 & $^{0.0178}_{0.0111}$ & 0.0141 & $^{0.0195}_{0.0111}$ & 8.74 & $^{12.7}_{2.77}$ & 2.52 & $^{3.11}_{1.53}$ \\ \hline
-\textbf{Giro} & 174 & 0.00118 & 1.55 & 0.158 & $^{0.199}_{0.118}$ & 0.0569 & $^{0.0882}_{0.0450}$ & 0.266 & $^{0.333}_{0.188}$ & 0.149 & $^{0.20}_{0.0949}$ & 12.4 & $^{22.4}_{6.73}$ & 3.36 & $^{4.27}_{2.65}$ \\ \hline
+\textbf{1g} & 174 & 0.0028 & 9.66 & 0.572 & $^{0.726}_{0.445}$ & 0.246 & $^{0.4}_{0.229}$ & 1.03 & $^{1.41}_{0.536}$ & 0.55 & $^{0.686}_{0.404}$ & 39.7 & $^{66}_{5.65}$ & 5.57 & $^{7.03}_{2.14}$ \\ \hline
+\textbf{Vertical maneuver} & 174 & 0.000887 & 2.39 & 0.229 & $^{0.285}_{0.179}$ & 0.113 & $^{0.131}_{0.0932}$ & 0.353 & $^{0.456}_{0.244}$ & 0.177 & $^{0.235}_{0.143}$ & 13.9 & $^{24.2}_{6.7}$ & 3.45 & $^{4.39}_{2.54}$ \\ \hline
+\textbf{Vertical gust} & 174 & 3.12e-05 & 0.127 & 0.0088 & $^{0.011}_{0.0071}$ & 0.0055 & $^{0.0063}_{0.0043}$ & 0.0132 & $^{0.0198}_{0.008}$ & 0.0073 & $^{0.0094}_{0.0061}$ & 38.1 & $^{62}_{5.5}$ & 5.28 & $^{6.77}_{2.29}$ \\ \hline
+\textbf{Turn} & 174 & 0.0016 & 0.881 & 0.105 & $^{0.124}_{0.0844}$ & 0.0513 & $^{0.0633}_{0.0372}$ & 0.153 & $^{0.189}_{0.114}$ & 0.0955 & $^{0.135}_{0.0693}$ & 9.81 & $^{14.6}_{5.29}$ & 3 & $^{3.58}_{2.35}$ \\ \hline
+\textbf{Frontal gust} & 174 & 9.16e-05 & 0.628 & 0.0162 & $^{0.0264}_{0.0075}$ & 9.16e-05 & $^{\text{9.16e-05}}_{\text{9.16e-05}}$ & 0.0663 & $^{0.0957}_{0.0278}$ & 0.002 & $^{0.0039}_{0.000256}$ & 49.2 & $^{80.7}_{18.1}$ & 6.54 & $^{8.36}_{4.14}$ \\ \hline
+\textbf{n0} & 174 & 5.6e-05 & 0.0883 & 0.013 & $^{0.0151}_{0.0113}$ & 0.0076 & $^{0.01}_{0.0059}$ & 0.0143 & $^{0.0175}_{0.0111}$ & 0.0141 & $^{0.0182}_{0.0117}$ & 8.74 & $^{13.2}_{1.91}$ & 2.52 & $^{3.01}_{1.47}$ \\ \hline
+\textbf{Giro} & 174 & 0.0012 & 1.55 & 0.158 & $^{0.19}_{0.13}$ & 0.0569 & $^{0.0876}_{0.0454}$ & 0.266 & $^{0.323}_{0.196}$ & 0.149 & $^{0.18}_{0.0885}$ & 12.4 & $^{20.8}_{6.69}$ & 3.36 & $^{4.28}_{2.6}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -351,9 +379,7 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_residue_cdf.png}\end{center}
 \exhead{Absolute Error Histograms}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_abserr_hist.png}\end{center}
-\exhead{Relative Absolute Error CDF --- Q90 Accuracy Requirement}
-Orange dotted = observed Q90; red dashed = target threshold. Green title = PASS; red title = FAIL.
-\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_relerr_cdf.png}\end{center}
+\exhead{Q90 Accuracy Requirement}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|r|r|c|}
@@ -379,13 +405,13 @@ AD and KS tests comparing the distribution of true vs.\ predicted values on the 
 \begin{tabular}{|l|r|r|}
 \hline
 \textbf{} & \textbf{AD} & \textbf{KS} \\ \hline
-\textbf{1g} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9931635214778011 \\ \hline
-\textbf{Vertical maneuver} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9372048405515155 \\ \hline
-\textbf{Vertical gust} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9747502686921694 \\ \hline
-\textbf{Turn} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9372048405515155 \\ \hline
-\textbf{Frontal gust} & \cellcolor{failred}0.001 & \cellcolor{failred}5.39371043839088e-46 \\ \hline
-\textbf{n0} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.6278128269392703 \\ \hline
-\textbf{Giro} & \cellcolor{passgreen}0.21426024782534803 & \cellcolor{passgreen}0.12392282795362734 \\ \hline
+\textbf{1g} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9932 \\ \hline
+\textbf{Vertical maneuver} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9372 \\ \hline
+\textbf{Vertical gust} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9748 \\ \hline
+\textbf{Turn} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.9372 \\ \hline
+\textbf{Frontal gust} & \cellcolor{failred}0.001 & \cellcolor{failred}5.39e-46 \\ \hline
+\textbf{n0} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.6278 \\ \hline
+\textbf{Giro} & \cellcolor{passgreen}0.2143 & \cellcolor{passgreen}0.1239 \\ \hline
 \end{tabular}
 \par\vspace{2pt}
 {\scriptsize True vs predicted distribution tests. Red: $p<0.05$.}
@@ -406,17 +432,19 @@ Green ($p\geq 0.05$) = residue uniform across input bins; red ($p<0.05$) = signi
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{1g} & \textbf{Vertical maneuver} & \textbf{Vertical gust} & \textbf{Turn} & \textbf{Frontal gust} & \textbf{n0} & \textbf{Giro} \\ \hline
-\textbf{FLAP\_binned} & \cellcolor{passgreen}0.2065973724768399 & \cellcolor{passgreen}0.06104011718038691 & \cellcolor{passgreen}0.15668564248348774 & \cellcolor{failred}0.005793851223069571 & \cellcolor{passgreen}0.1014815355213955 & \cellcolor{passgreen}0.7590522430096617 & \cellcolor{passgreen}0.37270366641352304 \\ \hline
-\textbf{Altitude\_binned} & \cellcolor{passgreen}0.7600647376528422 & \cellcolor{passgreen}0.6685726985430076 & \cellcolor{passgreen}0.20770302663221002 & \cellcolor{passgreen}0.4911758164166914 & \cellcolor{passgreen}0.9793899233159972 & \cellcolor{passgreen}0.675742285151472 & \cellcolor{passgreen}0.10624926417271593 \\ \hline
-\textbf{TAS\_binned} & \cellcolor{passgreen}0.373883876500768 & \cellcolor{passgreen}0.8346350123713844 & \cellcolor{passgreen}0.7358769291681275 & \cellcolor{passgreen}0.07180184139864736 & \cellcolor{passgreen}0.551546577470945 & \cellcolor{passgreen}0.27378578912030466 & \cellcolor{passgreen}0.3334753392205595 \\ \hline
-\textbf{Mass\_binned} & \cellcolor{failred}0.03979950129289494 & \cellcolor{passgreen}0.13958767162222122 & \cellcolor{passgreen}0.7809502379154429 & \cellcolor{passgreen}0.08975212620353369 & \cellcolor{failred}0.0010053396346996445 & \cellcolor{failred}0.01571852447479331 & \cellcolor{passgreen}0.1062533266323166 \\ \hline
-\textbf{q\_binned} & \cellcolor{failred}0.029142840681280292 & \cellcolor{failred}0.004109515764661657 & \cellcolor{failred}0.004352593886667565 & \cellcolor{failred}0.04687166937364112 & \cellcolor{passgreen}0.11813938954130444 & \cellcolor{passgreen}0.2334386536796402 & \cellcolor{failred}4.5431455475242855e-05 \\ \hline
-\textbf{gamma\_binned} & \cellcolor{passgreen}0.0573856197493953 & \cellcolor{passgreen}0.6324324031842394 & \cellcolor{passgreen}0.7522158259107165 & \cellcolor{passgreen}0.25033324446048494 & \cellcolor{failred}0.0022809160003603316 & \cellcolor{passgreen}0.056145339726880863 & \cellcolor{passgreen}0.2246068001448132 \\ \hline
-\textbf{Xcg(\%CMA)\_binned} & \cellcolor{failred}0.047851843523705626 & \cellcolor{passgreen}0.4163741104766572 & \cellcolor{passgreen}0.39974574684579645 & \cellcolor{passgreen}0.3511065757629104 & \cellcolor{failred}0.008719903210092386 & \cellcolor{passgreen}0.5115887148277983 & \cellcolor{failred}0.0381511594113273 \\ \hline
+\textbf{FLAP\_binned} & \cellcolor{passgreen}0.2066 & \cellcolor{passgreen}0.061 & \cellcolor{passgreen}0.1567 & \cellcolor{failred}0.0058 & \cellcolor{passgreen}0.1015 & \cellcolor{passgreen}0.7591 & \cellcolor{passgreen}0.3727 \\ \hline
+\textbf{Altitude\_binned} & \cellcolor{passgreen}0.7601 & \cellcolor{passgreen}0.6686 & \cellcolor{passgreen}0.2077 & \cellcolor{passgreen}0.4912 & \cellcolor{passgreen}0.9794 & \cellcolor{passgreen}0.6757 & \cellcolor{passgreen}0.1062 \\ \hline
+\textbf{TAS\_binned} & \cellcolor{passgreen}0.3739 & \cellcolor{passgreen}0.8346 & \cellcolor{passgreen}0.7359 & \cellcolor{passgreen}0.0718 & \cellcolor{passgreen}0.5515 & \cellcolor{passgreen}0.2738 & \cellcolor{passgreen}0.3335 \\ \hline
+\textbf{Mass\_binned} & \cellcolor{failred}0.0398 & \cellcolor{passgreen}0.1396 & \cellcolor{passgreen}0.781 & \cellcolor{passgreen}0.0898 & \cellcolor{failred}0.001 & \cellcolor{failred}0.0157 & \cellcolor{passgreen}0.1063 \\ \hline
+\textbf{q\_binned} & \cellcolor{failred}0.0291 & \cellcolor{failred}0.0041 & \cellcolor{failred}0.0044 & \cellcolor{failred}0.0469 & \cellcolor{passgreen}0.1181 & \cellcolor{passgreen}0.2334 & \cellcolor{failred}4.54e-05 \\ \hline
+\textbf{gamma\_binned} & \cellcolor{passgreen}0.0574 & \cellcolor{passgreen}0.6324 & \cellcolor{passgreen}0.7522 & \cellcolor{passgreen}0.2503 & \cellcolor{failred}0.0023 & \cellcolor{passgreen}0.0561 & \cellcolor{passgreen}0.2246 \\ \hline
+\textbf{Xcg(\%CMA)\_binned} & \cellcolor{failred}0.0479 & \cellcolor{passgreen}0.4164 & \cellcolor{passgreen}0.3997 & \cellcolor{passgreen}0.3511 & \cellcolor{failred}0.0087 & \cellcolor{passgreen}0.5116 & \cellcolor{failred}0.0382 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Kruskal-Wallis p-values on Sturges-binned inputs. Red: $p<0.05$ (error depends on that input).}
 \end{center}
@@ -483,12 +511,14 @@ A global binned uncertainty model (95th percentile, right-tailed) is trained on 
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{1g} & \textbf{Vertical maneuver} & \textbf{Vertical gust} & \textbf{Turn} & \textbf{Frontal gust} & \textbf{n0} & \textbf{Giro} & \textbf{TOTAL COV} \\ \hline
-\textbf{Coverage} & 96.55 & 94.25 & 93.68 & 95.4 & 94.83 & 96.55 & 91.95 & nan \\ \hline
-\textbf{CI} & [92.65, 98.72] & [89.68, 97.21] & [88.97, 96.8] & [91.14, 97.99] & [90.41, 97.61] & [92.65, 98.72] & [86.87, 95.53] & nan \\ \hline
+\textbf{Coverage} & 97.13 & 94.83 & 94.25 & 95.98 & 94.83 & 96.55 & 91.95 & \textemdash \\ \hline
+\textbf{CI} & [93.42, 99.06] & [90.41, 97.61] & [89.68, 97.21] & [91.89, 98.37] & [90.41, 97.61] & [92.65, 98.72] & [86.87, 95.53] & \textemdash \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Empirical coverage of the 95th-percentile uncertainty bound on the test split.}
 \end{center}

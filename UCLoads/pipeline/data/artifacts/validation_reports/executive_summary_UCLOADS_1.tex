@@ -34,7 +34,7 @@
 
 \begin{center}
   {\large\bfseries\color{primary} Executive Summary --- Surrogate Model Validation Report}\\[2pt]
-  {\small\color{sepgray} Use case: \textbf{UCLOADS\_1} \quad|\quad 01 September 2026 \quad|\quad 5 model(s)}
+  {\small\color{sepgray} Use case: \textbf{UCLOADS\_1} \quad|\quad 03 September 2026 \quad|\quad 5 model(s)}
 \end{center}
 \vspace{-4pt}\noindent\rule{\linewidth}{1pt}\vspace{3pt}
 
@@ -69,13 +69,15 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
 \textbf{Mach} & 30,000 & 0.8993 & 0.2877 & 0.4 & 0.649 & 0.899 & 1.148 & 1.4 \\ \hline
-\textbf{Altitude\_ft} & 30,000 & 2.504e+04 & 1.445e+04 & 0.262 & 1.254e+04 & 2.491e+04 & 3.763e+04 & 5e+04 \\ \hline
-\textbf{ALPHA\_deg} & 30,000 & 12.65 & 11.54 & -7.499 & 2.714 & 12.71 & 22.63 & 32.5 \\ \hline
+\textbf{Altitude\_ft} & 30,000 & 25041.4981 & 14450.3288 & 0.262 & 12538.2808 & 24908.6162 & 37629.5684 & 49999.7461 \\ \hline
+\textbf{ALPHA\_deg} & 30,000 & 12.6492 & 11.542 & -7.499 & 2.7138 & 12.705 & 22.6283 & 32.5 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Input variables — Train\_set.describe()}
 \end{center}
@@ -83,18 +85,20 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
-\textbf{Fz\_WINGROOT} & 30,000 & 1.707e+05 & 3.3e+05 & -5.524e+05 & -2.938e+04 & 5.923e+04 & 2.553e+05 & 2.313e+06 \\ \hline
-\textbf{Mx\_WINGROOT} & 30,000 & 2.198e+05 & 4.339e+05 & -7.196e+05 & -4.198e+04 & 7.218e+04 & 3.289e+05 & 3.054e+06 \\ \hline
-\textbf{My\_WINGROOT} & 30,000 & 2.349e+04 & 1.482e+05 & -7.54e+05 & -2.958e+04 & 7.465e+04 & 1.271e+05 & 2.17e+05 \\ \hline
-\textbf{Fy\_FUS} & 30,000 & 1.335e+04 & 1.86e+04 & -3.087e+04 & 2189 & 7538 & 1.82e+04 & 1.566e+05 \\ \hline
-\textbf{Fz\_FUS} & 30,000 & 1.708e+05 & 3.297e+05 & -5.269e+05 & -2.881e+04 & 5.577e+04 & 2.534e+05 & 2.303e+06 \\ \hline
-\textbf{Mx\_FUS} & 30,000 & 2.194e+05 & 4.339e+05 & -6.836e+05 & -4.365e+04 & 6.652e+04 & 3.241e+05 & 3.028e+06 \\ \hline
-\textbf{My\_FUS} & 30,000 & 2.358e+04 & 1.482e+05 & -7.264e+05 & -2.889e+04 & 7.528e+04 & 1.276e+05 & 1.891e+05 \\ \hline
-\textbf{Mz\_FUS} & 30,000 & -2.266e+04 & 2.787e+04 & -2.63e+05 & -2.583e+04 & -1.26e+04 & -7369 & 7202 \\ \hline
+\textbf{Fz\_WINGROOT} & 30,000 & 170703.0851 & 330033.1836 & -552389.4375 & -29380.1304 & 59228.2832 & 255270.5 & 2,310,000 \\ \hline
+\textbf{Mx\_WINGROOT} & 30,000 & 219817.2595 & 433912.0613 & -719582.25 & -41977.8672 & 72184.8438 & 328885.5859 & 3,050,000 \\ \hline
+\textbf{My\_WINGROOT} & 30,000 & 23493.4845 & 148166.7046 & -754026.4375 & -29575.6533 & 74652.375 & 127117.2227 & 216981.3906 \\ \hline
+\textbf{Fy\_FUS} & 30,000 & 13347.9878 & 18600.438 & -30868.4082 & 2188.8232 & 7538.3909 & 18198.4678 & 156598.9844 \\ \hline
+\textbf{Fz\_FUS} & 30,000 & 170836.2941 & 329666.0959 & -526906.0625 & -28808.978 & 55768.1953 & 253443.3555 & 2,300,000 \\ \hline
+\textbf{Mx\_FUS} & 30,000 & 219365.6596 & 433865.0107 & -683626.6875 & -43647.6865 & 66522.2109 & 324146.1953 & 3,030,000 \\ \hline
+\textbf{My\_FUS} & 30,000 & 23581.2207 & 148229.718 & -726381.75 & -28888.1357 & 75282.5625 & 127646.9004 & 189144.7969 \\ \hline
+\textbf{Mz\_FUS} & 30,000 & -22660.0748 & 27871.8468 & -263049.875 & -25834.228 & -12596.9438 & -7368.7069 & 7201.8691 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Output variables — Train\_set.describe()}
 \end{center}
@@ -213,13 +217,15 @@ Statistical summary of inputs and outputs over all data (train + val + test), as
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
 \textbf{Mach} & 30,000 & 0.8993 & 0.2877 & 0.4 & 0.649 & 0.899 & 1.148 & 1.4 \\ \hline
-\textbf{Altitude\_ft} & 30,000 & 2.504e+04 & 1.445e+04 & 0.262 & 1.254e+04 & 2.491e+04 & 3.763e+04 & 5e+04 \\ \hline
-\textbf{ALPHA\_deg} & 30,000 & 12.65 & 11.54 & -7.499 & 2.714 & 12.71 & 22.63 & 32.5 \\ \hline
+\textbf{Altitude\_ft} & 30,000 & 25041.4981 & 14450.3288 & 0.262 & 12538.2808 & 24908.6162 & 37629.5684 & 49999.7461 \\ \hline
+\textbf{ALPHA\_deg} & 30,000 & 12.6492 & 11.542 & -7.499 & 2.7138 & 12.705 & 22.6283 & 32.5 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Input variables — Train\_set.describe()}
 \end{center}
@@ -231,18 +237,20 @@ Statistical summary of inputs and outputs over all data (train + val + test), as
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{mean} & \textbf{std} & \textbf{min} & \textbf{P25} & \textbf{P50} & \textbf{P75} & \textbf{max} \\ \hline
-\textbf{Fz\_WINGROOT} & 30,000 & 1.707e+05 & 3.3e+05 & -5.524e+05 & -2.938e+04 & 5.923e+04 & 2.553e+05 & 2.313e+06 \\ \hline
-\textbf{Mx\_WINGROOT} & 30,000 & 2.198e+05 & 4.339e+05 & -7.196e+05 & -4.198e+04 & 7.218e+04 & 3.289e+05 & 3.054e+06 \\ \hline
-\textbf{My\_WINGROOT} & 30,000 & 2.349e+04 & 1.482e+05 & -7.54e+05 & -2.958e+04 & 7.465e+04 & 1.271e+05 & 2.17e+05 \\ \hline
-\textbf{Fy\_FUS} & 30,000 & 1.335e+04 & 1.86e+04 & -3.087e+04 & 2189 & 7538 & 1.82e+04 & 1.566e+05 \\ \hline
-\textbf{Fz\_FUS} & 30,000 & 1.708e+05 & 3.297e+05 & -5.269e+05 & -2.881e+04 & 5.577e+04 & 2.534e+05 & 2.303e+06 \\ \hline
-\textbf{Mx\_FUS} & 30,000 & 2.194e+05 & 4.339e+05 & -6.836e+05 & -4.365e+04 & 6.652e+04 & 3.241e+05 & 3.028e+06 \\ \hline
-\textbf{My\_FUS} & 30,000 & 2.358e+04 & 1.482e+05 & -7.264e+05 & -2.889e+04 & 7.528e+04 & 1.276e+05 & 1.891e+05 \\ \hline
-\textbf{Mz\_FUS} & 30,000 & -2.266e+04 & 2.787e+04 & -2.63e+05 & -2.583e+04 & -1.26e+04 & -7369 & 7202 \\ \hline
+\textbf{Fz\_WINGROOT} & 30,000 & 170703.0851 & 330033.1836 & -552389.4375 & -29380.1304 & 59228.2832 & 255270.5 & 2,310,000 \\ \hline
+\textbf{Mx\_WINGROOT} & 30,000 & 219817.2595 & 433912.0613 & -719582.25 & -41977.8672 & 72184.8438 & 328885.5859 & 3,050,000 \\ \hline
+\textbf{My\_WINGROOT} & 30,000 & 23493.4845 & 148166.7046 & -754026.4375 & -29575.6533 & 74652.375 & 127117.2227 & 216981.3906 \\ \hline
+\textbf{Fy\_FUS} & 30,000 & 13347.9878 & 18600.438 & -30868.4082 & 2188.8232 & 7538.3909 & 18198.4678 & 156598.9844 \\ \hline
+\textbf{Fz\_FUS} & 30,000 & 170836.2941 & 329666.0959 & -526906.0625 & -28808.978 & 55768.1953 & 253443.3555 & 2,300,000 \\ \hline
+\textbf{Mx\_FUS} & 30,000 & 219365.6596 & 433865.0107 & -683626.6875 & -43647.6865 & 66522.2109 & 324146.1953 & 3,030,000 \\ \hline
+\textbf{My\_FUS} & 30,000 & 23581.2207 & 148229.718 & -726381.75 & -28888.1357 & 75282.5625 & 127646.9004 & 189144.7969 \\ \hline
+\textbf{Mz\_FUS} & 30,000 & -22660.0748 & 27871.8468 & -263049.875 & -25834.228 & -12596.9438 & -7368.7069 & 7201.8691 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Output variables — Train\_set.describe()}
 \end{center}
@@ -267,14 +275,14 @@ A well-designed split produces training and test distributions that are similar 
 \begin{tabular}{|l|r|r|}
 \hline
 \textbf{} & \textbf{KS} & \textbf{AD} \\ \hline
-\textbf{Fz\_WINGROOT} & \cellcolor{passgreen}0.6637453476707832 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Mx\_WINGROOT} & \cellcolor{passgreen}0.8629266196033867 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{My\_WINGROOT} & \cellcolor{passgreen}0.7801603722233774 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Fy\_FUS} & \cellcolor{passgreen}0.8335435086261689 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Fz\_FUS} & \cellcolor{passgreen}0.8533882178607826 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Mx\_FUS} & \cellcolor{passgreen}0.9062284518844627 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{My\_FUS} & \cellcolor{passgreen}0.4893600375017084 & \cellcolor{passgreen}0.25 \\ \hline
-\textbf{Mz\_FUS} & \cellcolor{passgreen}0.7912059350314521 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Fz\_WINGROOT} & \cellcolor{passgreen}0.6637 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Mx\_WINGROOT} & \cellcolor{passgreen}0.8629 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{My\_WINGROOT} & \cellcolor{passgreen}0.7802 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Fy\_FUS} & \cellcolor{passgreen}0.8335 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Fz\_FUS} & \cellcolor{passgreen}0.8534 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Mx\_FUS} & \cellcolor{passgreen}0.9062 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{My\_FUS} & \cellcolor{passgreen}0.4894 & \cellcolor{passgreen}0.25 \\ \hline
+\textbf{Mz\_FUS} & \cellcolor{passgreen}0.7912 & \cellcolor{passgreen}0.25 \\ \hline
 \end{tabular}
 \par\vspace{2pt}
 {\scriptsize Train vs test p-values. Red: $p<0.05$ (distributions differ).}
@@ -296,6 +304,48 @@ Beyond matching distributions, a split can still flatter the model if test point
 
 \textcolor{passgreen!60!black}{\textbf{No p-hacking concern:}} only 0.5\% of test points lie closer to a training point than training points are to each other, so the test error is not flattered.
 
+\exhead{Error Distribution: Valid vs p-hacking Test Points}
+Absolute error of the test points flagged as p-hacking against the valid ones, exactly as the extended validation notebook draws it. Matching distributions (high p-values) mean the flagged points do not distort the reported error.
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/phack_hist.png}\end{center}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{} & \textbf{AD} & \textbf{KS} & \textbf{KW} \\ \hline
+\textbf{Fz\_WINGROOT} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.1981 & \cellcolor{passgreen}0.1892 \\ \hline
+\textbf{Mx\_WINGROOT} & \cellcolor{failred}0.0324 & \cellcolor{passgreen}0.0764 & \cellcolor{failred}0.0342 \\ \hline
+\textbf{My\_WINGROOT} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.4799 & \cellcolor{passgreen}0.23 \\ \hline
+\textbf{Fy\_FUS} & \cellcolor{passgreen}0.1025 & \cellcolor{passgreen}0.0688 & \cellcolor{passgreen}0.0688 \\ \hline
+\textbf{Fz\_FUS} & \cellcolor{failred}0.0124 & \cellcolor{failred}0.0221 & \cellcolor{failred}0.02 \\ \hline
+\textbf{Mx\_FUS} & \cellcolor{failred}0.0166 & \cellcolor{passgreen}0.0688 & \cellcolor{failred}0.0295 \\ \hline
+\textbf{My\_FUS} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.3994 & \cellcolor{passgreen}0.2023 \\ \hline
+\textbf{Mz\_FUS} & \cellcolor{failred}0.0324 & \cellcolor{failred}0.0213 & \cellcolor{failred}0.0449 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Valid ($n=1959$) vs p-hacking ($n=7$) absolute-error distributions, on a subsample of the test set. Red: $p<0.05$ (the flagged points behave differently).}
+\end{center}
+\exhead{Error Distribution: Valid vs Isolated Test Points}
+Same comparison for the test points with no training neighbour.
+\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/isolated_hist.png}\end{center}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{} & \textbf{AD} & \textbf{KS} & \textbf{KW} \\ \hline
+\textbf{Fz\_WINGROOT} & \cellcolor{passgreen}0.1027 & \cellcolor{failred}0.036 & \cellcolor{passgreen}0.0657 \\ \hline
+\textbf{Mx\_WINGROOT} & \cellcolor{passgreen}0.0609 & \cellcolor{failred}0.0494 & \cellcolor{failred}0.0455 \\ \hline
+\textbf{My\_WINGROOT} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.6467 & \cellcolor{passgreen}0.9086 \\ \hline
+\textbf{Fy\_FUS} & \cellcolor{passgreen}0.0744 & \cellcolor{passgreen}0.0607 & \cellcolor{passgreen}0.0589 \\ \hline
+\textbf{Fz\_FUS} & \cellcolor{passgreen}0.0636 & \cellcolor{passgreen}0.0778 & \cellcolor{failred}0.0459 \\ \hline
+\textbf{Mx\_FUS} & \cellcolor{passgreen}0.0836 & \cellcolor{passgreen}0.0829 & \cellcolor{passgreen}0.0561 \\ \hline
+\textbf{My\_FUS} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.574 & \cellcolor{passgreen}0.9619 \\ \hline
+\textbf{Mz\_FUS} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.4272 & \cellcolor{passgreen}0.3739 \\ \hline
+\end{tabular}
+\par\vspace{2pt}
+{\scriptsize Valid ($n=1959$) vs Isolated ($n=34$) absolute-error distributions, on a subsample of the test set. Red: $p<0.05$ (the flagged points behave differently).}
+\end{center}
 \clearpage
 \section{Error Quantification --- P(E)}
 \label{sec:d3}
@@ -315,14 +365,14 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{Fz\_WINGROOT} & 10000 & -2250000. & 2190000. & -4860. & $^{2620.}_{-12900.}$ & -1120. & $^{5610.}_{-5760.}$ & 478000. & $^{486000.}_{469000.}$ & 395000. & $^{410000.}_{382000.}$ & 2.53 & $^{2.73}_{2.34}$ & -0.104 & $^{-0.0254}_{-0.197}$ \\ \hline
-\textbf{Mx\_WINGROOT} & 10000 & -3030000. & 2920000. & -7070. & $^{3970.}_{-24100.}$ & -885. & $^{8420.}_{-7800.}$ & 628000. & $^{639000.}_{616000.}$ & 516000. & $^{532000.}_{502000.}$ & 2.61 & $^{2.82}_{2.42}$ & -0.112 & $^{-0.00995}_{-0.230}$ \\ \hline
-\textbf{My\_WINGROOT} & 10000 & -834000. & 780000. & 2170. & $^{5700.}_{-1040.}$ & 2370. & $^{4690.}_{-118.}$ & 210000. & $^{213000.}_{206000.}$ & 201000. & $^{206000.}_{195000.}$ & 1.39 & $^{1.52}_{1.27}$ & -0.00989 & $^{0.0617}_{-0.0715}$ \\ \hline
-\textbf{Fy\_FUS} & 10000 & -141000. & 143000. & -244. & $^{151.}_{-692.}$ & -66.1 & $^{234.}_{-458.}$ & 26800. & $^{27500.}_{26300.}$ & 22400. & $^{23100.}_{21700.}$ & 3.17 & $^{3.46}_{2.93}$ & -0.114 & $^{0.00832}_{-0.214}$ \\ \hline
-\textbf{Fz\_FUS} & 10000 & -2220000. & 2200000. & -4950. & $^{3760.}_{-13400.}$ & 213. & $^{4690.}_{-4490.}$ & 478000. & $^{488000.}_{470000.}$ & 395000. & $^{406000.}_{384000.}$ & 2.55 & $^{2.73}_{2.36}$ & -0.103 & $^{-0.00414}_{-0.197}$ \\ \hline
-\textbf{Mx\_FUS} & 10000 & -2980000. & 2940000. & -6810. & $^{8460.}_{-19000.}$ & 489. & $^{6330.}_{-5570.}$ & 629000. & $^{643000.}_{616000.}$ & 513000. & $^{526000.}_{500000.}$ & 2.63 & $^{2.82}_{2.45}$ & -0.105 & $^{0.0154}_{-0.212}$ \\ \hline
-\textbf{My\_FUS} & 10000 & -828000. & 780000. & 2340. & $^{5760.}_{-2140.}$ & 2520. & $^{5440.}_{-336.}$ & 210000. & $^{213000.}_{206000.}$ & 200000. & $^{205000.}_{194000.}$ & 1.41 & $^{1.56}_{1.28}$ & -0.0125 & $^{0.0641}_{-0.0857}$ \\ \hline
-\textbf{Mz\_FUS} & 10000 & -230000. & 238000. & 469. & $^{1190.}_{-276.}$ & 26.8 & $^{398.}_{-219.}$ & 40400. & $^{41500.}_{39100.}$ & 23000. & $^{23700.}_{22300.}$ & 5.22 & $^{5.58}_{4.73}$ & 0.188 & $^{0.349}_{0.0326}$ \\ \hline
+\textbf{Fz\_WINGROOT} & 10,000 & -2,250,000 & 2,190,000 & -4,860 & $^{7590}_{-13800}$ & -1,120 & $^{5480}_{-7160}$ & 478,000 & $^{486000}_{469000}$ & 395,000 & $^{409000}_{382000}$ & 2.53 & $^{2.75}_{2.32}$ & -0.104 & $^{0.000239}_{-0.215}$ \\ \hline
+\textbf{Mx\_WINGROOT} & 10,000 & -3,030,000 & 2,920,000 & -7,070 & $^{3500}_{-16700}$ & -885 & $^{5680}_{-7060}$ & 628,000 & $^{643000}_{612000}$ & 516,000 & $^{532000}_{496000}$ & 2.61 & $^{2.83}_{2.35}$ & -0.112 & $^{-0.0294}_{-0.207}$ \\ \hline
+\textbf{My\_WINGROOT} & 10,000 & -834,000 & 780,000 & 2,170 & $^{6320}_{-1610}$ & 2,370 & $^{4890}_{7.63}$ & 210,000 & $^{213000}_{206000}$ & 201,000 & $^{207000}_{195000}$ & 1.39 & $^{1.5}_{1.26}$ & -0.0099 & $^{0.0535}_{-0.0869}$ \\ \hline
+\textbf{Fy\_FUS} & 10,000 & -141,000 & 143,000 & -244 & $^{164}_{-687}$ & -66.1 & $^{192}_{-397}$ & 26,800 & $^{27400}_{26200}$ & 22,400 & $^{23000}_{21800}$ & 3.17 & $^{3.45}_{2.89}$ & -0.114 & $^{0.0219}_{-0.209}$ \\ \hline
+\textbf{Fz\_FUS} & 10,000 & -2,220,000 & 2,200,000 & -4,950 & $^{3000}_{-14300}$ & 213 & $^{4580}_{-4950}$ & 478,000 & $^{489000}_{468000}$ & 395,000 & $^{407000}_{383000}$ & 2.55 & $^{2.73}_{2.33}$ & -0.103 & $^{0.0103}_{-0.197}$ \\ \hline
+\textbf{Mx\_FUS} & 10,000 & -2,980,000 & 2,940,000 & -6,810 & $^{5250}_{-17800}$ & 489 & $^{5260}_{-5500}$ & 629,000 & $^{644000}_{613000}$ & 513,000 & $^{527000}_{498000}$ & 2.63 & $^{2.86}_{2.46}$ & -0.105 & $^{-0.0039}_{-0.202}$ \\ \hline
+\textbf{My\_FUS} & 10,000 & -828,000 & 780,000 & 2,340 & $^{6950}_{-1980}$ & 2,520 & $^{5470}_{-43.7}$ & 210,000 & $^{214000}_{206000}$ & 200,000 & $^{207000}_{194000}$ & 1.41 & $^{1.53}_{1.3}$ & -0.0125 & $^{0.0718}_{-0.0885}$ \\ \hline
+\textbf{Mz\_FUS} & 10,000 & -230,000 & 238,000 & 469 & $^{1220}_{-209}$ & 26.8 & $^{433}_{-265}$ & 40,400 & $^{41600}_{39500}$ & 23,000 & $^{24000}_{22400}$ & 5.22 & $^{5.67}_{4.75}$ & 0.188 & $^{0.327}_{-0.0057}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -336,14 +386,14 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{Fz\_WINGROOT} & 10000 & 42.6 & 2250000. & 325000. & $^{330000.}_{319000.}$ & 198000. & $^{203000.}_{191000.}$ & 351000. & $^{358000.}_{343000.}$ & 362000. & $^{375000.}_{351000.}$ & 3.44 & $^{3.78}_{3.09}$ & 1.82 & $^{1.88}_{1.76}$ \\ \hline
-\textbf{Mx\_WINGROOT} & 10000 & 1.58 & 3030000. & 424000. & $^{433000.}_{415000.}$ & 258000. & $^{267000.}_{249000.}$ & 463000. & $^{473000.}_{452000.}$ & 472000. & $^{483000.}_{456000.}$ & 3.53 & $^{3.88}_{3.18}$ & 1.84 & $^{1.91}_{1.78}$ \\ \hline
-\textbf{My\_WINGROOT} & 10000 & 26.1 & 834000. & 150000. & $^{153000.}_{147000.}$ & 100000. & $^{103000.}_{96800.}$ & 147000. & $^{150000.}_{144000.}$ & 175000. & $^{181000.}_{170000.}$ & 1.98 & $^{2.24}_{1.80}$ & 1.48 & $^{1.53}_{1.43}$ \\ \hline
-\textbf{Fy\_FUS} & 10000 & 1.61 & 143000. & 18100. & $^{18500.}_{17700.}$ & 11200. & $^{11500.}_{10700.}$ & 19800. & $^{20200.}_{19300.}$ & 19400. & $^{19900.}_{18800.}$ & 4.79 & $^{5.30}_{4.25}$ & 2.02 & $^{2.10}_{1.94}$ \\ \hline
-\textbf{Fz\_FUS} & 10000 & 12.0 & 2220000. & 324000. & $^{330000.}_{318000.}$ & 197000. & $^{202000.}_{192000.}$ & 352000. & $^{360000.}_{345000.}$ & 364000. & $^{376000.}_{351000.}$ & 3.43 & $^{3.70}_{3.14}$ & 1.82 & $^{1.87}_{1.75}$ \\ \hline
-\textbf{Mx\_FUS} & 10000 & 26.5 & 2980000. & 424000. & $^{432000.}_{417000.}$ & 256000. & $^{263000.}_{250000.}$ & 465000. & $^{475000.}_{456000.}$ & 476000. & $^{491000.}_{462000.}$ & 3.52 & $^{3.78}_{3.18}$ & 1.84 & $^{1.89}_{1.77}$ \\ \hline
-\textbf{My\_FUS} & 10000 & 12.6 & 828000. & 150000. & $^{153000.}_{148000.}$ & 99800. & $^{103000.}_{97400.}$ & 147000. & $^{150000.}_{145000.}$ & 175000. & $^{179000.}_{170000.}$ & 1.98 & $^{2.25}_{1.74}$ & 1.48 & $^{1.54}_{1.44}$ \\ \hline
-\textbf{Mz\_FUS} & 10000 & 0.821 & 238000. & 24400. & $^{25200.}_{23800.}$ & 11500. & $^{12000.}_{11100.}$ & 32200. & $^{33100.}_{31300.}$ & 26100. & $^{27400.}_{24800.}$ & 6.42 & $^{6.98}_{5.86}$ & 2.37 & $^{2.45}_{2.29}$ \\ \hline
+\textbf{Fz\_WINGROOT} & 10,000 & 42.6 & 2,250,000 & 325,000 & $^{331000}_{317000}$ & 198,000 & $^{204000}_{191000}$ & 351,000 & $^{359000}_{343000}$ & 362,000 & $^{372000}_{347000}$ & 3.44 & $^{3.81}_{3.13}$ & 1.82 & $^{1.88}_{1.76}$ \\ \hline
+\textbf{Mx\_WINGROOT} & 10,000 & 1.58 & 3,030,000 & 424,000 & $^{433000}_{416000}$ & 258,000 & $^{267000}_{251000}$ & 463,000 & $^{474000}_{453000}$ & 472,000 & $^{484000}_{456000}$ & 3.53 & $^{3.9}_{3.2}$ & 1.84 & $^{1.91}_{1.78}$ \\ \hline
+\textbf{My\_WINGROOT} & 10,000 & 26.1 & 834,000 & 150,000 & $^{153000}_{147000}$ & 100,000 & $^{103000}_{97000}$ & 147,000 & $^{149000}_{144000}$ & 175,000 & $^{182000}_{171000}$ & 1.98 & $^{2.18}_{1.77}$ & 1.48 & $^{1.52}_{1.42}$ \\ \hline
+\textbf{Fy\_FUS} & 10,000 & 1.61 & 143,000 & 18,100 & $^{18500}_{17800}$ & 11,200 & $^{11500}_{10900}$ & 19,800 & $^{20300}_{19300}$ & 19,400 & $^{20000}_{18700}$ & 4.79 & $^{5.37}_{4.24}$ & 2.02 & $^{2.11}_{1.93}$ \\ \hline
+\textbf{Fz\_FUS} & 10,000 & 12 & 2,220,000 & 324,000 & $^{330000}_{314000}$ & 197,000 & $^{203000}_{191000}$ & 352,000 & $^{358000}_{344000}$ & 364,000 & $^{377000}_{349000}$ & 3.43 & $^{3.78}_{3.09}$ & 1.82 & $^{1.88}_{1.75}$ \\ \hline
+\textbf{Mx\_FUS} & 10,000 & 26.5 & 2,980,000 & 424,000 & $^{434000}_{415000}$ & 256,000 & $^{265000}_{250000}$ & 465,000 & $^{476000}_{454000}$ & 476,000 & $^{495000}_{461000}$ & 3.52 & $^{3.81}_{3.16}$ & 1.84 & $^{1.88}_{1.78}$ \\ \hline
+\textbf{My\_FUS} & 10,000 & 12.6 & 828,000 & 150,000 & $^{153000}_{148000}$ & 99,800 & $^{103000}_{97400}$ & 147,000 & $^{150000}_{145000}$ & 175,000 & $^{179000}_{171000}$ & 1.98 & $^{2.18}_{1.77}$ & 1.48 & $^{1.53}_{1.44}$ \\ \hline
+\textbf{Mz\_FUS} & 10,000 & 0.821 & 238,000 & 24,400 & $^{25000}_{23800}$ & 11,500 & $^{12000}_{11100}$ & 32,200 & $^{32900}_{31500}$ & 26,100 & $^{27100}_{24800}$ & 6.42 & $^{7.01}_{5.75}$ & 2.37 & $^{2.45}_{2.27}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -355,9 +405,7 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_residue_cdf.png}\end{center}
 \exhead{Absolute Error Histograms}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_abserr_hist.png}\end{center}
-\exhead{Relative Absolute Error CDF --- Q90 Accuracy Requirement}
-Orange dotted = observed Q90; red dashed = target threshold. Green title = PASS; red title = FAIL.
-\begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_relerr_cdf.png}\end{center}
+\exhead{Q90 Accuracy Requirement}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|r|r|c|}
@@ -384,14 +432,14 @@ AD and KS tests comparing the distribution of true vs.\ predicted values on the 
 \begin{tabular}{|l|r|r|}
 \hline
 \textbf{} & \textbf{AD} & \textbf{KS} \\ \hline
-\textbf{Fz\_WINGROOT} & \cellcolor{failred}0.00425920151699012 & \cellcolor{failred}0.0021998068154162414 \\ \hline
-\textbf{Mx\_WINGROOT} & \cellcolor{failred}0.0011639430208941755 & \cellcolor{failred}0.0005290265350566941 \\ \hline
-\textbf{My\_WINGROOT} & \cellcolor{failred}0.001 & \cellcolor{failred}7.133746468885948e-05 \\ \hline
-\textbf{Fy\_FUS} & \cellcolor{failred}0.033711434511028565 & \cellcolor{failred}0.03966362560959423 \\ \hline
-\textbf{Fz\_FUS} & \cellcolor{passgreen}0.2309883074930256 & \cellcolor{passgreen}0.2509732672225685 \\ \hline
-\textbf{Mx\_FUS} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.44629561636001003 \\ \hline
-\textbf{My\_FUS} & \cellcolor{failred}0.035544925046655906 & \cellcolor{passgreen}0.21692483428445863 \\ \hline
-\textbf{Mz\_FUS} & \cellcolor{failred}0.001 & \cellcolor{failred}1.329523599881888e-55 \\ \hline
+\textbf{Fz\_WINGROOT} & \cellcolor{failred}0.0043 & \cellcolor{failred}0.0022 \\ \hline
+\textbf{Mx\_WINGROOT} & \cellcolor{failred}0.0012 & \cellcolor{failred}0.000529 \\ \hline
+\textbf{My\_WINGROOT} & \cellcolor{failred}0.001 & \cellcolor{failred}7.13e-05 \\ \hline
+\textbf{Fy\_FUS} & \cellcolor{failred}0.0337 & \cellcolor{failred}0.0397 \\ \hline
+\textbf{Fz\_FUS} & \cellcolor{passgreen}0.231 & \cellcolor{passgreen}0.251 \\ \hline
+\textbf{Mx\_FUS} & \cellcolor{passgreen}0.25 & \cellcolor{passgreen}0.4463 \\ \hline
+\textbf{My\_FUS} & \cellcolor{failred}0.0355 & \cellcolor{passgreen}0.2169 \\ \hline
+\textbf{Mz\_FUS} & \cellcolor{failred}0.001 & \cellcolor{failred}1.33e-55 \\ \hline
 \end{tabular}
 \par\vspace{2pt}
 {\scriptsize True vs predicted distribution tests. Red: $p<0.05$.}
@@ -412,13 +460,15 @@ Green ($p\geq 0.05$) = residue uniform across input bins; red ($p<0.05$) = signi
 \begin{center}
 \footnotesize
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{Fz\_WINGROOT} & \textbf{Mx\_WINGROOT} & \textbf{My\_WINGROOT} & \textbf{Fy\_FUS} & \textbf{Fz\_FUS} & \textbf{Mx\_FUS} & \textbf{My\_FUS} & \textbf{Mz\_FUS} \\ \hline
-\textbf{Mach\_binned} & \cellcolor{failred}4.086310690277698e-156 & \cellcolor{failred}1.825436181366889e-155 & \cellcolor{failred}0.0 & \cellcolor{failred}3.8463005238896635e-121 & \cellcolor{failred}2.506358648270944e-156 & \cellcolor{failred}1.9916045173112547e-158 & \cellcolor{failred}0.0 & \cellcolor{failred}2.661292613599753e-175 \\ \hline
-\textbf{Altitude\_ft\_binned} & \cellcolor{failred}8.460129592030745e-113 & \cellcolor{failred}2.8863536299262887e-110 & \cellcolor{failred}0.0 & \cellcolor{failred}3.662162120065459e-120 & \cellcolor{failred}7.380201805205099e-114 & \cellcolor{failred}1.357845364375936e-112 & \cellcolor{failred}0.0 & \cellcolor{failred}2.621690202221686e-146 \\ \hline
-\textbf{ALPHA\_deg\_binned} & \cellcolor{failred}0.0 & \cellcolor{failred}0.0 & \cellcolor{failred}0.01513854038383885 & \cellcolor{failred}0.0 & \cellcolor{failred}0.0 & \cellcolor{failred}0.0 & \cellcolor{failred}0.023268957839810193 & \cellcolor{failred}0.0 \\ \hline
+\textbf{Mach\_binned} & \cellcolor{failred}4.09e-156 & \cellcolor{failred}1.83e-155 & \cellcolor{failred}0 & \cellcolor{failred}3.85e-121 & \cellcolor{failred}2.51e-156 & \cellcolor{failred}1.99e-158 & \cellcolor{failred}0 & \cellcolor{failred}2.66e-175 \\ \hline
+\textbf{Altitude\_ft\_binned} & \cellcolor{failred}8.46e-113 & \cellcolor{failred}2.89e-110 & \cellcolor{failred}0 & \cellcolor{failred}3.66e-120 & \cellcolor{failred}7.38e-114 & \cellcolor{failred}1.36e-112 & \cellcolor{failred}0 & \cellcolor{failred}2.62e-146 \\ \hline
+\textbf{ALPHA\_deg\_binned} & \cellcolor{failred}0 & \cellcolor{failred}0 & \cellcolor{failred}0.0151 & \cellcolor{failred}0 & \cellcolor{failred}0 & \cellcolor{failred}0 & \cellcolor{failred}0.0233 & \cellcolor{failred}0 \\ \hline
 \end{tabular}
+}
 \par\vspace{2pt}
 {\scriptsize Kruskal-Wallis p-values on Sturges-binned inputs. Red: $p<0.05$ (error depends on that input).}
 \end{center}
@@ -493,8 +543,8 @@ A global binned uncertainty model (95th percentile, right-tailed) is trained on 
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{Fz\_WINGROOT} & \textbf{Mx\_WINGROOT} & \textbf{My\_WINGROOT} & \textbf{Fy\_FUS} & \textbf{Fz\_FUS} & \textbf{Mx\_FUS} & \textbf{My\_FUS} & \textbf{Mz\_FUS} & \textbf{TOTAL COV} \\ \hline
-\textbf{Coverage} & 94.55 & 94.54 & 94.77 & 94.39 & 94.72 & 94.54 & 94.77 & 94.07 & nan \\ \hline
-\textbf{CI} & [94.09, 94.99] & [94.08, 94.98] & [94.32, 95.2] & [93.92, 94.83] & [94.26, 95.15] & [94.08, 94.98] & [94.32, 95.2] & [93.59, 94.53] & nan \\ \hline
+\textbf{Coverage} & 94.51 & 94.63 & 94.77 & 94.35 & 94.69 & 94.49 & 94.77 & 94.13 & \textemdash \\ \hline
+\textbf{CI} & [94.05, 94.95] & [94.17, 95.06] & [94.32, 95.2] & [93.88, 94.79] & [94.23, 95.12] & [94.02, 94.93] & [94.32, 95.2] & [93.65, 94.58] & \textemdash \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
