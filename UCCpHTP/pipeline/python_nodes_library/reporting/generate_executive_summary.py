@@ -316,6 +316,19 @@ _PREAMBLE = r"""\documentclass[9pt,a4paper]{article}
 """
 
 
+def _keep(head_tex, body_tex):
+    """Heading + figure kept together: the pair goes into one unbreakable
+    minipage, so when it does not fit in what remains of the page LaTeX moves
+    the whole block to the next page instead of leaving the heading orphaned
+    at the bottom. With an empty body the heading is emitted as before."""
+    if not body_tex:
+        return head_tex + '\n'
+    return (r'\par\begin{minipage}{\linewidth}' + '\n'
+            + head_tex + '\n'
+            + body_tex
+            + r'\end{minipage}\par\medskip' + '\n')
+
+
 # ── Banner (Part 1) ────────────────────────────────────────────────────────────
 
 def _banner(d, best, rows):
@@ -403,15 +416,15 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir, stats=None):
         if not p:
             return ''
         rp = os.path.relpath(p, str(out_dir))
-        return (
-            r'\section{Training History}' + '\n'
-            + r'\begin{center}\includegraphics[' + _GFX_CURVE + r']{'
+        return _keep(
+            r'\section{Training History}',
+            r'\begin{center}\includegraphics[' + _GFX_CURVE + r']{'
             + rp + r'}\end{center}' + '\n'
             + r'{\footnotesize Training loss per iteration, log scale. '
               r'A validation panel is shown for models trained with early '
               r'stopping. Gradient boosting reports per-stage deviance '
-              r'averaged over its per-output estimators.}' + '\n\n'
-        )
+              r'averaged over its per-output estimators.}'
+        ) + '\n'
 
     # ── Winner scatter ─────────────────────────────────────────────────────────
     # Prefer the validationlib predicted-vs-true figure (same one the extended
@@ -527,12 +540,13 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir, stats=None):
         # 3. Variable correlation scatter — must sit on the FIRST page of the
         # report, in the space left under the banner and project table. The box
         # is capped at 46 % of the text height so it fits there whatever the
-        # banner's height; LaTeX would otherwise float it to page 2.
-        r'\section{Variable Correlation --- Input vs Output}' + '\n'
-        + (r'\begin{center}\includegraphics[' + _GFX_MATRIX + r']{'
-           + os.path.relpath(paths['data_scatter_vars'], str(out_dir))
-           + r'}\end{center}' + '\n'
-           if paths.get('data_scatter_vars') else '')
+        # banner's height; LaTeX would otherwise float it to page 2. Kept in
+        # one unbreakable block with its title.
+        + _keep(r'\section{Variable Correlation --- Input vs Output}',
+                (r'\begin{center}\includegraphics[' + _GFX_MATRIX + r']{'
+                 + os.path.relpath(paths['data_scatter_vars'], str(out_dir))
+                 + r'}\end{center}' + '\n'
+                 if paths.get('data_scatter_vars') else ''))
 
         # 3b. Data statistics right under the matrix — the feature-selection
         # notebook's describe() for inputs and outputs (also in Part 3).
@@ -540,8 +554,8 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir, stats=None):
             r'Per-variable statistics over all data (train + val + test), as '
             r'\texttt{Train\_set.describe()} reports them in the feature-selection '
             r'notebook: count, mean, standard deviation, minimum, quartiles and maximum.' + '\n\n'
-            r'\exhead{Inputs}' + '\n' + _tbl('describe_inputs')
-            + r'\exhead{Outputs}' + '\n' + _tbl('describe_outputs'))
+            + _keep(r'\exhead{Inputs}', _tbl('describe_inputs'))
+            + _keep(r'\exhead{Outputs}', _tbl('describe_outputs')))
            if (_tbl('describe_inputs') or _tbl('describe_outputs')) else '')
 
         # 4. Model Selection
@@ -553,11 +567,10 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir, stats=None):
         + _tbl_with_legend(metrics_tbl, _LEGEND) + '\n\n'
 
         # 6. Training History
-        + _training_curve_tex() +
+        + _training_curve_tex()
 
         # 7. Predicted vs True — winner model
-        rf'\section{{Predicted vs True --- {best_esc}}}' + '\n'
-        + winner_scatter_tex + '\n\n'
+        + _keep(rf'\section{{Predicted vs True --- {best_esc}}}', winner_scatter_tex) + '\n\n'
 
         # 8. Data Split Quality
         r'\section{Data Split Quality}' + '\n'
@@ -1394,9 +1407,9 @@ def _part3(d, best, paths, stats, out_dir):
         fig_r = _fig(f'pex_violin_res_{safe}')
         fig_a = _fig(f'pex_violin_abs_{safe}')
         if fig_r:
-            pex_res_blocks += rf'\subsection*{{\normalsize Residue --- {_esc(o)}}}' + '\n' + fig_r
+            pex_res_blocks += _keep(rf'\subsection*{{\normalsize Residue --- {_esc(o)}}}', fig_r)
         if fig_a:
-            pex_abs_blocks += rf'\subsection*{{\normalsize Absolute Error --- {_esc(o)}}}' + '\n' + fig_a
+            pex_abs_blocks += _keep(rf'\subsection*{{\normalsize Absolute Error --- {_esc(o)}}}', fig_a)
 
     mini_toc = (
         r'\begin{itemize}[leftmargin=2em,itemsep=1pt,topsep=2pt]' + '\n'
@@ -1429,17 +1442,13 @@ def _part3(d, best, paths, stats, out_dir):
         r'All figures in this part are drawn by \texttt{validationlib}, matching the '
         r'extended validation notebook.' + '\n\n'
         r'\exhead{Input Statistics}' + '\n'
-        + _tbl('describe_inputs') +
-        r'\exhead{Input Histograms}' + '\n'
-        + _fig('data_input_hist') +
-        r'\exhead{Input Cumulative Distributions}' + '\n'
-        + _fig('data_input_cdf') +
-        r'\exhead{Output Statistics}' + '\n'
-        + _tbl('describe_outputs') +
-        r'\exhead{Output Histograms}' + '\n'
-        + _fig('data_output_hist') +
-        r'\exhead{Output Cumulative Distributions}' + '\n'
-        + _fig('data_output_cdf')
+        + _tbl('describe_inputs')
+        + _keep(r'\exhead{Input Histograms}', _fig('data_input_hist'))
+        + _keep(r'\exhead{Input Cumulative Distributions}', _fig('data_input_cdf'))
+        + r'\exhead{Output Statistics}' + '\n'
+        + _tbl('describe_outputs')
+        + _keep(r'\exhead{Output Histograms}', _fig('data_output_hist'))
+        + _keep(r'\exhead{Output Cumulative Distributions}', _fig('data_output_cdf'))
 
         # 3.2 Train-Test Split
         + r'\clearpage' + '\n'
@@ -1449,11 +1458,9 @@ def _part3(d, best, paths, stats, out_dir):
         r'The Kolmogorov-Smirnov (KS) test and the Anderson-Darling (AD) test are used to assess distributional similarity. '
         r'$H_0$: both sets come from the same distribution. '
         r'$p<0.05$ rejects $H_0$ (undesirable if too low; undesirable if the split was done by stratification and $p$ is too high).' + '\n\n'
-        r'\exhead{Output Distributions: Train vs Test}' + '\n'
-        + _fig('split_output_dists') +
-        r'\exhead{Input Distributions: Train vs Test}' + '\n'
-        + _fig('split_input_dists') +
-        r'\exhead{KS and AD Test Results}' + '\n'
+        + _keep(r'\exhead{Output Distributions: Train vs Test}', _fig('split_output_dists'))
+        + _keep(r'\exhead{Input Distributions: Train vs Test}', _fig('split_input_dists'))
+        + r'\exhead{KS and AD Test Results}' + '\n'
         + _tbl('split_ks_ad')
         + r'\exhead{Split Quality --- Voxel Tesselation Proximity (p-hacking check)}' + '\n'
         r'Beyond matching distributions, a split can still flatter the model if test '
@@ -1462,16 +1469,16 @@ def _part3(d, best, paths, stats, out_dir):
         r'from \texttt{validationlib} (SF\_9 cell 9.0) classifies every test point.' + '\n\n'
         + _split_quality_tbl(d.get('split')) + '\n\n'
         + _split_quality_prose(d.get('split')) + '\n\n'
-        + ((r'\exhead{Error Distribution: Valid vs p-hacking Test Points}' + '\n'
-            r'Absolute error of the test points flagged as p-hacking against the valid '
-            r'ones, exactly as the extended validation notebook draws it. Matching '
-            r'distributions (high p-values) mean the flagged points do not distort '
-            r'the reported error.' + '\n'
-            + _fig('phack_hist') + _tbl('phack_pvals'))
+        + (_keep(r'\exhead{Error Distribution: Valid vs p-hacking Test Points}',
+                 r'Absolute error of the test points flagged as p-hacking against the valid '
+                 r'ones, exactly as the extended validation notebook draws it. Matching '
+                 r'distributions (high p-values) mean the flagged points do not distort '
+                 r'the reported error.' + '\n'
+                 + _fig('phack_hist') + _tbl('phack_pvals'))
            if _rp('phack_hist') else '')
-        + ((r'\exhead{Error Distribution: Valid vs Isolated Test Points}' + '\n'
-            r'Same comparison for the test points with no training neighbour.' + '\n'
-            + _fig('isolated_hist') + _tbl('isolated_pvals'))
+        + (_keep(r'\exhead{Error Distribution: Valid vs Isolated Test Points}',
+                 r'Same comparison for the test points with no training neighbour.' + '\n'
+                 + _fig('isolated_hist') + _tbl('isolated_pvals'))
            if _rp('isolated_hist') else '')
 
         # 3.3 Error Quantification
@@ -1489,14 +1496,11 @@ def _part3(d, best, paths, stats, out_dir):
         r'Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).' + '\n'
         + _tbl('res_stats') +
         r'\exhead{Absolute Error Statistics Table}' + '\n'
-        + _tbl('abs_stats') +
-        r'\exhead{Residue Histograms}' + '\n'
-        + _fig('err_residue_hist') +
-        r'\exhead{Residue CDF}' + '\n'
-        + _fig('err_residue_cdf') +
-        r'\exhead{Absolute Error Histograms}' + '\n'
-        + _fig('err_abserr_hist') +
-        r'\exhead{Q90 Accuracy Requirement}' + '\n'
+        + _tbl('abs_stats')
+        + _keep(r'\exhead{Residue Histograms}', _fig('err_residue_hist'))
+        + _keep(r'\exhead{Residue CDF}', _fig('err_residue_cdf'))
+        + _keep(r'\exhead{Absolute Error Histograms}', _fig('err_abserr_hist'))
+        + r'\exhead{Q90 Accuracy Requirement}' + '\n'
         + _tbl_with_legend(
             r'\renewcommand{\arraystretch}{1.2}' + '\n'
             r'\begin{tabular}{|l|r|r|c|}' + '\n'
@@ -1505,14 +1509,14 @@ def _part3(d, best, paths, stats, out_dir):
             r'\end{tabular}',
             _KS_LEGEND.replace('no overfitting', 'pass').replace('overfitting detected', 'fail')
         ) + '\n\n'
-        r'\exhead{True vs Predicted Distribution Comparison}' + '\n'
-        r'AD and KS tests comparing the distribution of true vs.\ predicted values on the test set. '
-        r'A significant difference indicates the model is not reproducing the output distribution faithfully.' + '\n'
-        + _fig('err_true_vs_pred_dist')
-        + _tbl('true_pred_pvals') +
-        r'\exhead{True vs Predicted --- 2D Histogram}' + '\n'
-        r'Log-scaled frequency with a linear fit; the normalized slope should be close to 1.' + '\n'
-        + _fig('true_pred_hist2d')
+        + _keep(r'\exhead{True vs Predicted Distribution Comparison}',
+                r'AD and KS tests comparing the distribution of true vs.\ predicted values on the test set. '
+                r'A significant difference indicates the model is not reproducing the output distribution faithfully.' + '\n'
+                + _fig('err_true_vs_pred_dist')
+                + _tbl('true_pred_pvals'))
+        + _keep(r'\exhead{True vs Predicted --- 2D Histogram}',
+                r'Log-scaled frequency with a linear fit; the normalized slope should be close to 1.' + '\n'
+                + _fig('true_pred_hist2d'))
 
         # 3.4 P(E|X)
         + r'\clearpage' + '\n'
@@ -1543,17 +1547,17 @@ def _part3(d, best, paths, stats, out_dir):
         r'We study whether the error depends on the output magnitude. '
         r'A significant trend (Pearson or Spearman $p<0.05$) means the model is more accurate '
         r'in some output ranges than others --- a form of heteroscedasticity.' + '\n\n'
-        r'\exhead{Residue vs True Output --- Scatter}' + '\n'
-        r'Pearson r and p-value shown in title. Red title = significant linear trend.' + '\n'
-        + _fig('pey_residue_scatter') +
-        r'\exhead{Residue Violin vs True Output Bins}' + '\n'
-        r'Bins determined by Sturges rule. Median line dashed at 0.' + '\n'
-        + _fig('pey_residue_violin') +
-        r'\exhead{Absolute Error vs True Output --- Scatter}' + '\n'
-        r'Spearman r shown. Red title = significant monotonic trend.' + '\n'
-        + _fig('pey_abserr_scatter') +
-        r'\exhead{Absolute Error Violin vs True Output Bins}' + '\n'
-        + _fig('pey_abserr_violin')
+        + _keep(r'\exhead{Residue vs True Output --- Scatter}',
+              r'Pearson r and p-value shown in title. Red title = significant linear trend.' + '\n'
+              + _fig('pey_residue_scatter'))
+        + _keep(r'\exhead{Residue Violin vs True Output Bins}',
+                r'Bins determined by Sturges rule. Median line dashed at 0.' + '\n'
+                + _fig('pey_residue_violin'))
+        + _keep(r'\exhead{Absolute Error vs True Output --- Scatter}',
+                r'Spearman r shown. Red title = significant monotonic trend.' + '\n'
+                + _fig('pey_abserr_scatter'))
+        + _keep(r'\exhead{Absolute Error Violin vs True Output Bins}',
+                _fig('pey_abserr_violin'))
 
         # 3.6 Uncertainty
         + r'\clearpage' + '\n'
@@ -1563,9 +1567,8 @@ def _part3(d, best, paths, stats, out_dir):
         r'validation split of the absolute error and evaluated on the held-out test split, '
         r'as in the extended validation notebook. Coverage is the proportion of test points '
         r'whose error falls inside the predicted bound; it should be close to 95\%.' + '\n\n'
-        r'\exhead{Coverage Plot}' + '\n'
-        + _fig('uncertainty_coverage') +
-        r'\exhead{Coverage Table}' + '\n'
+        + _keep(r'\exhead{Coverage Plot}', _fig('uncertainty_coverage'))
+        + r'\exhead{Coverage Table}' + '\n'
         + _tbl('uncertainty_coverage_tbl')
     )
 

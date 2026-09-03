@@ -60,11 +60,14 @@
   \textbf{Accuracy target}    & Q90 $<$ 10\% relative error per output \\ \hline
 \end{tabular}
 
+\par\begin{minipage}{\linewidth}
 \section{Variable Correlation --- Input vs Output}
 \begin{center}\includegraphics[width=0.80\linewidth,height=0.46\textheight,keepaspectratio]{analysis_plots/data_scatter_vars.png}\end{center}
+\end{minipage}\par\medskip
 \section{Data Statistics}
 Per-variable statistics over all data (train + val + test), as \texttt{Train\_set.describe()} reports them in the feature-selection notebook: count, mean, standard deviation, minimum, quartiles and maximum.
 
+\par\begin{minipage}{\linewidth}
 \exhead{Inputs}
 \begin{center}
 \footnotesize
@@ -81,6 +84,8 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \par\vspace{2pt}
 {\scriptsize Input variables — Train\_set.describe()}
 \end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Outputs}
 \begin{center}
 \footnotesize
@@ -102,6 +107,7 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \par\vspace{2pt}
 {\scriptsize Output variables — Train\_set.describe()}
 \end{center}
+\end{minipage}\par\medskip
 \section{Model Selection}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
@@ -140,12 +146,15 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 {\footnotesize \colorbox{r2green}{\ } R\textsuperscript{2}$\!\geq\!0.95$\enspace \colorbox{r2amber}{\ } R\textsuperscript{2}$\!\in[0.80,0.95)$\enspace \colorbox{failred}{\ } R\textsuperscript{2}$\!<\!0.80$ or Q90 fail\enspace \colorbox{passgreen}{\ } pass\enspace Gap$=$Q90$-$target ($<\!0\Rightarrow$ margin)}
 \end{minipage}
 
+\par\begin{minipage}{\linewidth}
 \section{Training History}
 \begin{center}\includegraphics[width=0.70\linewidth,height=0.28\textheight,keepaspectratio]{../training_curve.png}\end{center}
-{\footnotesize Training loss per iteration, log scale. A validation panel is shown for models trained with early stopping. Gradient boosting reports per-stage deviance averaged over its per-output estimators.}
+{\footnotesize Training loss per iteration, log scale. A validation panel is shown for models trained with early stopping. Gradient boosting reports per-stage deviance averaged over its per-output estimators.}\end{minipage}\par\medskip
 
+\par\begin{minipage}{\linewidth}
 \section{Predicted vs True --- PyTorchNN}
 \begin{center}\includegraphics[width=\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/winner_pred_true.png}\end{center}
+\end{minipage}\par\medskip
 
 
 \section{Data Split Quality}
@@ -229,10 +238,14 @@ Statistical summary of inputs and outputs over all data (train + val + test), as
 \par\vspace{2pt}
 {\scriptsize Input variables — Train\_set.describe()}
 \end{center}
+\par\begin{minipage}{\linewidth}
 \exhead{Input Histograms}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_input_hist.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Input Cumulative Distributions}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_input_cdf.png}\end{center}
+\end{minipage}\par\medskip
 \exhead{Output Statistics}
 \begin{center}
 \footnotesize
@@ -254,20 +267,28 @@ Statistical summary of inputs and outputs over all data (train + val + test), as
 \par\vspace{2pt}
 {\scriptsize Output variables — Train\_set.describe()}
 \end{center}
+\par\begin{minipage}{\linewidth}
 \exhead{Output Histograms}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_output_hist.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Output Cumulative Distributions}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/data_output_cdf.png}\end{center}
+\end{minipage}\par\medskip
 \clearpage
 \section{Train-Test Split Analysis}
 \label{sec:d2}
 
 A well-designed split produces training and test distributions that are similar but not identical. The Kolmogorov-Smirnov (KS) test and the Anderson-Darling (AD) test are used to assess distributional similarity. $H_0$: both sets come from the same distribution. $p<0.05$ rejects $H_0$ (undesirable if too low; undesirable if the split was done by stratification and $p$ is too high).
 
+\par\begin{minipage}{\linewidth}
 \exhead{Output Distributions: Train vs Test}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/split_output_dists.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Input Distributions: Train vs Test}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/split_input_dists.png}\end{center}
+\end{minipage}\par\medskip
 \exhead{KS and AD Test Results}
 \begin{center}
 \footnotesize
@@ -304,6 +325,7 @@ Beyond matching distributions, a split can still flatter the model if test point
 
 \textcolor{passgreen!60!black}{\textbf{No p-hacking concern:}} only 0.5\% of test points lie closer to a training point than training points are to each other, so the test error is not flattered.
 
+\par\begin{minipage}{\linewidth}
 \exhead{Error Distribution: Valid vs p-hacking Test Points}
 Absolute error of the test points flagged as p-hacking against the valid ones, exactly as the extended validation notebook draws it. Matching distributions (high p-values) mean the flagged points do not distort the reported error.
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/phack_hist.png}\end{center}
@@ -325,6 +347,8 @@ Absolute error of the test points flagged as p-hacking against the valid ones, e
 \par\vspace{2pt}
 {\scriptsize Valid ($n=1959$) vs p-hacking ($n=7$) absolute-error distributions, on a subsample of the test set. Red: $p<0.05$ (the flagged points behave differently).}
 \end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Error Distribution: Valid vs Isolated Test Points}
 Same comparison for the test points with no training neighbour.
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/isolated_hist.png}\end{center}
@@ -346,6 +370,7 @@ Same comparison for the test points with no training neighbour.
 \par\vspace{2pt}
 {\scriptsize Valid ($n=1959$) vs Isolated ($n=34$) absolute-error distributions, on a subsample of the test set. Red: $p<0.05$ (the flagged points behave differently).}
 \end{center}
+\end{minipage}\par\medskip
 \clearpage
 \section{Error Quantification --- P(E)}
 \label{sec:d3}
@@ -365,14 +390,14 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{Fz\_WINGROOT} & 10,000 & -2,250,000 & 2,190,000 & -4,860 & $^{7590}_{-13800}$ & -1,120 & $^{5480}_{-7160}$ & 478,000 & $^{486000}_{469000}$ & 395,000 & $^{409000}_{382000}$ & 2.53 & $^{2.75}_{2.32}$ & -0.104 & $^{0.000239}_{-0.215}$ \\ \hline
-\textbf{Mx\_WINGROOT} & 10,000 & -3,030,000 & 2,920,000 & -7,070 & $^{3500}_{-16700}$ & -885 & $^{5680}_{-7060}$ & 628,000 & $^{643000}_{612000}$ & 516,000 & $^{532000}_{496000}$ & 2.61 & $^{2.83}_{2.35}$ & -0.112 & $^{-0.0294}_{-0.207}$ \\ \hline
-\textbf{My\_WINGROOT} & 10,000 & -834,000 & 780,000 & 2,170 & $^{6320}_{-1610}$ & 2,370 & $^{4890}_{7.63}$ & 210,000 & $^{213000}_{206000}$ & 201,000 & $^{207000}_{195000}$ & 1.39 & $^{1.5}_{1.26}$ & -0.0099 & $^{0.0535}_{-0.0869}$ \\ \hline
-\textbf{Fy\_FUS} & 10,000 & -141,000 & 143,000 & -244 & $^{164}_{-687}$ & -66.1 & $^{192}_{-397}$ & 26,800 & $^{27400}_{26200}$ & 22,400 & $^{23000}_{21800}$ & 3.17 & $^{3.45}_{2.89}$ & -0.114 & $^{0.0219}_{-0.209}$ \\ \hline
-\textbf{Fz\_FUS} & 10,000 & -2,220,000 & 2,200,000 & -4,950 & $^{3000}_{-14300}$ & 213 & $^{4580}_{-4950}$ & 478,000 & $^{489000}_{468000}$ & 395,000 & $^{407000}_{383000}$ & 2.55 & $^{2.73}_{2.33}$ & -0.103 & $^{0.0103}_{-0.197}$ \\ \hline
-\textbf{Mx\_FUS} & 10,000 & -2,980,000 & 2,940,000 & -6,810 & $^{5250}_{-17800}$ & 489 & $^{5260}_{-5500}$ & 629,000 & $^{644000}_{613000}$ & 513,000 & $^{527000}_{498000}$ & 2.63 & $^{2.86}_{2.46}$ & -0.105 & $^{-0.0039}_{-0.202}$ \\ \hline
-\textbf{My\_FUS} & 10,000 & -828,000 & 780,000 & 2,340 & $^{6950}_{-1980}$ & 2,520 & $^{5470}_{-43.7}$ & 210,000 & $^{214000}_{206000}$ & 200,000 & $^{207000}_{194000}$ & 1.41 & $^{1.53}_{1.3}$ & -0.0125 & $^{0.0718}_{-0.0885}$ \\ \hline
-\textbf{Mz\_FUS} & 10,000 & -230,000 & 238,000 & 469 & $^{1220}_{-209}$ & 26.8 & $^{433}_{-265}$ & 40,400 & $^{41600}_{39500}$ & 23,000 & $^{24000}_{22400}$ & 5.22 & $^{5.67}_{4.75}$ & 0.188 & $^{0.327}_{-0.0057}$ \\ \hline
+\textbf{Fz\_WINGROOT} & 10,000 & -2,250,000 & 2,190,000 & -4,860 & $^{5150}_{-16100}$ & -1,120 & $^{5730}_{-6640}$ & 478,000 & $^{489000}_{469000}$ & 395,000 & $^{409000}_{384000}$ & 2.53 & $^{2.7}_{2.32}$ & -0.104 & $^{-0.0052}_{-0.193}$ \\ \hline
+\textbf{Mx\_WINGROOT} & 10,000 & -3,030,000 & 2,920,000 & -7,070 & $^{4100}_{-19400}$ & -885 & $^{7710}_{-7840}$ & 628,000 & $^{644000}_{615000}$ & 516,000 & $^{536000}_{499000}$ & 2.61 & $^{2.8}_{2.42}$ & -0.112 & $^{-0.0096}_{-0.204}$ \\ \hline
+\textbf{My\_WINGROOT} & 10,000 & -834,000 & 780,000 & 2,170 & $^{6240}_{-2450}$ & 2,370 & $^{5070}_{-384}$ & 210,000 & $^{214000}_{207000}$ & 201,000 & $^{207000}_{196000}$ & 1.39 & $^{1.53}_{1.24}$ & -0.0099 & $^{0.0654}_{-0.0697}$ \\ \hline
+\textbf{Fy\_FUS} & 10,000 & -141,000 & 143,000 & -244 & $^{251}_{-880}$ & -66.1 & $^{271}_{-430}$ & 26,800 & $^{27400}_{26200}$ & 22,400 & $^{23100}_{21700}$ & 3.17 & $^{3.44}_{2.77}$ & -0.114 & $^{0.0016}_{-0.235}$ \\ \hline
+\textbf{Fz\_FUS} & 10,000 & -2,220,000 & 2,200,000 & -4,950 & $^{4180}_{-13200}$ & 213 & $^{4920}_{-3890}$ & 478,000 & $^{486000}_{471000}$ & 395,000 & $^{408000}_{383000}$ & 2.55 & $^{2.74}_{2.33}$ & -0.103 & $^{0.011}_{-0.191}$ \\ \hline
+\textbf{Mx\_FUS} & 10,000 & -2,980,000 & 2,940,000 & -6,810 & $^{4730}_{-18100}$ & 489 & $^{6840}_{-4670}$ & 629,000 & $^{643000}_{614000}$ & 513,000 & $^{527000}_{501000}$ & 2.63 & $^{2.81}_{2.39}$ & -0.105 & $^{-0.0283}_{-0.209}$ \\ \hline
+\textbf{My\_FUS} & 10,000 & -828,000 & 780,000 & 2,340 & $^{8110}_{-911}$ & 2,520 & $^{5590}_{-90.5}$ & 210,000 & $^{213000}_{206000}$ & 200,000 & $^{206000}_{195000}$ & 1.41 & $^{1.52}_{1.29}$ & -0.0125 & $^{0.0684}_{-0.08}$ \\ \hline
+\textbf{Mz\_FUS} & 10,000 & -230,000 & 238,000 & 469 & $^{1220}_{-406}$ & 26.8 & $^{423}_{-290}$ & 40,400 & $^{41700}_{39300}$ & 23,000 & $^{23800}_{22300}$ & 5.22 & $^{5.57}_{4.75}$ & 0.188 & $^{0.399}_{0.0363}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -386,25 +411,31 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{Fz\_WINGROOT} & 10,000 & 42.6 & 2,250,000 & 325,000 & $^{331000}_{317000}$ & 198,000 & $^{204000}_{191000}$ & 351,000 & $^{359000}_{343000}$ & 362,000 & $^{372000}_{347000}$ & 3.44 & $^{3.81}_{3.13}$ & 1.82 & $^{1.88}_{1.76}$ \\ \hline
-\textbf{Mx\_WINGROOT} & 10,000 & 1.58 & 3,030,000 & 424,000 & $^{433000}_{416000}$ & 258,000 & $^{267000}_{251000}$ & 463,000 & $^{474000}_{453000}$ & 472,000 & $^{484000}_{456000}$ & 3.53 & $^{3.9}_{3.2}$ & 1.84 & $^{1.91}_{1.78}$ \\ \hline
-\textbf{My\_WINGROOT} & 10,000 & 26.1 & 834,000 & 150,000 & $^{153000}_{147000}$ & 100,000 & $^{103000}_{97000}$ & 147,000 & $^{149000}_{144000}$ & 175,000 & $^{182000}_{171000}$ & 1.98 & $^{2.18}_{1.77}$ & 1.48 & $^{1.52}_{1.42}$ \\ \hline
-\textbf{Fy\_FUS} & 10,000 & 1.61 & 143,000 & 18,100 & $^{18500}_{17800}$ & 11,200 & $^{11500}_{10900}$ & 19,800 & $^{20300}_{19300}$ & 19,400 & $^{20000}_{18700}$ & 4.79 & $^{5.37}_{4.24}$ & 2.02 & $^{2.11}_{1.93}$ \\ \hline
-\textbf{Fz\_FUS} & 10,000 & 12 & 2,220,000 & 324,000 & $^{330000}_{314000}$ & 197,000 & $^{203000}_{191000}$ & 352,000 & $^{358000}_{344000}$ & 364,000 & $^{377000}_{349000}$ & 3.43 & $^{3.78}_{3.09}$ & 1.82 & $^{1.88}_{1.75}$ \\ \hline
-\textbf{Mx\_FUS} & 10,000 & 26.5 & 2,980,000 & 424,000 & $^{434000}_{415000}$ & 256,000 & $^{265000}_{250000}$ & 465,000 & $^{476000}_{454000}$ & 476,000 & $^{495000}_{461000}$ & 3.52 & $^{3.81}_{3.16}$ & 1.84 & $^{1.88}_{1.78}$ \\ \hline
-\textbf{My\_FUS} & 10,000 & 12.6 & 828,000 & 150,000 & $^{153000}_{148000}$ & 99,800 & $^{103000}_{97400}$ & 147,000 & $^{150000}_{145000}$ & 175,000 & $^{179000}_{171000}$ & 1.98 & $^{2.18}_{1.77}$ & 1.48 & $^{1.53}_{1.44}$ \\ \hline
-\textbf{Mz\_FUS} & 10,000 & 0.821 & 238,000 & 24,400 & $^{25000}_{23800}$ & 11,500 & $^{12000}_{11100}$ & 32,200 & $^{32900}_{31500}$ & 26,100 & $^{27100}_{24800}$ & 6.42 & $^{7.01}_{5.75}$ & 2.37 & $^{2.45}_{2.27}$ \\ \hline
+\textbf{Fz\_WINGROOT} & 10,000 & 42.6 & 2,250,000 & 325,000 & $^{331000}_{317000}$ & 198,000 & $^{204000}_{191000}$ & 351,000 & $^{359000}_{342000}$ & 362,000 & $^{376000}_{350000}$ & 3.44 & $^{3.79}_{3.11}$ & 1.82 & $^{1.87}_{1.76}$ \\ \hline
+\textbf{Mx\_WINGROOT} & 10,000 & 1.58 & 3,030,000 & 424,000 & $^{434000}_{416000}$ & 258,000 & $^{264000}_{249000}$ & 463,000 & $^{476000}_{452000}$ & 472,000 & $^{486000}_{457000}$ & 3.53 & $^{3.84}_{3.18}$ & 1.84 & $^{1.89}_{1.78}$ \\ \hline
+\textbf{My\_WINGROOT} & 10,000 & 26.1 & 834,000 & 150,000 & $^{153000}_{148000}$ & 100,000 & $^{103000}_{97000}$ & 147,000 & $^{150000}_{144000}$ & 175,000 & $^{182000}_{171000}$ & 1.98 & $^{2.2}_{1.72}$ & 1.48 & $^{1.52}_{1.43}$ \\ \hline
+\textbf{Fy\_FUS} & 10,000 & 1.61 & 143,000 & 18,100 & $^{18600}_{17800}$ & 11,200 & $^{11600}_{10900}$ & 19,800 & $^{20200}_{19300}$ & 19,400 & $^{19900}_{18700}$ & 4.79 & $^{5.27}_{4.3}$ & 2.02 & $^{2.09}_{1.95}$ \\ \hline
+\textbf{Fz\_FUS} & 10,000 & 12 & 2,220,000 & 324,000 & $^{331000}_{317000}$ & 197,000 & $^{204000}_{192000}$ & 352,000 & $^{360000}_{345000}$ & 364,000 & $^{377000}_{353000}$ & 3.43 & $^{3.72}_{3.12}$ & 1.82 & $^{1.87}_{1.77}$ \\ \hline
+\textbf{Mx\_FUS} & 10,000 & 26.5 & 2,980,000 & 424,000 & $^{432000}_{414000}$ & 256,000 & $^{262000}_{249000}$ & 465,000 & $^{473000}_{453000}$ & 476,000 & $^{493000}_{457000}$ & 3.52 & $^{3.84}_{3.16}$ & 1.84 & $^{1.9}_{1.77}$ \\ \hline
+\textbf{My\_FUS} & 10,000 & 12.6 & 828,000 & 150,000 & $^{153000}_{148000}$ & 99,800 & $^{103000}_{96900}$ & 147,000 & $^{150000}_{144000}$ & 175,000 & $^{181000}_{171000}$ & 1.98 & $^{2.2}_{1.75}$ & 1.48 & $^{1.53}_{1.43}$ \\ \hline
+\textbf{Mz\_FUS} & 10,000 & 0.821 & 238,000 & 24,400 & $^{24900}_{23800}$ & 11,500 & $^{11900}_{11200}$ & 32,200 & $^{32900}_{31200}$ & 26,100 & $^{27300}_{24800}$ & 6.42 & $^{6.99}_{5.86}$ & 2.37 & $^{2.45}_{2.28}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
 {\scriptsize Absolute-error statistics with bootstrap confidence intervals.}
 \end{center}
+\par\begin{minipage}{\linewidth}
 \exhead{Residue Histograms}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_residue_hist.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Residue CDF}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_residue_cdf.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Absolute Error Histograms}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_abserr_hist.png}\end{center}
+\end{minipage}\par\medskip
 \exhead{Q90 Accuracy Requirement}
 \begin{minipage}{\linewidth}
 \renewcommand{\arraystretch}{1.2}
@@ -423,6 +454,7 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 {\footnotesize \colorbox{passgreen}{\ } $p\geq 0.05$ --- pass\enspace \colorbox{failred}{\ } $p<0.05$ --- fail}
 \end{minipage}
 
+\par\begin{minipage}{\linewidth}
 \exhead{True vs Predicted Distribution Comparison}
 AD and KS tests comparing the distribution of true vs.\ predicted values on the test set. A significant difference indicates the model is not reproducing the output distribution faithfully.
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/err_true_vs_pred_dist.png}\end{center}
@@ -444,9 +476,12 @@ AD and KS tests comparing the distribution of true vs.\ predicted values on the 
 \par\vspace{2pt}
 {\scriptsize True vs predicted distribution tests. Red: $p<0.05$.}
 \end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{True vs Predicted --- 2D Histogram}
 Log-scaled frequency with a linear fit; the normalized slope should be close to 1.
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/true_pred_hist2d.png}\end{center}
+\end{minipage}\par\medskip
 \clearpage
 \section{P(E|X) --- Error Conditional on Inputs}
 \label{sec:d4}
@@ -476,65 +511,107 @@ Green ($p\geq 0.05$) = residue uniform across input bins; red ($p<0.05$) = signi
 \exhead{Residue Violin Plots per Output (binned by input)}
 Each panel shows the residue distribution for each input bin. A flat median line (dashed at 0) and symmetric violins indicate absence of bias.
 
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- Fz\_WINGROOT}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Fz_WINGROOT.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- Mx\_WINGROOT}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Mx_WINGROOT.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- My\_WINGROOT}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_My_WINGROOT.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- Fy\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Fy_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- Fz\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Fz_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- Mx\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Mx_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- My\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_My_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Residue --- Mz\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_res_Mz_FUS.png}\end{center}
+\end{minipage}\par\medskip
 \clearpage
 \exhead{Absolute Error Violin Plots per Output (binned by input)}
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- Fz\_WINGROOT}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Fz_WINGROOT.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- Mx\_WINGROOT}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Mx_WINGROOT.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- My\_WINGROOT}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_My_WINGROOT.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- Fy\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Fy_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- Fz\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Fz_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- Mx\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Mx_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- My\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_My_FUS.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \subsection*{\normalsize Absolute Error --- Mz\_FUS}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pex_violin_abs_Mz_FUS.png}\end{center}
+\end{minipage}\par\medskip
 \clearpage
 \section{P(E|Y) --- Error Conditional on Outputs}
 \label{sec:d5}
 
 We study whether the error depends on the output magnitude. A significant trend (Pearson or Spearman $p<0.05$) means the model is more accurate in some output ranges than others --- a form of heteroscedasticity.
 
+\par\begin{minipage}{\linewidth}
 \exhead{Residue vs True Output --- Scatter}
 Pearson r and p-value shown in title. Red title = significant linear trend.
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_residue_scatter.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Residue Violin vs True Output Bins}
 Bins determined by Sturges rule. Median line dashed at 0.
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_residue_violin.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Absolute Error vs True Output --- Scatter}
 Spearman r shown. Red title = significant monotonic trend.
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_abserr_scatter.png}\end{center}
+\end{minipage}\par\medskip
+\par\begin{minipage}{\linewidth}
 \exhead{Absolute Error Violin vs True Output Bins}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/pey_abserr_violin.png}\end{center}
+\end{minipage}\par\medskip
 \clearpage
 \section{Uncertainty Analysis}
 \label{sec:d6}
 
 A global binned uncertainty model (95th percentile, right-tailed) is trained on the validation split of the absolute error and evaluated on the held-out test split, as in the extended validation notebook. Coverage is the proportion of test points whose error falls inside the predicted bound; it should be close to 95\%.
 
+\par\begin{minipage}{\linewidth}
 \exhead{Coverage Plot}
 \begin{center}\includegraphics[width=1.0\linewidth,height=0.80\textheight,keepaspectratio]{analysis_plots/uncertainty_coverage.png}\end{center}
+\end{minipage}\par\medskip
 \exhead{Coverage Table}
 \begin{center}
 \footnotesize
@@ -543,8 +620,8 @@ A global binned uncertainty model (95th percentile, right-tailed) is trained on 
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{Fz\_WINGROOT} & \textbf{Mx\_WINGROOT} & \textbf{My\_WINGROOT} & \textbf{Fy\_FUS} & \textbf{Fz\_FUS} & \textbf{Mx\_FUS} & \textbf{My\_FUS} & \textbf{Mz\_FUS} & \textbf{TOTAL COV} \\ \hline
-\textbf{Coverage} & 94.51 & 94.63 & 94.77 & 94.35 & 94.69 & 94.49 & 94.77 & 94.13 & \textemdash \\ \hline
-\textbf{CI} & [94.05, 94.95] & [94.17, 95.06] & [94.32, 95.2] & [93.88, 94.79] & [94.23, 95.12] & [94.02, 94.93] & [94.32, 95.2] & [93.65, 94.58] & \textemdash \\ \hline
+\textbf{Coverage} & 94.51 & 94.64 & 94.83 & 94.32 & 94.68 & 94.49 & 94.76 & 94.13 & \textemdash \\ \hline
+\textbf{CI} & [94.05, 94.95] & [94.18, 95.07] & [94.38, 95.26] & [93.85, 94.77] & [94.22, 95.11] & [94.02, 94.93] & [94.31, 95.19] & [93.65, 94.58] & \textemdash \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
