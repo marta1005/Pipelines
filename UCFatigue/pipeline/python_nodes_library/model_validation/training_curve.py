@@ -46,6 +46,40 @@ sys.stdout.write("@@CURVE@@" + json.dumps(out))
 '''
 
 
+def mean_output_variance(artifacts_dir):
+    """
+    Mean per-output variance of the training targets, from the yt_train.csv
+    that export_validation_csvs leaves in validation_<model>/. Any model's copy
+    will do — the training targets are the same. Returns a float, or None when
+    no CSV exists yet.
+    """
+    import pandas as pd
+
+    for csv in sorted(Path(artifacts_dir).glob('validation_*/yt_train.csv')):
+        try:
+            var = float(pd.read_csv(csv).var(ddof=0).mean())
+        except Exception as e:
+            print(f'  Var(y): could not read {csv.name} ({type(e).__name__})')
+            continue
+        if var > 0:
+            return var
+    return None
+
+
+def val_scores_to_loss(scores, var_y):
+    """
+    Approximate validation loss from sklearn's validation_scores_.
+
+    MLPRegressor records the R² on its internal early-stopping split, not a
+    loss — plotting it against loss_curve_ (squared error / 2) puts two
+    different units on one axis and fakes a huge train/validation gap. From
+    R² = 1 - MSE/Var(y): approximate loss = (1 - R²) · Var(y) / 2, using the
+    mean output variance of the training targets (sklearn's uniform-average
+    R² does the same averaging). Clipped away from zero for the log axis.
+    """
+    return [max((1.0 - r) * var_y / 2.0, 1e-12) for r in scores]
+
+
 def _read_curve(path):
     """
     Read one model's training history in a child process.
@@ -108,11 +142,16 @@ def extract_curves(models_info):
     return curves
 
 
-def render(curves, dest: Path):
+def render(curves, dest: Path, var_y=None):
     """
     Draw the curves to `dest` with validationlib's own training_curves_plot, so
     the report matches validation_output.html instead of carrying a separate,
     differently-styled reimplementation.
+
+    validation_scores_ is an R², not a loss; it is converted to an approximate
+    validation loss via val_scores_to_loss when `var_y` is known, so both
+    curves share one unit. Without var_y the validation curve is omitted
+    rather than drawn in the wrong unit.
 
     Returns the path, or None if there is nothing to draw.
     """
@@ -127,7 +166,17 @@ def render(curves, dest: Path):
     # One metric per model, keyed by label, which is how the function expects
     # its two dictionaries.
     training = {label: c['loss'] for label, c in curves.items()}
-    validation = {label: c['val'] for label, c in curves.items() if c['val']}
+    validation = {}
+    for label, c in curves.items():
+        if not c['val']:
+            continue
+        if var_y is None:
+            print(f"  {label}: validation R² left off the plot — Var(y) unavailable, "
+                  f"so it cannot be converted to a loss comparable with training")
+            continue
+        validation[label] = val_scores_to_loss(c['val'], var_y)
+        print(f"  {label}: validation R² converted to approximate loss "
+              f"via (1-R²)·Var(y)/2, mean Var(y) = {var_y:.6g}")
 
     # Library defaults (figHsize=7, aspect 1.5) give a poster-sized panel per
     # model; this keeps it a modest inset in the report.
@@ -170,7 +219,8 @@ def plot_training_curve(workflow):
 
     curves = extract_curves(models_info)
     dest = Path(workflow.config['artifacts.folder']) / FILENAME
-    path = render(curves, dest)
+    var_y = mean_output_variance(workflow.config['artifacts.folder'])
+    path = render(curves, dest, var_y=var_y)
 
     if path is None:
         print("  No model exposes a training history — nothing saved.")

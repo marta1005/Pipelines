@@ -420,10 +420,11 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir, stats=None):
             r'\section{Training History}',
             r'\begin{center}\includegraphics[' + _GFX_CURVE + r']{'
             + rp + r'}\end{center}' + '\n'
-            + r'{\footnotesize Training loss per iteration, log scale. '
-              r'A validation panel is shown for models trained with early '
-              r'stopping. Gradient boosting reports per-stage deviance '
-              r'averaged over its per-output estimators.}'
+            + r'{\footnotesize Training and validation loss per iteration, log scale. '
+              r'For models trained with early stopping, the validation loss is '
+              r'approximated from the recorded validation R\textsuperscript{2} via '
+              r'$(1-R^2)\cdot\mathrm{Var}(y)/2$. Gradient boosting reports per-stage '
+              r'deviance averaged over its per-output estimators.}'
         ) + '\n'
 
     # ── Winner scatter ─────────────────────────────────────────────────────────
@@ -618,102 +619,37 @@ def _training_curve(d, plots_dir, artifacts_dir=None):
 
     Returns the path to use, or None when no model exposes a curve.
     """
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import joblib
-
     if artifacts_dir:
         existing = Path(artifacts_dir) / 'training_curve.png'
         if existing.exists():
             print(f'  training curve: reusing SF_9 artifact {existing.name}')
             return str(existing)
 
-    curves = {}
-    for label, path in (d.get('model_files') or {}).items():
-        if not path or not Path(path).exists():
-            continue
-        try:
-            model = joblib.load(path)
-        except Exception as e:
-            print(f'  training curve: could not load {label} ({type(e).__name__})')
-            continue
+    # Rebuild with the very module SF_9 uses (model_validation/training_curve),
+    # so both paths draw one identical validationlib figure — including the
+    # conversion of validation R² to an approximate loss via (1-R²)·Var(y)/2.
+    try:
+        from model_validation.training_curve import (
+            extract_curves, render, mean_output_variance)
+    except ImportError as e:
+        print(f'  training curve: model_validation not importable ({e}) — skipped')
+        return None
 
-        loss = getattr(model, 'loss_curve_', None)
-        if loss is not None and len(loss):
-            curves[label] = {
-                'loss': list(loss),
-                'val': list(getattr(model, 'validation_scores_', None) or []),
-                'kind': 'loss',
-            }
-            continue
-
-        # MultiOutputRegressor(GradientBoosting...): average the per-stage
-        # training score across the one-estimator-per-output members.
-        inner = getattr(model, 'estimators_', None) or []
-        stage = [getattr(e, 'train_score_', None) for e in inner]
-        stage = [s for s in stage if s is not None and len(s)]
-        if stage:
-            n = min(len(s) for s in stage)
-            curves[label] = {
-                'loss': [float(np.mean([s[i] for s in stage])) for i in range(n)],
-                'val': [],
-                'kind': 'deviance',
-            }
-
+    models_info = [{'label': label, 'file': path}
+                   for label, path in (d.get('model_files') or {}).items()]
+    curves = extract_curves(models_info)
     if not curves:
         print('  training curve: no model exposes one — skipped')
         return None
 
-    has_val = any(c['val'] for c in curves.values())
-    ncols = 2 if has_val else 1
-    fig, axes = plt.subplots(1, ncols, figsize=(5.2 * ncols, 3.4), squeeze=False)
-    ax = axes[0][0]
-
-    for label, c in curves.items():
-        ax.plot(range(1, len(c['loss']) + 1), c['loss'], lw=1.2, label=label)
-    ax.set_xlabel('Iteration')
-    ax.set_ylabel('Training loss')
-    ax.set_yscale('log')
-    ax.grid(alpha=0.3, which='both')
-    ax.set_title('Training loss per iteration', fontsize=10)
-    ax.legend(fontsize=8)
-
-    if has_val:
-        ax2 = axes[0][1]
-        vals = []
-        for label, c in curves.items():
-            if c['val']:
-                ax2.plot(range(1, len(c['val']) + 1), c['val'], lw=1.2, label=label)
-                vals += c['val']
-        ax2.set_xlabel('Iteration')
-        ax2.set_ylabel('Validation score (R²)')
-        ax2.grid(alpha=0.3)
-        ax2.set_title('Validation score per iteration', fontsize=10)
-        ax2.legend(fontsize=8)
-
-        # The first few iterations can sit at R² = -200, which flattens the
-        # whole converged region into a line at the top. Clip to the part worth
-        # reading and say that is what happened.
-        hi = max(vals)
-        if min(vals) < -0.5 < hi:
-            ax2.set_ylim(-0.05, min(1.02, hi + 0.02))
-            ax2.text(0.98, 0.04, f'axis clipped — early iterations reach '
-                                 f'{min(vals):.0f}',
-                     transform=ax2.transAxes, ha='right', va='bottom',
-                     fontsize=7, color='gray')
-
-    plt.tight_layout()
+    var_y = mean_output_variance(artifacts_dir) if artifacts_dir else None
     out = Path(plots_dir)
     out.mkdir(parents=True, exist_ok=True)
-    path = out / 'training_curve.png'
-    fig.savefig(path, dpi=110, bbox_inches='tight')
-    plt.close(fig)
-
-    summary = ', '.join(f"{k} ({len(v['loss'])} it)" for k, v in curves.items())
-    print(f'  plot: training_curve.png  [{summary}]')
-    return str(path)
+    path = render(curves, out / 'training_curve.png', var_y=var_y)
+    if path:
+        summary = ', '.join(f"{k} ({len(v['loss'])} it)" for k, v in curves.items())
+        print(f'  plot: training_curve.png  [{summary}]')
+    return str(path) if path else None
 
 
 MAX_SCATTER_VARS = 10  # a square grid past this is unreadable on a page
