@@ -105,5 +105,10 @@ def LogTargetMLPRegressor(log_targets=('CD',), scale_targets=True, **kwargs):
     MLPRegressor that trains the named targets in log space and, by default,
     standardises all targets so no single output dominates the shared loss.
     Remaining keyword arguments go to MLPRegressor.
+
+    The inner model is MLPRegressorValCurve, so the real per-epoch validation
+    loss is recorded (in transformed-target space, the same space as its
+    loss_curve_); _LogTargetRegressor.__getattr__ exposes it to readers.
     """
-    return _LogTargetRegressor(MLPRegressor(**kwargs), log_targets, scale_targets)
+    from model_training.val_curve import MLPRegressorValCurve
+    return _LogTargetRegressor(MLPRegressorValCurve(**kwargs), log_targets, scale_targets)

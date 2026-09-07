@@ -11,7 +11,7 @@ tracker:
     tracking_uri: sqlite:///Users/martaarnabatmartin/Desktop/Pipelines/UCLoads/pipeline/mlruns.db
 catalog:
   models:
-    MLPRegressor: sklearn.neural_network.MLPRegressor
+    MLPRegressor: model_training.val_curve.MLPRegressorValCurve
     MultiOutputGradientBoosting: model_training.estimators.MultiOutputGradientBoosting
     RandomForest: model_training.estimators.RandomForest
     MultiOutputXGBoost: model_training.estimators.MultiOutputXGBoost

@@ -421,10 +421,11 @@ def _part1(d, best, rows, scatter_paths, paths, out_dir, stats=None):
             r'\begin{center}\includegraphics[' + _GFX_CURVE + r']{'
             + rp + r'}\end{center}' + '\n'
             + r'{\footnotesize Training and validation loss per iteration, log scale. '
-              r'For models trained with early stopping, the validation loss is '
-              r'approximated from the recorded validation R\textsuperscript{2} via '
-              r'$(1-R^2)\cdot\mathrm{Var}(y)/2$. Gradient boosting reports per-stage '
-              r'deviance averaged over its per-output estimators.}'
+              r'The validation curve is measured, not approximated: per epoch on the '
+              r'early-stopping split for the MLP, per stage on the validation split '
+              r'for gradient boosting (whose training curve is its per-stage '
+              r'deviance). Models saved before this was recorded fall back to the '
+              r'$(1-R^2)\cdot\mathrm{Var}(y)/2$ approximation.}'
         ) + '\n'
 
     # ── Winner scatter ─────────────────────────────────────────────────────────
@@ -637,7 +638,7 @@ def _training_curve(d, plots_dir, artifacts_dir=None):
 
     models_info = [{'label': label, 'file': path}
                    for label, path in (d.get('model_files') or {}).items()]
-    curves = extract_curves(models_info)
+    curves = extract_curves(models_info, artifacts_dir=artifacts_dir)
     if not curves:
         print('  training curve: no model exposes one — skipped')
         return None

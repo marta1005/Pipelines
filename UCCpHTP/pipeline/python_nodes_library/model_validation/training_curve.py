@@ -26,21 +26,47 @@ import json, sys
 import joblib, numpy as np
 
 model = joblib.load(sys.argv[1])
+pipe_path   = sys.argv[2] if len(sys.argv) > 2 else ""
+val_set_csv = sys.argv[3] if len(sys.argv) > 3 else ""  # raw SF_4 Val_set (all columns)
+yt_cols_csv = sys.argv[4] if len(sys.argv) > 4 else ""  # names the output columns
 
+out = None
 loss = getattr(model, "loss_curve_", None)
 if loss is not None and len(loss):
-    out = {"loss": [float(v) for v in loss],
-           "val": [float(v) for v in (getattr(model, "validation_scores_", None) or [])]}
+    # MLP: real per-epoch validation loss when the estimator recorded one
+    # (MLPRegressorValCurve); the per-epoch R2 stays as fallback material.
+    out = {"loss":     [float(v) for v in loss],
+           "val_loss": [float(v) for v in (getattr(model, "validation_loss_curve_", None) or [])],
+           "val_r2":   [float(v) for v in (getattr(model, "validation_scores_", None) or [])]}
 else:
-    stage = [getattr(e, "train_score_", None)
-             for e in (getattr(model, "estimators_", None) or [])]
+    ests = list(getattr(model, "estimators_", None) or [])
+    stage = [getattr(e, "train_score_", None) for e in ests]
     stage = [s for s in stage if s is not None and len(s)]
     if stage:
         n = min(len(s) for s in stage)
         out = {"loss": [float(np.mean([s[i] for s in stage])) for i in range(n)],
-               "val": []}
-    else:
-        out = None
+               "val_loss": [], "val_r2": []}
+        # Gradient boosting: the REAL per-stage validation loss, computed by
+        # replaying every stage on the pipeline's validation split. Same unit
+        # as train_score_ (per-stage squared-error deviance).
+        if pipe_path and val_set_csv and yt_cols_csv and all(hasattr(e, "staged_predict") for e in ests):
+            try:
+                import pandas as pd
+                pipe = joblib.load(pipe_path)
+                pre = pipe.named_steps["preprocessor"]
+                vs = pd.read_csv(val_set_csv)
+                ycols = list(pd.read_csv(yt_cols_csv, nrows=0).columns)
+                Xt = pre.transform(vs[list(pre.feature_names_in_)])
+                yv = vs[ycols].values
+                if yv.shape[1] == len(ests):
+                    mse = np.zeros(n)
+                    for k, e in enumerate(ests):
+                        preds = np.stack(list(e.staged_predict(Xt))[:n])
+                        mse += np.mean((preds - yv[:, k][None, :]) ** 2, axis=1)
+                    out["val_loss"] = [float(v) for v in mse / len(ests)]
+            except Exception as e:
+                print("staged val loss failed: " + type(e).__name__ + ": " + str(e)[:100],
+                      file=sys.stderr)
 
 sys.stdout.write("@@CURVE@@" + json.dumps(out))
 '''
@@ -80,7 +106,7 @@ def val_scores_to_loss(scores, var_y):
     return [max((1.0 - r) * var_y / 2.0, 1e-12) for r in scores]
 
 
-def _read_curve(path):
+def _read_curve(path, extra_args=()):
     """
     Read one model's training history in a child process.
 
@@ -89,13 +115,22 @@ def _read_curve(path):
     conflict that no try/except can catch, and which would take the Jupyter
     kernel with it. A crash here costs one curve and a printed warning.
 
-    Returns {'loss': [...], 'val': [...]}, or None.
+    Returns {'loss': [...], 'val_loss': [...], 'val_r2': [...]}, or None.
     """
+    import os
     import subprocess
     import sys
 
-    proc = subprocess.run([sys.executable, '-c', _READER, str(path)],
-                          capture_output=True, text=True, timeout=300)
+    # The child must be able to unpickle custom estimator classes
+    # (model_training.estimators.MLPRegressorValCurve).
+    env = dict(os.environ)
+    lib_root = str(Path(__file__).resolve().parents[1])
+    env['PYTHONPATH'] = os.pathsep.join(
+        [lib_root] + ([env['PYTHONPATH']] if env.get('PYTHONPATH') else []))
+
+    proc = subprocess.run([sys.executable, '-c', _READER, str(path),
+                           *map(str, extra_args)],
+                          capture_output=True, text=True, timeout=600, env=env)
     marker = proc.stdout.find('@@CURVE@@')
     if proc.returncode != 0 or marker < 0:
         detail = (f'crashed with signal {-proc.returncode}'
@@ -106,15 +141,28 @@ def _read_curve(path):
     return json.loads(proc.stdout[marker + len('@@CURVE@@'):])
 
 
-def extract_curves(models_info):
+def extract_curves(models_info, artifacts_dir=None):
     """
     Read the training history off each saved model.
 
-    MLPRegressor keeps loss_curve_, and validation_scores_ when early stopping
-    is on. Gradient boosting keeps a per-stage train_score_ on each inner
-    estimator, which is averaged across the one-per-output members. Anything
-    with no notion of training history is skipped rather than invented.
+    MLPRegressorValCurve records the real per-epoch validation loss; a plain
+    MLPRegressor leaves only per-epoch R² (approximated later). Gradient
+    boosting keeps a per-stage train_score_ on each inner estimator, and with
+    `artifacts_dir` its real per-stage validation loss is replayed on the
+    validation split (validation_*/x_val.csv + yt_val.csv). Anything with no
+    notion of training history is skipped rather than invented.
     """
+    # Validation split for the gradient-boosting staged validation loss: the
+    # raw SF_4 Val_set (validation_*/x_val.csv can lack raw columns such as
+    # categorical inputs), plus any yt_val.csv to name the output columns.
+    val_set = yt_cols = None
+    if artifacts_dir:
+        art = Path(artifacts_dir)
+        raw = sorted(art.parent.glob('*_Val_set.csv'))
+        named = sorted(art.glob('validation_*/yt_val.csv'))
+        if raw and named:
+            val_set, yt_cols = raw[0], named[0]
+
     curves = {}
     for info in models_info:
         label, path = info.get('label'), info.get('file')
@@ -128,8 +176,12 @@ def extract_curves(models_info):
                   f"records no training history)")
             continue
 
+        p = Path(path)
+        pipe = p.with_name(p.name.replace('model_', 'pipeline_', 1)).with_suffix('.pkl')
+        extra = (pipe, val_set, yt_cols) if (pipe.exists() and val_set is not None) else ()
+
         try:
-            curve = _read_curve(path)
+            curve = _read_curve(path, extra)
         except Exception as e:
             print(f"  {label}: could not be read — {e}")
             continue
@@ -168,15 +220,17 @@ def render(curves, dest: Path, var_y=None):
     training = {label: c['loss'] for label, c in curves.items()}
     validation = {}
     for label, c in curves.items():
-        if not c['val']:
-            continue
-        if var_y is None:
-            print(f"  {label}: validation R² left off the plot — Var(y) unavailable, "
-                  f"so it cannot be converted to a loss comparable with training")
-            continue
-        validation[label] = val_scores_to_loss(c['val'], var_y)
-        print(f"  {label}: validation R² converted to approximate loss "
-              f"via (1-R²)·Var(y)/2, mean Var(y) = {var_y:.6g}")
+        if c.get('val_loss'):
+            validation[label] = c['val_loss']
+            print(f"  {label}: real validation loss recorded per iteration")
+        elif c.get('val_r2'):
+            if var_y is None:
+                print(f"  {label}: validation R² left off the plot — Var(y) unavailable, "
+                      f"so it cannot be converted to a loss comparable with training")
+                continue
+            validation[label] = val_scores_to_loss(c['val_r2'], var_y)
+            print(f"  {label}: validation R² converted to approximate loss "
+                  f"via (1-R²)·Var(y)/2, mean Var(y) = {var_y:.6g}")
 
     # Library defaults (figHsize=7, aspect 1.5) give a poster-sized panel per
     # model; this keeps it a modest inset in the report.
@@ -217,7 +271,8 @@ def plot_training_curve(workflow):
     models_info = workflow.metadata.get_step_data(
         ['metadata', 'Model_Training', 'Models']) or []
 
-    curves = extract_curves(models_info)
+    curves = extract_curves(models_info,
+                            artifacts_dir=workflow.config['artifacts.folder'])
     dest = Path(workflow.config['artifacts.folder']) / FILENAME
     var_y = mean_output_variance(workflow.config['artifacts.folder'])
     path = render(curves, dest, var_y=var_y)
@@ -230,7 +285,12 @@ def plot_training_curve(workflow):
 
     for label, c in curves.items():
         tail = c['loss'][-1]
-        extra = f", final val R² {c['val'][-1]:.4f}" if c['val'] else ""
+        if c.get('val_loss'):
+            extra = f", final val loss {c['val_loss'][-1]:.6g}"
+        elif c.get('val_r2'):
+            extra = f", final val R² {c['val_r2'][-1]:.4f}"
+        else:
+            extra = ""
         print(f"  {label:<20} {len(c['loss']):>4} iterations, final loss {tail:.6g}{extra}")
     print(f"\n  saved → {path.name}")
 

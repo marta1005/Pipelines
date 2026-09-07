@@ -136,7 +136,7 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \par\begin{minipage}{\linewidth}
 \section{Training History}
 \begin{center}\includegraphics[width=0.70\linewidth,height=0.28\textheight,keepaspectratio]{../training_curve.png}\end{center}
-{\footnotesize Training and validation loss per iteration, log scale. For models trained with early stopping, the validation loss is approximated from the recorded validation R\textsuperscript{2} via $(1-R^2)\cdot\mathrm{Var}(y)/2$. Gradient boosting reports per-stage deviance averaged over its per-output estimators.}\end{minipage}\par\medskip
+{\footnotesize Training and validation loss per iteration, log scale. The validation curve is measured, not approximated: per epoch on the early-stopping split for the MLP, per stage on the validation split for gradient boosting (whose training curve is its per-stage deviance). Models saved before this was recorded fall back to the $(1-R^2)\cdot\mathrm{Var}(y)/2$ approximation.}\end{minipage}\par\medskip
 
 \par\begin{minipage}{\linewidth}
 \section{Predicted vs True --- GradientBoosting}
@@ -351,8 +351,8 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{O1} & 17,872 & -0.0462 & 0.0476 & 4.66e-05 & $^{0.000179}_{\text{-8.71e-05}}$ & 9.86e-05 & $^{0.000214}_{\text{-6.51e-05}}$ & 0.0098 & $^{0.0099}_{0.0096}$ & 0.012 & $^{0.0122}_{0.0117}$ & 0.7 & $^{0.836}_{0.578}$ & -0.0602 & $^{-0.0105}_{-0.113}$ \\ \hline
-\textbf{O2} & 17,872 & -0.0848 & 0.449 & 0.000286 & $^{0.000523}_{\text{-8.48e-06}}$ & -0.000407 & $^{-0.000136}_{-0.0006}$ & 0.0205 & $^{0.0216}_{0.0193}$ & 0.0209 & $^{0.0213}_{0.0206}$ & 63.8 & $^{91}_{33.2}$ & 4.09 & $^{5.33}_{2.54}$ \\ \hline
+\textbf{O1} & 17,872 & -0.0462 & 0.0476 & 4.66e-05 & $^{0.000208}_{-0.000125}$ & 9.86e-05 & $^{0.000234}_{\text{-9.44e-05}}$ & 0.0098 & $^{0.0099}_{0.0097}$ & 0.012 & $^{0.0122}_{0.0118}$ & 0.7 & $^{0.822}_{0.596}$ & -0.0602 & $^{-0.0119}_{-0.105}$ \\ \hline
+\textbf{O2} & 17,872 & -0.0848 & 0.449 & 0.000286 & $^{0.000544}_{\text{2.04e-05}}$ & -0.000407 & $^{-0.000128}_{-0.000716}$ & 0.0205 & $^{0.0216}_{0.0196}$ & 0.0209 & $^{0.0214}_{0.0206}$ & 63.8 & $^{89.6}_{39.6}$ & 4.09 & $^{5.29}_{2.96}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -366,8 +366,8 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{O1} & 17,872 & 1.32e-07 & 0.0476 & 0.0075 & $^{0.0076}_{0.0075}$ & 0.006 & $^{0.0061}_{0.0059}$ & 0.0062 & $^{0.0063}_{0.0061}$ & 0.008 & $^{0.0081}_{0.0078}$ & 2.18 & $^{2.45}_{1.85}$ & 1.33 & $^{1.38}_{1.27}$ \\ \hline
-\textbf{O2} & 17,872 & 1.87e-07 & 0.449 & 0.0137 & $^{0.0139}_{0.0134}$ & 0.0105 & $^{0.0106}_{0.0103}$ & 0.0152 & $^{0.0165}_{0.0139}$ & 0.0142 & $^{0.0145}_{0.0139}$ & 178 & $^{232}_{91}$ & 8.98 & $^{11}_{6.33}$ \\ \hline
+\textbf{O1} & 17,872 & 1.32e-07 & 0.0476 & 0.0075 & $^{0.0076}_{0.0075}$ & 0.006 & $^{0.0061}_{0.0059}$ & 0.0062 & $^{0.0063}_{0.0061}$ & 0.008 & $^{0.0081}_{0.0078}$ & 2.18 & $^{2.5}_{1.88}$ & 1.33 & $^{1.39}_{1.27}$ \\ \hline
+\textbf{O2} & 17,872 & 1.87e-07 & 0.449 & 0.0137 & $^{0.014}_{0.0135}$ & 0.0105 & $^{0.0106}_{0.0103}$ & 0.0152 & $^{0.0165}_{0.0138}$ & 0.0142 & $^{0.0145}_{0.014}$ & 178 & $^{229}_{86.1}$ & 8.98 & $^{10.5}_{6.06}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -510,8 +510,8 @@ A global binned uncertainty model (95th percentile, right-tailed) is trained on 
 \begin{tabular}{|l|r|r|r|}
 \hline
 \textbf{} & \textbf{O1} & \textbf{O2} & \textbf{TOTAL COV} \\ \hline
-\textbf{Coverage} & 94.79 & 95.19 & \textemdash \\ \hline
-\textbf{CI} & [94.45, 95.11] & [94.86, 95.5] & \textemdash \\ \hline
+\textbf{Coverage} & 94.81 & 95.12 & \textemdash \\ \hline
+\textbf{CI} & [94.48, 95.13] & [94.79, 95.43] & \textemdash \\ \hline
 \end{tabular}
 \par\vspace{2pt}
 {\scriptsize Empirical coverage of the 95th-percentile uncertainty bound on the test split.}

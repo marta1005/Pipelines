@@ -11,7 +11,7 @@ tracker:
     tracking_uri: file:///Users/martaarnabatmartin/Desktop/Pipelines/UCCpHTP/pipeline/mlruns
 catalog:
   models:
-    MLPRegressor: sklearn.neural_network.MLPRegressor
+    MLPRegressor: model_training.val_curve.MLPRegressorValCurve
   normalization:
     normalizer_transformer: surrogate_factory.catalog.feature_selection.normalization.normalizer_transformer
   metrics:

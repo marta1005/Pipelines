@@ -154,7 +154,7 @@ Per-variable statistics over all data (train + val + test), as \texttt{Train\_se
 \par\begin{minipage}{\linewidth}
 \section{Training History}
 \begin{center}\includegraphics[width=0.70\linewidth,height=0.28\textheight,keepaspectratio]{../training_curve.png}\end{center}
-{\footnotesize Training and validation loss per iteration, log scale. For models trained with early stopping, the validation loss is approximated from the recorded validation R\textsuperscript{2} via $(1-R^2)\cdot\mathrm{Var}(y)/2$. Gradient boosting reports per-stage deviance averaged over its per-output estimators.}\end{minipage}\par\medskip
+{\footnotesize Training and validation loss per iteration, log scale. The validation curve is measured, not approximated: per epoch on the early-stopping split for the MLP, per stage on the validation split for gradient boosting (whose training curve is its per-stage deviance). Models saved before this was recorded fall back to the $(1-R^2)\cdot\mathrm{Var}(y)/2$ approximation.}\end{minipage}\par\medskip
 
 \par\begin{minipage}{\linewidth}
 \section{Predicted vs True --- MLP}
@@ -377,11 +377,11 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{CL} & 23,952 & -0.363 & 0.537 & -0.000348 & $^{-0.000103}_{-0.000672}$ & -0.0012 & $^{-0.001}_{-0.0015}$ & 0.0249 & $^{0.0261}_{0.024}$ & 0.0213 & $^{0.0216}_{0.0209}$ & 54.4 & $^{73.6}_{34.4}$ & 2.21 & $^{3.41}_{0.935}$ \\ \hline
-\textbf{CD} & 23,952 & -0.0661 & 0.0762 & -1.37e-05 & $^{\text{1.49e-05}}_{\text{-4.62e-05}}$ & -6.26e-06 & $^{\text{-3.26e-06}}_{\text{-9.54e-06}}$ & 0.0022 & $^{0.0024}_{0.0019}$ & 0.000346 & $^{0.000351}_{0.00034}$ & 307 & $^{403}_{202}$ & 5.98 & $^{10.6}_{-0.876}$ \\ \hline
-\textbf{CM} & 23,952 & -0.0296 & 0.0395 & -0.000119 & $^{\text{-7.4e-05}}_{-0.00016}$ & -0.000183 & $^{-0.000153}_{-0.000202}$ & 0.0031 & $^{0.0031}_{0.003}$ & 0.0022 & $^{0.0022}_{0.0022}$ & 17 & $^{19.9}_{14.3}$ & 1.04 & $^{1.38}_{0.68}$ \\ \hline
-\textbf{top\_transition\_location} & 23,952 & -0.304 & 0.211 & 0.0028 & $^{0.003}_{0.0025}$ & 0.0018 & $^{0.0019}_{0.0016}$ & 0.0178 & $^{0.0184}_{0.0174}$ & 0.0152 & $^{0.0154}_{0.015}$ & 20.3 & $^{27.5}_{15.2}$ & 0.0865 & $^{0.581}_{-0.641}$ \\ \hline
-\textbf{bottom\_transition\_location} & 23,952 & -0.496 & 0.428 & -0.0053 & $^{-0.005}_{-0.0057}$ & -0.0053 & $^{-0.0052}_{-0.0054}$ & 0.0278 & $^{0.0288}_{0.0267}$ & 0.016 & $^{0.0162}_{0.0157}$ & 33.7 & $^{39.6}_{26.3}$ & 0.483 & $^{1.29}_{-0.241}$ \\ \hline
+\textbf{CL} & 23,952 & -0.363 & 0.537 & -0.000348 & $^{\text{-5.25e-05}}_{-0.000682}$ & -0.0012 & $^{-0.000964}_{-0.0015}$ & 0.0249 & $^{0.0261}_{0.0236}$ & 0.0213 & $^{0.0216}_{0.0209}$ & 54.4 & $^{75.5}_{34.7}$ & 2.21 & $^{3.59}_{0.835}$ \\ \hline
+\textbf{CD} & 23,952 & -0.0661 & 0.0762 & -1.37e-05 & $^{\text{1.28e-05}}_{\text{-3.88e-05}}$ & -6.26e-06 & $^{\text{-2.47e-06}}_{\text{-9.88e-06}}$ & 0.0022 & $^{0.0024}_{0.0019}$ & 0.000346 & $^{0.000352}_{0.000339}$ & 307 & $^{389}_{208}$ & 5.98 & $^{10.8}_{0.254}$ \\ \hline
+\textbf{CM} & 23,952 & -0.0296 & 0.0395 & -0.000119 & $^{\text{-8.38e-05}}_{-0.000159}$ & -0.000183 & $^{-0.000157}_{-0.000206}$ & 0.0031 & $^{0.0031}_{0.003}$ & 0.0022 & $^{0.0022}_{0.0022}$ & 17 & $^{20.3}_{14}$ & 1.04 & $^{1.42}_{0.69}$ \\ \hline
+\textbf{top\_transition\_location} & 23,952 & -0.304 & 0.211 & 0.0028 & $^{0.0029}_{0.0025}$ & 0.0018 & $^{0.002}_{0.0016}$ & 0.0178 & $^{0.0183}_{0.0174}$ & 0.0152 & $^{0.0154}_{0.015}$ & 20.3 & $^{26.3}_{15.1}$ & 0.0865 & $^{0.61}_{-0.581}$ \\ \hline
+\textbf{bottom\_transition\_location} & 23,952 & -0.496 & 0.428 & -0.0053 & $^{-0.0051}_{-0.0057}$ & -0.0053 & $^{-0.0052}_{-0.0055}$ & 0.0278 & $^{0.0284}_{0.0265}$ & 0.016 & $^{0.0162}_{0.0157}$ & 33.7 & $^{41.6}_{26.5}$ & 0.483 & $^{1.16}_{-0.163}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -395,11 +395,11 @@ Bootstrap confidence bounds shown as superscript (upper) and subscript (lower).
 \begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{count} & \textbf{min} & \textbf{max} & \textbf{mean} & \textbf{(BS)mean} & \textbf{median} & \textbf{(BS)median} & \textbf{std} & \textbf{(BS)std} & \textbf{IQR} & \textbf{(BS)IQR} & \textbf{kurtosis} & \textbf{(BS)kurtosis} & \textbf{skewness} & \textbf{(BS)skewness} \\ \hline
-\textbf{CL} & 23,952 & 1.28e-06 & 0.537 & 0.0153 & $^{0.0155}_{0.015}$ & 0.0106 & $^{0.0108}_{0.0104}$ & 0.0196 & $^{0.0209}_{0.0184}$ & 0.0143 & $^{0.0145}_{0.0141}$ & 118 & $^{153}_{74.3}$ & 7.55 & $^{8.81}_{6.09}$ \\ \hline
-\textbf{CD} & 23,952 & 1.09e-08 & 0.0762 & 0.000577 & $^{0.000601}_{0.000556}$ & 0.00017 & $^{0.000173}_{0.000166}$ & 0.0021 & $^{0.0023}_{0.0019}$ & 0.000343 & $^{0.000352}_{0.000337}$ & 339 & $^{447}_{239}$ & 15.1 & $^{16.9}_{12.9}$ \\ \hline
-\textbf{CM} & 23,952 & 1.46e-07 & 0.0395 & 0.0018 & $^{0.0019}_{0.0018}$ & 0.0011 & $^{0.0011}_{0.0011}$ & 0.0024 & $^{0.0025}_{0.0023}$ & 0.0016 & $^{0.0017}_{0.0016}$ & 29 & $^{36.7}_{23.4}$ & 4.23 & $^{4.63}_{3.92}$ \\ \hline
-\textbf{top\_transition\_location} & 23,952 & 1.01e-06 & 0.304 & 0.0114 & $^{0.0115}_{0.0113}$ & 0.0076 & $^{0.0077}_{0.0075}$ & 0.0139 & $^{0.0144}_{0.0135}$ & 0.011 & $^{0.0111}_{0.0107}$ & 39.9 & $^{54.2}_{28.2}$ & 4.61 & $^{5.24}_{4.04}$ \\ \hline
-\textbf{bottom\_transition\_location} & 23,952 & 1.47e-07 & 0.496 & 0.0157 & $^{0.016}_{0.0153}$ & 0.0093 & $^{0.0094}_{0.0091}$ & 0.0236 & $^{0.0245}_{0.0224}$ & 0.0136 & $^{0.0139}_{0.0133}$ & 50.1 & $^{60.5}_{38.5}$ & 5.58 & $^{6.06}_{5.11}$ \\ \hline
+\textbf{CL} & 23,952 & 1.28e-06 & 0.537 & 0.0153 & $^{0.0155}_{0.0151}$ & 0.0106 & $^{0.0108}_{0.0104}$ & 0.0196 & $^{0.021}_{0.0181}$ & 0.0143 & $^{0.0146}_{0.0141}$ & 118 & $^{153}_{67}$ & 7.55 & $^{8.92}_{5.78}$ \\ \hline
+\textbf{CD} & 23,952 & 1.09e-08 & 0.0762 & 0.000577 & $^{0.000599}_{0.00055}$ & 0.00017 & $^{0.000174}_{0.000167}$ & 0.0021 & $^{0.0023}_{0.0018}$ & 0.000343 & $^{0.000352}_{0.000336}$ & 339 & $^{437}_{231}$ & 15.1 & $^{17.1}_{12.6}$ \\ \hline
+\textbf{CM} & 23,952 & 1.46e-07 & 0.0395 & 0.0018 & $^{0.0019}_{0.0018}$ & 0.0011 & $^{0.0011}_{0.0011}$ & 0.0024 & $^{0.0025}_{0.0024}$ & 0.0016 & $^{0.0017}_{0.0016}$ & 29 & $^{34.6}_{24.1}$ & 4.23 & $^{4.58}_{3.94}$ \\ \hline
+\textbf{top\_transition\_location} & 23,952 & 1.01e-06 & 0.304 & 0.0114 & $^{0.0115}_{0.0112}$ & 0.0076 & $^{0.0077}_{0.0075}$ & 0.0139 & $^{0.0144}_{0.0134}$ & 0.011 & $^{0.0112}_{0.0108}$ & 39.9 & $^{55.3}_{29.4}$ & 4.61 & $^{5.22}_{4.11}$ \\ \hline
+\textbf{bottom\_transition\_location} & 23,952 & 1.47e-07 & 0.496 & 0.0157 & $^{0.016}_{0.0154}$ & 0.0093 & $^{0.0094}_{0.0091}$ & 0.0236 & $^{0.0245}_{0.0226}$ & 0.0136 & $^{0.0139}_{0.0133}$ & 50.1 & $^{61.2}_{39}$ & 5.58 & $^{6.04}_{5.04}$ \\ \hline
 \end{tabular}
 }
 \par\vspace{2pt}
@@ -585,8 +585,8 @@ A global binned uncertainty model (95th percentile, right-tailed) is trained on 
 \begin{tabular}{|l|r|r|r|r|r|r|}
 \hline
 \textbf{} & \textbf{CL} & \textbf{CD} & \textbf{CM} & \textbf{top\_transition\_location} & \textbf{bottom\_transition\_location} & \textbf{TOTAL COV} \\ \hline
-\textbf{Coverage} & 94.68 & 94.92 & 95.17 & 94.82 & 94.93 & \textemdash \\ \hline
-\textbf{CI} & [94.39, 94.96] & [94.64, 95.2] & [94.89, 95.43] & [94.53, 95.1] & [94.65, 95.21] & \textemdash \\ \hline
+\textbf{Coverage} & 94.67 & 94.91 & 95.15 & 94.86 & 94.92 & \textemdash \\ \hline
+\textbf{CI} & [94.38, 94.95] & [94.62, 95.18] & [94.87, 95.42] & [94.57, 95.13] & [94.63, 95.19] & \textemdash \\ \hline
 \end{tabular}
 \par\vspace{2pt}
 {\scriptsize Empirical coverage of the 95th-percentile uncertainty bound on the test split.}
