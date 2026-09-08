@@ -91,6 +91,7 @@ E is the key slide: the agent's pipeline reproduces published results on a publi
 - `scp` of `outputs/` fails: the run produced nothing; read the remote run log first.
 - Rate limit / 502 from DAISEI: wait a minute and resend; the agent resumes.
 - Same command failing twice: the agent must stop and report by instruction; paste the verbatim error back to it.
+- Bridge unavailable during the demo: the agent switches to prepare-only mode by instruction — it still generates the full use case plus a `RUN_ME.md` with the exact commands. Run them yourself in a terminal, paste the output back into the chat, and the agent continues with the verification and the verdict. The demo still works: "the agent built it, I only pressed run".
 
 ## 6. Variation for a second demo
 

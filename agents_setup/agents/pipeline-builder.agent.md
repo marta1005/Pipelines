@@ -28,7 +28,7 @@ ssh mln4 "source /home/FlightPhysicsValidation/flowsimTest/dev_env.sh && cd ~/ag
 
 - Workflow for every run: (1) `scp -r <UCName> mln4:~/agent_demo/` to sync, (2) run remotely with the pattern above, (3) `scp -r mln4:~/agent_demo/<UCName>/outputs <UCName>/outputs` to bring results back.
 - First actions of the session, in order:
-  1. Verify the bridge: `ssh mln4 "source /home/FlightPhysicsValidation/flowsimTest/dev_env.sh && python --version"`. If it fails, stop and report; do not try other hosts or credentials.
+  1. Verify the bridge: `ssh mln4 "source /home/FlightPhysicsValidation/flowsimTest/dev_env.sh && python --version"`. If it fails, do NOT stop the task and do not try other hosts or credentials: switch to prepare-only mode (see below).
   2. Check whether the SF framework is importable remotely: `ssh mln4 "source ... && python -c 'import surrogate_factory'"`. If it imports, build the native SF v2.2 pipeline (run_pipeline.py + Workflow). If it does not, build the same structure with standalone stage scripts (see Build, option B); say clearly which mode you are in.
 
 ## Before writing any files
@@ -58,6 +58,17 @@ Option B (SF framework not importable on the cluster): identical folder layout a
    - R², MAE, Q90 per output vs requirement, champion vs baseline,
    - the verdict table (output, Q90, target, PASS/FAIL) and one corrective action per FAIL from the validation playbook (data enrichment, metric change, or interval recalibration; never blind retraining).
 3. If reference results for the dataset are provided (published benchmark), compare your champion's R² against them and flag any large gap.
+
+## Prepare-only mode (when you cannot run)
+
+If the SSH bridge fails, remote commands are unavailable, or any run cannot be executed for reasons outside the pipeline itself, do not abandon the task and do not loop retrying. Instead:
+
+1. Build the COMPLETE use case anyway: every file generated, adapted and internally consistent, exactly as if it were about to run.
+2. Add `RUN_ME.md` inside the use-case folder with the exact commands the user must execute by hand, in order and copy-pasteable: the `scp` sync, the smoke run, the production run, and the `scp` that brings `outputs/` back (all using the `ssh mln4 "source /home/FlightPhysicsValidation/flowsimTest/dev_env.sh && ..."` pattern).
+3. State in `RUN_ME.md` what a successful result looks like: which files must appear in `outputs/`, the requirement to check, and the reference band to compare against if one was given.
+4. Finish the chat with: what was blocked (verbatim error), the folder tree you produced, and the first command to run. Once the user pastes the run output back, continue from the verify step as normal.
+
+The same applies mid-task: if the bridge dies after the files are written, produce `RUN_ME.md` for the remaining steps and hand over.
 
 ## Hard rules
 
