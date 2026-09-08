@@ -1,24 +1,33 @@
-# Runbook: easy-pipeline demo over the SSH bridge to multivac
+# Runbook: pipeline-builder demo over the SSH bridge to multivac
 
-Context: the office PC has no Python. All execution happens on the multivac cluster (`mln4`) through SSH; the agent writes files locally and runs everything remotely. This supersedes the demo section of `RUNBOOK-office-setup-and-demo.md`.
+Demo case: **UCAirfoilNoise**, built on the NASA airfoil self-noise dataset (UCI Machine Learning Repository, dataset 291). It is a real public benchmark, so the agent's result can be contrasted against published numbers instead of trusting the agent's own report.
 
-## 0. One-time SSH setup (5 minutes, do this BEFORE the demo)
+The dataset: 1,503 wind-tunnel measurements of NACA 0012 airfoil sections (NASA, anechoic wind tunnel). 5 inputs: frequency (Hz), angle of attack (deg), chord length (m), free-stream velocity (m/s), suction-side displacement thickness (m). 1 output: scaled sound pressure level (dB), range 103.3 to 140.9 (never crosses zero, so relative Q90 is safe). A semicolon-separated copy with headers is committed at `agents_setup/demo_data/airfoil_self_noise.csv`, so no internet is needed on the office PC.
+
+## Reference results to contrast (independent of the agent)
+
+| Source | Model | R² (test) |
+|---|---|---|
+| Published (MDPI Eng. Proc. 2023, 70/30 split) | Random Forest | 0.929 |
+| Published (same paper) | Gradient Boosting | 0.862 |
+| Published (same paper, best) | Extra Trees | 0.948 |
+| Our own verified run (80/20 split, seed 42, tuned GB) | GradientBoosting (500 trees, depth 5) | 0.954, MAE 0.98 dB, Q90 = 0.019 |
+| Our own verified run (baseline) | LinearRegression | 0.558, MAE 3.67 dB, Q90 = 0.066 |
+
+Acceptance band for the demo: champion R² between 0.86 and 0.96 and Q90 < 0.03 → consistent with the literature, PASS. Linear baseline must fail (the frequency-noise relation is strongly non-linear). If the agent reports R² > 0.99, suspect test-set leakage; if R² < 0.80, the model or split is wrong: both are useful talking points, not demo failures.
+
+## 0. One-time SSH setup (5 minutes, BEFORE the demo)
 
 Goal: passwordless key-based login so the agent never handles a password. Do not put any password in any file; this repo is pushed to GitHub.
 
-1. Generate a key on the office PC (press Enter at every prompt):
-
-```
-ssh-keygen -t ed25519
-```
-
-2. Install the public key on the cluster (you will type your password once, in the terminal only):
+1. Generate a key on the office PC (Enter at every prompt): `ssh-keygen -t ed25519`
+2. Install the public key on the cluster (you type your password once, terminal only):
 
 ```
 ssh c05279@mln4 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys" < ~/.ssh/id_ed25519.pub
 ```
 
-3. Create `~/.ssh/config` on the office PC with exactly:
+3. Create `~/.ssh/config` on the office PC:
 
 ```
 Host mln4
@@ -26,71 +35,63 @@ Host mln4
     User c05279
 ```
 
-4. Test the bridge (must print a Python version with no password prompt):
+4. Test (must print a Python version with no password prompt):
 
 ```
 ssh mln4 "source /home/FlightPhysicsValidation/flowsimTest/dev_env.sh && python --version"
-```
-
-5. Create the working folder on the cluster:
-
-```
 ssh mln4 "mkdir -p ~/agent_demo"
 ```
 
-Security note: the account password was shared in plain text recently. Change it (`passwd` on mln4) after installing the key.
+5. Change the account password (`passwd` on mln4): it was shared in plain text recently.
 
 ## 1. Install the agent
 
-Copy `easy-pipeline.agent.md` to `<workspace>\.github\agents\easy-pipeline.agent.md`, reload VS Code, and check that `easy-pipeline` appears in the Chat agent picker (same procedure as the other agents; "Configure Custom Agents..." as fallback).
+Copy `agents_setup/agents/pipeline-builder.agent.md` to `<workspace>\.github\agents\` and `agents_setup/skills/sf-pipeline/SKILL.md` to `<workspace>\.github\skills\sf-pipeline\`. Reload VS Code and check `pipeline-builder` appears in the Chat agent picker ("Configure Custom Agents..." as fallback). Make sure `agents_setup/demo_data/airfoil_self_noise.csv` is in the workspace.
 
 ## 2. The demo prompt
 
-Select agent `easy-pipeline`, model `(DIV) GPT 120B - medium`, and paste:
+Select agent `pipeline-builder`, model `(DIV) GPT 120B - medium`, and paste:
 
 ```
-Build a small pipeline from scratch that learns the tip deflection of a
-cantilever beam from synthetic data. Follow your default demo spec. Verify
-the SSH bridge first, then show me the plan before writing files.
+Build the use case UCAirfoilNoise end to end from the dataset
+agents_setup/demo_data/airfoil_self_noise.csv (semicolon separated, header row).
+Inputs: frequency_hz, angle_of_attack_deg, chord_length_m, velocity_ms,
+displacement_thickness_m. Output: spl_db. Requirement: Q90 < 0.03 relative
+error on the test set. This is the public NASA airfoil self-noise dataset;
+published tree-ensemble results reach R2 0.86-0.95, so compare your champion
+against that range. Verify the SSH bridge first and show me the plan before
+writing files.
 ```
 
-The agent must NOT copy any existing UC folder. If it proposes copying anything, reject the step and tell it to re-read its instructions.
+If the agent proposes copying an existing UC folder, reject the step and tell it to re-read its instructions: every file must be generated for this dataset.
 
 ## 3. What a correct run looks like
 
-1. Bridge check: `ssh mln4 "source ... && python --version"` succeeds.
-2. Plan: 5 files (`generate_data.py`, `train.py`, `validate.py`, `run_pipeline.py`, `README.md`), the physics formula, the Q90 < 0.05 requirement. Approve it.
-3. Agent writes the files locally under `UCEasy/` (all generated, each under 80 lines).
-4. Sync + smoke run (100 points), then full run (2,000 points):
-
-```
-scp -r UCEasy mln4:~/agent_demo/
-ssh mln4 "source /home/FlightPhysicsValidation/flowsimTest/dev_env.sh && cd ~/agent_demo/UCEasy && python run_pipeline.py"
-scp -r mln4:~/agent_demo/UCEasy/outputs UCEasy/outputs
-```
-
-5. Final report in chat: metrics table (GradientBoosting champion vs LinearRegression baseline: R2, MAE, Q90), `outputs/verdict.txt` with PASS, and `outputs/pred_vs_true.png`.
-
-Expected result: GB passes Q90 < 0.05 comfortably; the linear baseline fails (the law is cubic in L, so a linear model cannot fit it). That contrast is the story: the agent built, ran, and validated the pipeline end to end, and the verdict is physically explainable.
+1. Bridge check passes; the agent states whether `surrogate_factory` is importable on the cluster (native SF mode) or not (standalone-stages mode, same folder structure).
+2. Plan: UCAirfoilNoise tree with `pipeline_config.yaml`, `metadata/SF_1..SF_9.yaml`, nodes, `run_pipeline.py`; champion (GradientBoosting or RandomForest) and baseline (LinearRegression) with one-line justifications. Approve it.
+3. Files generated, `scp` to `~/agent_demo/UCAirfoilNoise`, smoke run on a subsample, then full run; `outputs/` copied back.
+4. Final report: verdict table with Q90 vs 0.03, champion vs baseline, and the comparison against the published R² range.
 
 ## 4. Evidence to capture for the slides
 
 | # | Acceptance check | Evidence |
 |---|---|---|
-| A | Bridge verified: `python --version` over SSH before anything else | chat screenshot |
-| B | Plan shown and approved; no mention of copying an existing UC | chat screenshot |
-| C | `UCEasy/` tree with the 5 generated files | explorer screenshot |
-| D | Remote run completes; `outputs/metrics.json` + `verdict.txt` PASS | terminal screenshot |
-| E | `pred_vs_true.png` plus the champion-vs-baseline interpretation | image + chat screenshot |
+| A | Bridge verified over SSH before anything else; SF-import check reported | chat screenshot |
+| B | Plan shown and approved; no copying of any existing UC | chat screenshot |
+| C | UCAirfoilNoise tree with generated config + 9 stage YAMLs + run_pipeline.py | explorer screenshot |
+| D | Remote run completes; verdict PASS with Q90 < 0.03 | terminal screenshot |
+| E | Champion R² inside the published 0.86-0.95 band; linear baseline fails | chat screenshot + metrics.json |
+
+E is the key slide: the agent's pipeline reproduces published results on a public NASA benchmark. That is external, checkable proof, not the agent grading its own homework.
 
 ## 5. Troubleshooting
 
-- Password prompt appears: the key install (step 0.2) did not work; redo it. Never type the password into the chat.
-- `python: command not found`: the `source .../dev_env.sh` part is missing from the remote command; every remote call must include it (each SSH command is a fresh shell).
-- `scp` fails on `outputs/`: the run did not produce outputs; check the remote run log first.
+- Password prompt appears: key install (step 0.2) failed; redo it. Never type the password into the chat.
+- `python: command not found`: the remote command is missing `source .../dev_env.sh`; every SSH call is a fresh shell and must include it.
+- `scp` of `outputs/` fails: the run produced nothing; read the remote run log first.
 - Rate limit / 502 from DAISEI: wait a minute and resend; the agent resumes.
-- Agent stalls repeating the same failing command: it must stop after 2 identical failures by instruction; if not, stop it and paste the exact error back.
+- Same command failing twice: the agent must stop and report by instruction; paste the verbatim error back to it.
 
-## 6. Variations for a second demo
+## 6. Variation for a second demo
 
-The agent's spec says "unless the user specifies another problem": ask for any other simple law (projectile range, RC discharge, ideal gas) and it will generate a different pipeline from scratch with the same 5-file structure. That is the proof it is not template-pasting.
+Ask for a different public dataset with the same prompt shape (e.g. UCI Concrete Compressive Strength or Combined Cycle Power Plant) — the agent generates a different, adapted pipeline with the same SF structure. That, plus the benchmark match, is the proof it adapts instead of template-pasting.
