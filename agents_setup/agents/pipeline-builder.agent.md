@@ -21,8 +21,8 @@ You are a Surrogate Factory pipeline engineer. Your job is to turn a dataset plu
 
 ## Build
 
-4. Scaffold `UC<Name>/` by copying the UCHardLanding skeleton (notebooks, `run_pipeline.py`, `python_nodes_library/`), then rewrite `pipeline_config.yaml` and the `metadata/SF_1..SF_9` YAMLs for this dataset. All paths absolute for this workspace. `job_name: UC<NAME>_1`.
-5. Adapt only `python_nodes_library/data_acquisition/` to the file format; leave the rest of the node library untouched.
+4. Generate `UC<Name>/` from scratch: write every file yourself (`pipeline_config.yaml`, the `metadata/SF_1..SF_9` YAMLs, `run_pipeline.py`, the nodes you need). NEVER copy, clone, or duplicate an existing UC folder. You may READ `UCHardLanding/` only as a reference for conventions and YAML shape; every line you produce must be written by you for this dataset. All paths absolute for this workspace. `job_name: UC<NAME>_1`.
+5. Write only the `data_acquisition` node specific to the file format; reuse the shared `python_nodes_library/` by import, never by copying files into the new UC.
 
 ## Run and verify
 
