@@ -1192,6 +1192,23 @@ def _analysis_plots(best, csv_dir, plots_dir, q90_target, scatter_cfg=None):
             multiPlotsKwargs={'tight_layout': True}),
         'pey_abserr_violin.png'))
 
+    # Trend tests, same call as the template's P(E|Y) cells (trend_table on the
+    # true outputs). multiple_tables=False keeps the diagonal — each output's
+    # error against its own true value — in one compact table per method:
+    # coefficient, trend-test p-value and (Pearson) the normalized slope.
+    def _pey_trend_tables():
+        for key, mdf, mname in (('res', residue_df, 'Residue'),
+                                ('abs', abserr_df, 'Absolute error')):
+            for method in ('pearson', 'spearman'):
+                styler = validationlib.tests.bias.trend_table(
+                    yt_test, mdf, multiple_tables=False, method=method)[0]
+                tables[f'pey_{key}_{method}'] = _table_pair(
+                    styler,
+                    tex_caption=rf'{mname} vs.\ its true output --- '
+                                rf'{method.capitalize()} trend test')
+                print(f'  table: pey_{key}_{method}')
+    _step('pey_trend_tables', _pey_trend_tables)
+
     # ── 3.6 UNCERTAINTY ───────────────────────────────────────────────────────
     # The template's global binned uncertainty model (bins=1), trained on the
     # validation split and covered on test. Needs a validation split.
@@ -1485,14 +1502,24 @@ def _part3(d, best, paths, stats, out_dir):
         r'A significant trend (Pearson or Spearman $p<0.05$) means the model is more accurate '
         r'in some output ranges than others --- a form of heteroscedasticity.' + '\n\n'
         + _keep(r'\exhead{Residue vs True Output --- Scatter}',
-              r'Pearson r and p-value shown in title. Red title = significant linear trend.' + '\n'
-              + _fig('pey_residue_scatter'))
+                r'The legend shows the least-squares fit and its R\textsuperscript{2}.' + '\n'
+                + _fig('pey_residue_scatter'))
+        + ((_keep(r'\exhead{Residue Trend Tests (Pearson / Spearman)}',
+                  r"Each output's residue against its own true value, as the extended "
+                  r'validation notebook computes them: correlation coefficient, trend-test '
+                  r'p-value ($p<0.05$ = significant trend) and, for Pearson, the normalized '
+                  r'slope. The full cross-output tables are in the extended validation HTML.' + '\n'
+                  + _tbl('pey_res_pearson') + _tbl('pey_res_spearman')))
+           if _tbl('pey_res_pearson') else '')
         + _keep(r'\exhead{Residue Violin vs True Output Bins}',
                 r'Bins determined by Sturges rule. Median line dashed at 0.' + '\n'
                 + _fig('pey_residue_violin'))
         + _keep(r'\exhead{Absolute Error vs True Output --- Scatter}',
-                r'Spearman r shown. Red title = significant monotonic trend.' + '\n'
+                r'The legend shows the least-squares fit and its R\textsuperscript{2}.' + '\n'
                 + _fig('pey_abserr_scatter'))
+        + ((_keep(r'\exhead{Absolute Error Trend Tests (Pearson / Spearman)}',
+                  _tbl('pey_abs_pearson') + _tbl('pey_abs_spearman')))
+           if _tbl('pey_abs_pearson') else '')
         + _keep(r'\exhead{Absolute Error Violin vs True Output Bins}',
                 _fig('pey_abserr_violin'))
 
@@ -1669,8 +1696,12 @@ nav a{color:#004680}"""
 
 {_section("d5","3.5 P(E|Y) &mdash; Error Conditional on Outputs",
     "<h3>Residue vs True Output (scatter)</h3>" + _img("pey_residue_scatter") +
+    _tblh("pey_res_pearson", "Residue Trend Test (Pearson)") +
+    _tblh("pey_res_spearman", "Residue Trend Test (Spearman)") +
     "<h3>Residue Violin vs Output Bins</h3>" + _img("pey_residue_violin") +
     "<h3>Absolute Error vs True Output (scatter)</h3>" + _img("pey_abserr_scatter") +
+    _tblh("pey_abs_pearson", "Absolute Error Trend Test (Pearson)") +
+    _tblh("pey_abs_spearman", "Absolute Error Trend Test (Spearman)") +
     "<h3>Absolute Error Violin vs Output Bins</h3>" + _img("pey_abserr_violin")
 )}
 

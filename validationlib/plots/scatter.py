@@ -463,10 +463,11 @@ def scatterplot(
             mNorm = m * (b - a) / (np.max(dataY) - np.min(dataY))
             y_corraxs = m * x_corraxs + bb
             r, _ = st.pearsonr(dataX, dataY)
+            r2 = r * r  # the label says R2; for a univariate linear fit R2 = r^2
             if fit_info == "normalized":
-                axes.plot(x_corraxs, y_corraxs, label=f"Normalized slope: {mNorm:.{significant_figures}g}\nR2: {r:.{significant_figures}g}", color="black", linewidth=0.5)
+                axes.plot(x_corraxs, y_corraxs, label=f"Normalized slope: {mNorm:.{significant_figures}g}\nR2: {r2:.{significant_figures}g}", color="black", linewidth=0.5)
             elif fit_info == "default":
-                axes.plot(x_corraxs, y_corraxs, label=f"y={m:.{significant_figures}g}x + {bb:.{significant_figures}g}\nR2: {r:.{significant_figures}g}", color="black", linewidth=0.5)
+                axes.plot(x_corraxs, y_corraxs, label=f"y={m:.{significant_figures}g}x + {bb:.{significant_figures}g}\nR2: {r2:.{significant_figures}g}", color="black", linewidth=0.5)
             else:
                 raise ValueError("fit_info must be 'default' or 'normalized'")
             axes.legend(loc="best")
